@@ -33,7 +33,11 @@ struct FriendsTabView: View {
 
                     }
                     .sheet(isPresented: $showShareSheet) {
-                        ShareCardSheetView()
+                        if let myCard = cards.first {  // 임시로 가장 첫 번째 카드
+                            ShareCardSheetView(myCard: myCard)
+                        } else {
+                            Text("카드가 없습니다.")
+                        }
                     }
                 }
                 .padding()
