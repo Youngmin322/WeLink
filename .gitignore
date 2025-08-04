@@ -1,0 +1,50 @@
+# Xcode
+build/
+DerivedData/
+*.xcworkspace
+!default.xcworkspace
+xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.xcuserdatad
+
+# SwiftPM
+.swiftpm/
+.build/
+
+# SwiftData / CoreData
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Swift Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Bundler
+.bundle/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Misc
+*.log
+*.DS_Store
+*.swp
+*.orig
+
+# Firebase / GoogleService
+GoogleService-Info.plist
+
+# User secrets (customize as needed)
+Secrets.swift
