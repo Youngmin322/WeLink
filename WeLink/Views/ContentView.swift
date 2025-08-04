@@ -27,6 +27,7 @@ struct ContentView: View {
         }
     }
 }
+
 #Preview {
     ContentView()
         .modelContainer(for: CardModel.self, inMemory: true)

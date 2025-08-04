@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct FriendsTabView: View {
+    @State private var showShareSheet = false
     @Query private var cards: [CardModel]
 
     var body: some View {
@@ -19,10 +20,29 @@ struct FriendsTabView: View {
                         ProfileCardView(card: card)
                             .frame(width: 300)
                     }
+                    Button(action: {
+                        showShareSheet = true
+                    }) {
+                        VStack {
+                            Image(systemName: "plus.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(.blue)
+                        }
+
+                    }
+                    .sheet(isPresented: $showShareSheet) {
+                        ShareCardSheetView()
+                    }
                 }
                 .padding()
             }
             .navigationTitle("친구")
         }
     }
+}
+
+#Preview {
+    FriendsTabView()
 }
