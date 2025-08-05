@@ -26,3 +26,7 @@ struct FriendsTabView: View {
         }
     }
 }
+
+#Preview{
+    FriendsTabView()
+}
