@@ -52,7 +52,9 @@ struct FriendsTabView: View {
                 
                 HStack {
                     Spacer()
-                    Button(action: addDummyCard) {
+                    Button(action: {
+                        showShareSheet = true
+                    }) {
                         Image(systemName: "plus.circle.fill")
                             .font(.system(size: 40))
                             .foregroundColor(Color("MainColor"))
@@ -62,6 +64,13 @@ struct FriendsTabView: View {
                 .padding(.bottom, 40)
                 .padding(.horizontal)
                 .padding(.top, 20)
+                .sheet(isPresented: $showShareSheet) {
+                    if cards.indices.contains(selectedIndex) {
+                        ShareCardSheetView(myCard: cards[selectedIndex])
+                    } else {
+                        Text("선택된 카드가 없습니다.")
+                    }
+                }
 
             }
             .navigationTitle("친구")
