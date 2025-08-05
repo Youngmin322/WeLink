@@ -8,78 +8,56 @@
 import SwiftUI
 
 struct ContentView: View {
-    init() {
-        let appearance = UITabBarAppearance()
-        appearance.configureWithTransparentBackground()
-
-        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
-        appearance.backgroundEffect = blurEffect
-        appearance.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-
-        let mainColor = UIColor(Color("MainColor"))
-        appearance.stackedLayoutAppearance.selected.iconColor = mainColor
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: mainColor]
-
-        appearance.stackedLayoutAppearance.normal.iconColor = .white
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white]
-
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-        UITabBar.appearance().layer.cornerRadius = 26
-        UITabBar.appearance().layer.masksToBounds = true
-        UITabBar.appearance().layer.borderWidth = 0
-        UITabBar.appearance().clipsToBounds = true
-    }
-    
     @State private var selectedTab = 1
 
     var body: some View {
-        ZStack {
-            ZStack(alignment: .bottom) {
-                TabView(selection: $selectedTab) {
+        ZStack(alignment: .bottom) {
+            // 선택된 탭에 따라 뷰 표시
+            Group {
+                if selectedTab == 0 {
                     MenuTabView()
-                        .tag(0)
+                } else if selectedTab == 1 {
                     FriendsTabView()
-                        .tag(1)
+                } else if selectedTab == 2 {
                     MyProfileTabView()
-                        .tag(2)
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            // 커스텀 탭바
+            ZStack {
+                Rectangle()
+                    .foregroundColor(.clear)
+                    .frame(width: 364, height: 55)
+                    .background(Color(red: 0.16, green: 0.16, blue: 0.16).opacity(0.5))
+                    .cornerRadius(31)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 31)
+                            .inset(by: 0.75)
+                            .stroke(Color(red: 0.28, green: 0.28, blue: 0.28), lineWidth: 1.0)
+                    )
                 
-                ZStack {
-                    Rectangle()
-                        .foregroundColor(.clear)
-                        .frame(width: 364, height: 55)
-                        .background(Color(red: 0.16, green: 0.16, blue: 0.16).opacity(0.5))
-                        .cornerRadius(31)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 31)
-                                .inset(by: 0.75)
-                                .stroke(Color(red: 0.28, green: 0.28, blue: 0.28), lineWidth: 1.0)
-                        )
-                    
-                    HStack(spacing: 0) {
-                        TabBarItem(title: "메뉴", systemImage: "line.3.horizontal", isSelected: selectedTab == 0)
-                            .frame(maxWidth: .infinity)
-                            .onTapGesture {
-                                selectedTab = 0
-                            }
-                        TabBarItem(title: "메인", systemImage: "person.3.fill", isSelected: selectedTab == 1)
-                            .frame(maxWidth: .infinity)
-                            .onTapGesture {
-                                selectedTab = 1
-                            }
-                        TabBarItem(title: "마이페이지", systemImage: "person.crop.circle", isSelected: selectedTab == 2)
-                            .frame(maxWidth: .infinity)
-                            .onTapGesture {
-                                selectedTab = 2
-                            }
-                    }
-                    .padding(.horizontal, 12)
+                HStack(spacing: 0) {
+                    TabBarItem(title: "메뉴", systemImage: "line.3.horizontal", isSelected: selectedTab == 0)
+                        .frame(maxWidth: .infinity)
+                        .onTapGesture {
+                            selectedTab = 0
+                        }
+                    TabBarItem(title: "메인", systemImage: "person.3.fill", isSelected: selectedTab == 1)
+                        .frame(maxWidth: .infinity)
+                        .onTapGesture {
+                            selectedTab = 1
+                        }
+                    TabBarItem(title: "마이페이지", systemImage: "person.crop.circle", isSelected: selectedTab == 2)
+                        .frame(maxWidth: .infinity)
+                        .onTapGesture {
+                            selectedTab = 2
+                        }
                 }
-                .padding(.bottom, -20)
+                .padding(.horizontal, 12)
             }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
@@ -116,23 +94,6 @@ struct TabBarItem: View {
                 .font(.system(size: 24, weight: isSelected ? .medium : .regular))
         }
         .padding(.horizontal, 8)
-    }
-}
-
-struct FloatingTabBarModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(.bottom, 10)
-            .background(
-                Color.clear
-                    .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: -1)
-            )
-    }
-}
-
-extension View {
-    func floatingTabBarStyle() -> some View {
-        self.modifier(FloatingTabBarModifier())
     }
 }
 
