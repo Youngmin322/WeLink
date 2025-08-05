@@ -59,7 +59,7 @@ struct ContentView: View {
                         .offset(x: selectedTabOffset)
                         .animation(.easeInOut(duration: 0.3), value: selectedTab)
                 }
-                .frame(height: 55)
+                .frame(height: 50)
                 
                 HStack(spacing: 0) {
                     TabBarItem(title: "메뉴", systemImage: "line.3.horizontal", isSelected: selectedTab == 0)
