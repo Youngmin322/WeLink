@@ -12,7 +12,6 @@ struct ContentView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // 선택된 탭에 따라 뷰 표시
             Group {
                 if selectedTab == 0 {
                     MenuTabView()
@@ -37,21 +36,52 @@ struct ContentView: View {
                             .stroke(Color(red: 0.28, green: 0.28, blue: 0.28), lineWidth: 1.0)
                     )
                 
+                // 애니메이션 오버레이
+                GeometryReader { geometry in
+                    let tabWidth = (geometry.size.width - 24) / 3
+                    let overlayWidth = tabWidth - 16
+                    let selectedTabOffset = CGFloat(selectedTab) * tabWidth + 12 + (tabWidth - overlayWidth) / 2
+                    
+                    RoundedRectangle(cornerRadius: 25)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.9),
+                                    Color.white.opacity(0.5),
+                                    Color.gray.opacity(0.3)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 2
+                        )
+                        .frame(width: overlayWidth, height: 50)
+                        .offset(x: selectedTabOffset)
+                        .animation(.easeInOut(duration: 0.3), value: selectedTab)
+                }
+                .frame(height: 55)
+                
                 HStack(spacing: 0) {
                     TabBarItem(title: "메뉴", systemImage: "line.3.horizontal", isSelected: selectedTab == 0)
                         .frame(maxWidth: .infinity)
                         .onTapGesture {
-                            selectedTab = 0
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedTab = 0
+                            }
                         }
                     TabBarItem(title: "메인", systemImage: "person.3.fill", isSelected: selectedTab == 1)
                         .frame(maxWidth: .infinity)
                         .onTapGesture {
-                            selectedTab = 1
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedTab = 1
+                            }
                         }
                     TabBarItem(title: "마이페이지", systemImage: "person.crop.circle", isSelected: selectedTab == 2)
                         .frame(maxWidth: .infinity)
                         .onTapGesture {
-                            selectedTab = 2
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedTab = 2
+                            }
                         }
                 }
                 .padding(.horizontal, 12)
@@ -73,25 +103,12 @@ struct TabBarItem: View {
                 .frame(maxWidth: .infinity, maxHeight: 50)
                 .background(Color.clear)
                 .cornerRadius(25)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 25)
-                        .stroke(
-                            LinearGradient(
-                                colors: isSelected ? [
-                                    Color.white.opacity(0.9),
-                                    Color.white.opacity(0.5),
-                                    Color.gray.opacity(0.3)
-                                ] : [Color.clear],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ),
-                            lineWidth: isSelected ? 2 : 0
-                        )
-                )
             
             Image(systemName: systemImage)
                 .foregroundColor(isSelected ? Color("MainColor") : .white)
                 .font(.system(size: 24, weight: isSelected ? .medium : .regular))
+                .scaleEffect(isSelected ? 1.1 : 1.0)
+                .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
         .padding(.horizontal, 8)
     }
