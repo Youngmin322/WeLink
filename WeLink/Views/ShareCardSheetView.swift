@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ShareCardSheetView: View {
     @StateObject var mpc = MultipeerManager()
+    @State private var dotCount: Int = 0
+    @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    
     let myCard: CardModel
 
     var body: some View {
@@ -17,10 +20,8 @@ struct ShareCardSheetView: View {
                 .font(.title)
                 .bold()
 
-            Button("연결 시작") {
-                mpc.startHosting()
-                mpc.startBrowsing()
-            }
+            Text("주변 기기를 검색 중" + String(repeating: ".", count: dotCount))
+                .foregroundColor(.gray)
 
             Button("내 카드 전송") {
                 mpc.sendCard(myCard)
@@ -34,9 +35,20 @@ struct ShareCardSheetView: View {
             Spacer()
         }
         .padding()
+        .onAppear {
+            mpc.startHosting()
+            mpc.startBrowsing()
+        }
+        .onDisappear {
+             mpc.stopHosting()
+             mpc.stopBrowsing()
+        }
+        .onReceive(dotTimer) { _ in
+            dotCount = (dotCount + 1) % 4
+        }
     }
 }
 
 //#Preview {
-//    ShareCardSheetView(, myCard: CardModel())
+//    ShareCardSheetView(myCard: CardModel())
 //}

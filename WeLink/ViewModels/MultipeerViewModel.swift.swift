@@ -17,6 +17,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     private var browser: MCNearbyServiceBrowser!
 
     @Published var receivedCard: CardModel?
+    @Published var isConnected: Bool = false
 
     override init() {
         super.init()
@@ -38,6 +39,20 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         browser.startBrowsingForPeers()
     }
 
+    func stopHosting() {
+        advertiser.stopAdvertisingPeer()
+    }
+
+    func stopBrowsing() {
+        browser.stopBrowsingForPeers()
+    }
+
+    func disconnect() {
+        session.disconnect()
+        stopHosting()
+        stopBrowsing()
+    }
+
     func sendCard(_ card: CardModel) {
         guard !session.connectedPeers.isEmpty else { return }
         do {
@@ -50,6 +65,9 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     
     // MARK: - MCSessionDelegate
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+        DispatchQueue.main.async {
+            self.isConnected = !session.connectedPeers.isEmpty
+        }
         print("Peer \(peerID.displayName) changed state to \(state.rawValue)")
     }
 
