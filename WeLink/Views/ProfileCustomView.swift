@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-
-
 struct ProfileCustom: View {
     
     @State private var name: String = ""
