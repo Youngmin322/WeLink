@@ -31,6 +31,13 @@ struct FriendsTabView: View {
                         Circle()
                             .fill(index == selectedIndex ? Color.blue.opacity(0.8) : Color.white.opacity(0.4))
                             .frame(width: 10, height: 10)
+                            .onTapGesture {
+                                if index < cards.count {
+                                    DispatchQueue.main.async {
+                                        selectedIndex = index
+                                    }
+                                }
+                            }
                     }
                 }
                 .padding(10)
