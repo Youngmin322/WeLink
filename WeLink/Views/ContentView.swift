@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 1
-
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
@@ -95,7 +95,7 @@ struct TabBarItem: View {
     let title: String
     let systemImage: String
     let isSelected: Bool
-
+    
     var body: some View {
         ZStack {
             Rectangle()
