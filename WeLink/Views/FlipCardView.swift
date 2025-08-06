@@ -6,13 +6,32 @@ struct FlipCardView: View {
 
     var body: some View {
         ZStack {
-            frontView
-                .opacity(isFlipped ? 0.0 : 1.0)
-            backView
-                .opacity(isFlipped ? 1.0 : 0.0)
+            // 카드 배경에 이미지
+            if let uiImage = UIImage(data: card.imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 300, height: 400)
+                    .clipped()
+            } else {
+                Color.gray
+            }
+
+            // 반투명 어둡게 (텍스트 가독성 ↑)
+            Rectangle()
+                .fill(Color.black.opacity(0.3))
+                .cornerRadius(20)
+
+            // 카드 내용
+            ZStack {
+                frontView
+                    .opacity(isFlipped ? 0.0 : 1.0)
+                backView
+                    .opacity(isFlipped ? 1.0 : 0.0)
+            }
+            .padding()
         }
         .frame(width: 300, height: 400)
-        .background(Color.white)
         .cornerRadius(20)
         .shadow(radius: 5)
         .rotation3DEffect(
@@ -24,35 +43,40 @@ struct FlipCardView: View {
 
     private var frontView: some View {
         VStack(spacing: 10) {
-            if let uiImage = UIImage(data: card.imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 180)
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
-            } else {
-                Color.gray.frame(height: 180)
-            }
-
+            Spacer()
             Text(card.name)
                 .font(.title)
+                .foregroundColor(.white)
                 .bold()
             Text("\(card.age)세")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white)
+            Text(card.cardDescription)
+                .font(.body)
+                .foregroundColor(.white)
+                .padding(.horizontal)
             Text(card.tag)
                 .font(.caption)
-                .foregroundColor(.blue)
+                .foregroundColor(.yellow)
+            HStack(spacing: 10) {
+                Text(card.birthDate)
+                    .font(.caption)
+                    .foregroundColor(.white)
+                Text(card.mbti)
+                    .font(.caption)
+                    .foregroundColor(.yellow)
+            }
         }
-        .padding()
     }
 
     private var backView: some View {
         VStack(spacing: 10) {
             Text("설명")
                 .font(.headline)
+                .foregroundColor(.white)
             Text(card.cardDescription)
                 .font(.body)
+                .foregroundColor(.white)
                 .padding(.horizontal)
             Spacer()
             HStack {
@@ -61,12 +85,13 @@ struct FlipCardView: View {
                 Text("MBTI: \(card.mbti)")
             }
             .font(.footnote)
+            .foregroundColor(.white)
             .padding(.horizontal)
             Text("D-\(card.dDay)")
                 .font(.footnote)
+                .foregroundColor(.white)
                 .padding(.top, 5)
         }
-        .padding()
         .rotation3DEffect(
             .degrees(180),
             axis: (x: 0, y: 1, z: 0)

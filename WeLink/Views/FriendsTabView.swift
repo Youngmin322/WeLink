@@ -10,45 +10,39 @@ struct FriendsTabView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                ScrollViewReader { proxy in
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
-                                FlipCardView(card: card, isFlipped: flippedCards.contains(card.id))
-                                    .frame(width: 300, height: 400)
-                                    .id(index)
-                                    .onTapGesture {
-                                        toggleFlip(card)
-                                        selectedIndex = index
-                                    }
+            VStack(spacing: 0) {
+                // 카드 스와이프
+                TabView(selection: $selectedIndex) {
+                    ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
+                        FlipCardView(card: card, isFlipped: flippedCards.contains(card.id))
+                            .frame(width: 300, height: 400)
+                            .tag(index)
+                            .onTapGesture {
+                                toggleFlip(card)
                             }
-                        }
-                        .padding()
                     }
-
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(Array(cards.enumerated()), id: \.element.id) { index, _ in
-                                Circle()
-                                    .fill(index == selectedIndex ? Color.blue : Color.gray.opacity(0.5))
-                                    .frame(width: 20, height: 20)
-                                    .onTapGesture {
-                                        withAnimation {
-                                            proxy.scrollTo(index, anchor: .center)
-                                            selectedIndex = index
-                                        }
-                                    }
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)  // ← 여기
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
-                    }
-
                 }
-                
-                
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .frame(height: 420)
+
+                // 글라스모피즘 인디케이터
+                HStack(spacing: 10) {
+                    ForEach(cards.indices, id: \.self) { index in
+                        Circle()
+                            .fill(index == selectedIndex ? Color.blue.opacity(0.8) : Color.white.opacity(0.4))
+                            .frame(width: 10, height: 10)
+                    }
+                }
+                .padding(10)
+                .background(
+                    BlurView(style: .systemThinMaterial)
+                        .clipShape(Capsule())
+                        .opacity(0.8)
+                )
+                .padding(.top, 8)
+                .padding(.bottom, 16)
+
+                // 하단 추가 버튼
                 HStack {
                     Spacer()
                     Button(action: addDummyCard) {
@@ -56,12 +50,9 @@ struct FriendsTabView: View {
                             .font(.system(size: 40))
                             .foregroundColor(Color("MainColor"))
                     }
-
                 }
                 .padding(.bottom, 40)
                 .padding(.horizontal)
-                .padding(.top, 20)
-
             }
             .navigationTitle("친구")
             .onAppear {
