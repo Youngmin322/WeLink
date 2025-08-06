@@ -19,19 +19,11 @@ class CardModel: Codable {
     var tag: String
     var dDay: Int
     var imageData: Data
-<<<<<<< HEAD
-    
-    enum CodingKeys: String, CodingKey {
-        case id, name, age, cardDescription, birthDate, mbti, tag, dDay, imageData
-    }
-    
-=======
 
     enum CodingKeys: String, CodingKey {
         case id, name, age, cardDescription, birthDate, mbti, tag, dDay, imageData
     }
 
->>>>>>> feature/mypage
     init(id: UUID = UUID(), name: String, age: Int, description: String, birthDate: String, mbti: String, tag: String, dDay: Int, imageData: Data) {
         self.id = id
         self.name = name
@@ -43,11 +35,7 @@ class CardModel: Codable {
         self.dDay = dDay
         self.imageData = imageData
     }
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> feature/mypage
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(UUID.self, forKey: .id)
@@ -60,11 +48,7 @@ class CardModel: Codable {
         self.dDay = try container.decode(Int.self, forKey: .dDay)
         self.imageData = try container.decode(Data.self, forKey: .imageData)
     }
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> feature/mypage
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -77,55 +61,4 @@ class CardModel: Codable {
         try container.encode(dDay, forKey: .dDay)
         try container.encode(imageData, forKey: .imageData)
     }
-<<<<<<< HEAD
-}
-
-// 테스트용 목업 데이터 extension
-extension CardModel {
-    static let mockCard1 = CardModel(
-        name: "조영민",
-        age: 26,
-        description: "iOS 개발자입니다. 좋은 앱을 만들고 싶어요!",
-        birthDate: "1998-05-15",
-        mbti: "INFP",
-        tag: "개발자",
-        dDay: 120,
-        imageData: Data()
-    )
-    
-    static let mockCard2 = CardModel(
-        name: "김철수",
-        age: 25,
-        description: "안녕하세요! 백엔드 개발자 김철수입니다.",
-        birthDate: "1999-03-15",
-        mbti: "ENFP",
-        tag: "백엔드",
-        dDay: 100,
-        imageData: Data()
-    )
-    
-    static let mockCard3 = CardModel(
-        name: "이영희",
-        age: 28,
-        description: "UI/UX 디자이너 이영희입니다!",
-        birthDate: "1996-07-22",
-        mbti: "INFJ",
-        tag: "디자이너",
-        dDay: 50,
-        imageData: Data()
-    )
-    
-    // 기본 테스트용 카드
-    static let defaultMockCard = CardModel(
-        name: "홍길동",
-        age: 30,
-        description: "반갑습니다!",
-        birthDate: "1994-01-01",
-        mbti: "ISFJ",
-        tag: "일반",
-        dDay: 365,
-        imageData: Data()
-    )
-=======
->>>>>>> feature/mypage
 }
