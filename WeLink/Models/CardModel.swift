@@ -19,11 +19,19 @@ class CardModel: Codable {
     var tag: String
     var dDay: Int
     var imageData: Data
+<<<<<<< HEAD
     
     enum CodingKeys: String, CodingKey {
         case id, name, age, cardDescription, birthDate, mbti, tag, dDay, imageData
     }
     
+=======
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, age, cardDescription, birthDate, mbti, tag, dDay, imageData
+    }
+
+>>>>>>> feature/mypage
     init(id: UUID = UUID(), name: String, age: Int, description: String, birthDate: String, mbti: String, tag: String, dDay: Int, imageData: Data) {
         self.id = id
         self.name = name
@@ -35,7 +43,11 @@ class CardModel: Codable {
         self.dDay = dDay
         self.imageData = imageData
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> feature/mypage
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(UUID.self, forKey: .id)
@@ -48,7 +60,11 @@ class CardModel: Codable {
         self.dDay = try container.decode(Int.self, forKey: .dDay)
         self.imageData = try container.decode(Data.self, forKey: .imageData)
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> feature/mypage
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -61,6 +77,7 @@ class CardModel: Codable {
         try container.encode(dDay, forKey: .dDay)
         try container.encode(imageData, forKey: .imageData)
     }
+<<<<<<< HEAD
 }
 
 // 테스트용 목업 데이터 extension
@@ -109,4 +126,6 @@ extension CardModel {
         dDay: 365,
         imageData: Data()
     )
+=======
+>>>>>>> feature/mypage
 }
