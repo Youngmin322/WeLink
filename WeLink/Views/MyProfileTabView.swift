@@ -46,7 +46,41 @@ struct MyProfileTabView: View {
                         }
                         
                     }
+                    
                     .padding(.bottom,50)
+                    
+                    if showMenu {
+                                    VStack{
+                                        Button("프로필 수정") {
+                                            // 액션
+                                            print("프로필 수정")
+                                            showMenu = false
+                                        }
+                                        .padding()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .background(Color(.darkGray))
+                                        .foregroundColor(.white)
+
+                                        Divider().background(Color.white)
+
+                                        Button("취향 카테고리 수정") {
+                                            // 액션
+                                            print("취향 카테고리 수정")
+                                            showMenu = false
+                                        }
+                                        .padding()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .background(Color(.darkGray))
+                                        .foregroundColor(.white)
+                                    }
+                                    .background(Color(.darkGray))
+                                    .cornerRadius(12)
+                                    .frame(width: 160)
+                                    .shadow(radius: 5)
+                                    .offset(x: 60, y: -40)
+                                    .transition(.opacity)
+                                }
+                    
                     FlipCard {
                         ZStack {
                             Image("Winter")
@@ -340,6 +374,11 @@ struct MyProfileTabView: View {
             }
         }
     }
+}
+
+
+#Preview {
+    MyProfileTabView()
 }
 
 //

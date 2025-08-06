@@ -142,7 +142,7 @@ struct MyProfileTabDetailView: View {
     }
 }
 
-//
-//#Preview {
-//    MyProfileTabDetailView()
-//}
+
+#Preview {
+    MyProfileTabDetailView()
+}
