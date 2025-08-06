@@ -31,20 +31,19 @@ struct MyProfileTabView: View {
                             .font(.system(size: 35))
                             .bold()
                         
-                       
                         Button(action: {
                             withAnimation {
                                 showMenu.toggle()
-                                              }
-                                          })
+                            }
+                        })
                         {
-                                              Image(systemName: "ellipsis")
-                                                  .foregroundColor(Color("MainColor"))
-                                                  .font(.system(size: 24))
-                                                  .rotationEffect(Angle(degrees: 90))
-                                                  .bold()
-                                                  .padding()
-                                          }
+                            Image(systemName: "ellipsis")
+                                .foregroundColor(Color("MainColor"))
+                                .font(.system(size: 24))
+                                .rotationEffect(Angle(degrees: 90))
+                                .bold()
+                                .padding()
+                        }
                         
                     }
                     .padding(.bottom,50)
@@ -77,21 +76,21 @@ struct MyProfileTabView: View {
                                     .bold()
                                     .padding([.top, .trailing], 16)
                                     .offset(x: 100, y: -145)
-
+                                
                                 HStack {
                                     Text("Winter")
                                         .foregroundColor(.white)
                                         .font(.system(size: 40))
                                         .bold()
                                         .offset(x: -50, y: 100)
-
+                                    
                                     Text("(25)")
                                         .foregroundColor(.white)
                                         .font(.system(size: 14))
                                         .bold()
                                         .offset(x: -50, y: 108)
                                 }
-
+                                
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("사실 저는 여름이 더 좋긴 해요.")
                                     Text("겨울에는 생존하느라 기억이 희미해요.")
@@ -103,7 +102,7 @@ struct MyProfileTabView: View {
                                 .opacity(0.9)
                                 .offset(x: -35, y: 110)
                                 
-
+                                
                                 HStack(spacing: 19) {
                                     ForEach(["25 July", "ENFJ", "아이돌"], id: \.self) { label in
                                         ZStack {
@@ -117,10 +116,10 @@ struct MyProfileTabView: View {
                                         }
                                     }
                                 }
-                            
+                                
                                 .offset(x: 0, y: 120)
                                 
-                               
+                                
                             }
                         }
                         Text("카드를 클릭하면 뒷면이 보입니다.")
@@ -267,67 +266,83 @@ struct MyProfileTabView: View {
                                     )
                                     .padding()
                                 
-                             
-                                    NavigationLink(destination: MyProfileTabDetailView()) {
-                                        ZStack{
-                                            RoundedRectangle(cornerRadius: 19.5)
-                                                .frame(width: 118, height: 33)
-                                                .foregroundColor(Color("MainColor"))
-                                            
-                                            Text("> 취향 보러가기")
-                                                .foregroundColor(.black)
-                                                .font(.system(size: 13))
+                                
+                                NavigationLink(destination: MyProfileTabDetailView()) {
+                                    ZStack{
+                                        RoundedRectangle(cornerRadius: 19.5)
+                                            .frame(width: 118, height: 33)
+                                            .foregroundColor(Color("MainColor"))
+                                        
+                                        Text("> 취향 보러가기")
+                                            .foregroundColor(.black)
+                                            .font(.system(size: 13))
                                         
                                     }
                                 }
                             }
                         }
                         
-                            Text("카드를 클릭하면 앞면이 보입니다.")
-                                .foregroundColor(Color.gray)
-                                .offset(x: 0, y: 340)
-                       
+                        Text("카드를 클릭하면 앞면이 보입니다.")
+                            .foregroundColor(Color.gray)
+                            .offset(x: 0, y: 340)
+                        
                     }
                     .padding(.bottom,60)
                     .padding()
-                          
+                    
                 }
                 .padding(.bottom,20)
             }
-    }
         }
-}
-
-struct FlipCard<Front: View, Back: View>: View {
-    @State private var flipped = false
-    let front: Front
-    let back: Back
-
-    init(@ViewBuilder front: () -> Front, @ViewBuilder back: () -> Back) {
-        self.front = front()
-        self.back = back()
-    }
-
-    var body: some View {
-        ZStack {
-            front
-                .opacity(flipped ? 0 : 1)
-                .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
-
-            back
-                .opacity(flipped ? 1 : 0)
-                .rotation3DEffect(.degrees(flipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+        
+        Button(action: {
+            withAnimation {
+                showMenu.toggle()
+            }
+        })
+        {
+            Image(systemName: "ellipsis")
+                .foregroundColor(Color("MainColor"))
+                .font(.system(size: 24))
+                .rotationEffect(Angle(degrees: 90))
+                .bold()
+                .padding()
         }
-        .frame(width: 302, height: 500)
-        .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.6)) {
-                flipped.toggle()
+    }
+     //   .padding(.bottom,50)
+    
+    
+    struct FlipCard<Front: View, Back: View>: View {
+        @State private var flipped = false
+        let front: Front
+        let back: Back
+        
+        init(@ViewBuilder front: () -> Front, @ViewBuilder back: () -> Back) {
+            self.front = front()
+            self.back = back()
+        }
+        
+        var body: some View {
+            ZStack {
+                front
+                    .opacity(flipped ? 0 : 1)
+                    .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+                
+                back
+                    .opacity(flipped ? 1 : 0)
+                    .rotation3DEffect(.degrees(flipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+            }
+            .frame(width: 302, height: 500)
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    flipped.toggle()
+                }
             }
         }
     }
 }
 
-
-#Preview {
-    MyProfileTabView()
-}
+//
+//#Preview {
+//    MyProfileTabView()
+//}
