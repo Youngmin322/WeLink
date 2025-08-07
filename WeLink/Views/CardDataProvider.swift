@@ -13,7 +13,6 @@ struct CardDataProvider {
                 tag: "아이돌",
                 dDay: 98,
                 imageData: UIImage(named: "Winter")?.jpegData(compressionQuality: 0.8) ?? Data(),
-                backgroundImageData: UIImage(named: "Winterbg")?.jpegData(compressionQuality: 0.3)
             ),
             CardModel(
                 name: "Karina",
@@ -24,7 +23,6 @@ struct CardDataProvider {
                 tag: "간호사",
                 dDay: 150,
                 imageData: UIImage(named: "Karina")?.jpegData(compressionQuality: 0.8) ?? Data(),
-                backgroundImageData: UIImage(named: "Karinabg")?.jpegData(compressionQuality: 0.3)
             ),
             CardModel(
                 name: "Ning Ning",
@@ -35,7 +33,6 @@ struct CardDataProvider {
                 tag: "직장인",
                 dDay: 50,
                 imageData: UIImage(named: "NingNing")?.jpegData(compressionQuality: 0.8) ?? Data(),
-                backgroundImageData: UIImage(named: "Ningningbg")?.jpegData(compressionQuality: 0.3)
             ),
             CardModel(
                 name: "Giselle",
@@ -46,7 +43,6 @@ struct CardDataProvider {
                 tag: "대학생",
                 dDay: 75,
                 imageData: UIImage(named: "Giselle")?.jpegData(compressionQuality: 0.8) ?? Data(),
-                backgroundImageData: UIImage(named: "Gisellebg")?.jpegData(compressionQuality: 0.3)
             ),
         ]
 

@@ -14,13 +14,21 @@ struct FriendsTabView: View {
     @Environment(\.modelContext) private var context
     @Query private var cards: [CardModel]
     @State private var didInsertSample = false
-
+    
     @State private var selectedIndex: Int = 0
     @State private var showSearchBar = false
     @State private var searchText = ""
     
     @State private var scrollViewProxy: ScrollViewProxy?
 
+    // 카드 위로 올리는 애니메이션
+    @GestureState private var dragOffset: CGFloat = 0
+    @State private var cardOffsetY: CGFloat = 0
+
+    // 삭제 알림 관련 상태
+    @State private var showDeleteAlert = false
+    @State private var cardToDelete: CardModel? = nil
+    
     var filteredCards: [CardModel] {
         let baseCards: [CardModel]
         if searchText.isEmpty {
@@ -33,12 +41,32 @@ struct FriendsTabView: View {
                 card.tag.localizedCaseInsensitiveContains(searchText)
             }
         }
-        return baseCards.sorted { $0.dDay < $1.dDay } // D-Day 기준 정렬
+        return baseCards.sorted { $0.dDay < $1.dDay }
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
+                Color.white.edgesIgnoringSafeArea(.all)
+                
+                // 아래 + 버튼
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            showShareSheet = true
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 40))
+                                .foregroundColor(Color("MainColor"))
+                                .padding()
+                        }
+                        .padding(.bottom, 50)
+                        .padding(.trailing, 20)
+                    }
+                }
+
                 VStack(spacing: 0) {
                     HStack {
                         Text("친구")
@@ -64,7 +92,7 @@ struct FriendsTabView: View {
                     }
                     .padding(.top, 15)
                     .padding(.bottom, 5)
-                    .background(Color.white)
+                    .background(Color.white.opacity(0.8))
 
                     if showSearchBar {
                         TextField("검색어 입력", text: $searchText, onCommit: {
@@ -101,20 +129,64 @@ struct FriendsTabView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
                                     ForEach(Array(filteredCards.enumerated()), id: \.element.id) { index, card in
-                                        MyProfileCardOnlyView(card: card)
-                                            .frame(width: 270, height: 450)
-                                            .id(index)
-                                            .background(
-                                                GeometryReader { geo in
-                                                    Color.clear
-                                                        .preference(key: CardPositionPreferenceKey.self, value: [index: geo.frame(in: .global).midX])
+                                        ZStack {
+                                            // 삭제 버튼, 카드가 위로 올라가 있을 때만 보임
+                                            if index == selectedIndex && cardOffsetY == -100 {
+                                                Button(role: .destructive) {
+                                                    // 삭제 버튼 누르면 알림 띄움
+                                                    cardToDelete = card
+                                                    showDeleteAlert = true
+                                                } label: {
+                                                    Circle()
+                                                        .fill(Color.red)
+                                                        .frame(width: 40, height: 40)
+                                                        .overlay(
+                                                            Image(systemName: "trash")
+                                                                .font(.system(size: 20))
+                                                                .foregroundColor(.white)
+                                                        )
                                                 }
-                                            )
-                                            .onTapGesture {
-                                                withAnimation {
-                                                    selectedIndex = index
-                                                }
+                                                .offset(y: 150)
                                             }
+
+                                            // 카드 뷰
+                                            MyProfileCardOnlyView(card: card)
+                                                .frame(width: 270, height: 450)
+                                                .offset(y: index == selectedIndex ? cardOffsetY + dragOffset : 0)
+                                                .background(
+                                                    GeometryReader { geo in
+                                                        Color.clear
+                                                            .preference(key: CardPositionPreferenceKey.self, value: [index: geo.frame(in: .global).midX])
+                                                    }
+                                                )
+                                                .onTapGesture {
+                                                    withAnimation {
+                                                        selectedIndex = index
+                                                        cardOffsetY = 0
+                                                    }
+                                                }
+                                                .gesture(
+                                                    index == selectedIndex ?
+                                                    DragGesture()
+                                                        .updating($dragOffset) { value, state, _ in
+                                                            if value.translation.height < 0 {
+                                                                state = value.translation.height
+                                                            }
+                                                        }
+                                                        .onEnded { value in
+                                                            if value.translation.height < -100 {
+                                                                withAnimation {
+                                                                    cardOffsetY = -100
+                                                                }
+                                                            } else {
+                                                                withAnimation {
+                                                                    cardOffsetY = 0
+                                                                }
+                                                            }
+                                                        }
+                                                    : nil
+                                                )
+                                        }
                                     }
                                 }
                                 .padding()
@@ -134,6 +206,7 @@ struct FriendsTabView: View {
                                 guard newIndex >= 0 && newIndex < filteredCards.count else { return }
                                 withAnimation {
                                     proxy.scrollTo(newIndex, anchor: .center)
+                                    cardOffsetY = 0 // 카드 바뀌면 offset 초기화
                                 }
                             }
                             .onChange(of: searchText) { newSearchText in
@@ -156,22 +229,12 @@ struct FriendsTabView: View {
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.horizontal)                        }
+                            .padding(.horizontal)
+                        }
                     }
                     Spacer()
                 }
                 .padding(.top, 20)
-                .overlay(alignment: .bottomTrailing) {
-                    Button(action: {
-                        showShareSheet = true
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(Color("MainColor"))
-                            .padding()
-                    }
-                    .offset(x: -15, y: -60)
-                }
                 .sheet(isPresented: $showShareSheet) {
                     if filteredCards.indices.contains(selectedIndex) {
                         ShareCardSheetView(myCard: filteredCards[selectedIndex])
@@ -184,6 +247,13 @@ struct FriendsTabView: View {
                             .presentationDragIndicator(.visible)
                     }
                 }
+            }
+            .alert("정말 삭제하시겠습니까?", isPresented: $showDeleteAlert, presenting: cardToDelete) { card in
+                Button("삭제", role: .destructive) {
+                    deleteCard(card)
+                    cardOffsetY = 0
+                }
+                Button("취소", role: .cancel) { }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .navigationBar)
@@ -198,5 +268,14 @@ struct FriendsTabView: View {
 
     private func insertDummyCards() {
         CardDataProvider.insertDummyCards(into: context)
+    }
+    
+    private func deleteCard(_ card: CardModel) {
+        context.delete(card)
+        do {
+            try context.save()
+        } catch {
+            print("Failed to delete card: \(error)")
+        }
     }
 }
