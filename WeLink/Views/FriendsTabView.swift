@@ -131,10 +131,15 @@ struct FriendsTabView: View {
                 .padding(.horizontal)
                 .padding(.top, 20)
                 .sheet(isPresented: $showShareSheet) {
-                    if selectedIndex >= 0 && selectedIndex < cards.count {
+                    if cards.indices.contains(selectedIndex) {
                         ShareCardSheetView(myCard: cards[selectedIndex])
+                            .presentationDetents([.medium, .large])
+                            .presentationDragIndicator(.visible)
+                            .presentationBackgroundInteraction(.enabled)
                     } else {
                         Text("선택된 카드가 없습니다.")
+                            .presentationDetents([.medium, .large])
+                            .presentationDragIndicator(.visible)
                     }
                 }
             }
