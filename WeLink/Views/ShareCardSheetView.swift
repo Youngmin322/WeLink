@@ -15,7 +15,7 @@ struct ShareCardSheetView: View {
     @State private var pendingCardSends: Set<String> = []
     
     let myCard: CardModel
-
+    
     var body: some View {
         ZStack {
             if mpc.incomingInvitation == nil {
@@ -98,7 +98,7 @@ struct ShareCardSheetView: View {
                         .background(Color.red)
                         .foregroundColor(.white)
                         .cornerRadius(20)
-
+                        
                         Button("수락") {
                             mpc.respondToInvitation(accept: true)
                         }
@@ -123,7 +123,7 @@ struct ShareCardSheetView: View {
                         .bold()
                     
                     Button("취소") {
-                        print("❌ 연결 요청 취소")
+                        print("연결 요청 취소")
                         mpc.waitingForResponse = nil
                         pendingCardSends.remove(waitingPeer.displayName)
                         mpc.disconnect()

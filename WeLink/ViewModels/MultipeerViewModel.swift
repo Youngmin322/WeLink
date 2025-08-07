@@ -18,7 +18,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     
     // 카드 전송을 위한 대기열
     private var pendingCardSends: [MCPeerID: CardModel] = [:]
-
+    
     @Published var receivedCard: CardModel?
     @Published var isConnected: Bool = false
     @Published var discoveredPeers: [MCPeerID] = []
@@ -26,7 +26,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     @Published var cardSentSuccessfully: Bool = false
     @Published var waitingForResponse: MCPeerID? = nil
     @Published var incomingInvitation: (peer: MCPeerID, handler: (Bool) -> Void)? = nil
-
+    
     override init() {
         super.init()
         setupSession()
@@ -51,27 +51,27 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         browser.delegate = self
         print("Browser 설정 완료")
     }
-
+    
     func startHosting() {
         print("광고 시작: \(myPeerID.displayName)")
         advertiser.startAdvertisingPeer()
     }
-
+    
     func startBrowsing() {
         print("검색 시작")
         browser.startBrowsingForPeers()
     }
-
+    
     func stopHosting() {
         print("광고 중지")
         advertiser.stopAdvertisingPeer()
     }
-
+    
     func stopBrowsing() {
         print("검색 중지")
         browser.stopBrowsingForPeers()
     }
-
+    
     func disconnect() {
         session.disconnect()
         stopHosting()
@@ -112,7 +112,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             self.incomingInvitation = nil
         }
     }
-
+    
     func sendCard(_ card: CardModel) {
         guard !session.connectedPeers.isEmpty else {
             print("연결된 피어가 없음")
@@ -197,7 +197,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             }
         }
     }
-
+    
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         print("데이터 수신: \(peerID.displayName)")
         
@@ -210,13 +210,13 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             }
         }
     }
-
+    
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
-
+    
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
-
+    
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
-
+    
     // MARK: - MCNearbyServiceAdvertiserDelegate
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         print("초대 수신: \(peerID.displayName)")
@@ -228,11 +228,11 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             })
         }
     }
-
+    
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
         print("광고 시작 실패: \(error.localizedDescription)")
     }
-
+    
     // MARK: - MCNearbyServiceBrowserDelegate
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
         print("피어 발견: \(peerID.displayName)")
@@ -244,7 +244,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             }
         }
     }
-
+    
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         print("피어 손실: \(peerID.displayName)")
         
@@ -254,11 +254,10 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             print("피어 목록에서 제거: \(peerID.displayName)")
         }
     }
-
+    
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
         print("검색 시작 실패: \(error.localizedDescription)")
         
-        // 권한 관련 에러인 경우 별도 처리
         if error.localizedDescription.contains("denied") || error.localizedDescription.contains("permission") {
             print("네트워크 권한 거부됨")
         }
