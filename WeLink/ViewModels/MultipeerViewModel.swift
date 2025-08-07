@@ -10,10 +10,8 @@ import MultipeerConnectivity
 import Network
 
 class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate {
-    // 서비스 타입은 1-15자의 ASCII 소문자, 숫자, 하이픈만 허용
     private let serviceType = "welink-share"
     private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
-
     private var session: MCSession!
     private var advertiser: MCNearbyServiceAdvertiser!
     private var browser: MCNearbyServiceBrowser!
