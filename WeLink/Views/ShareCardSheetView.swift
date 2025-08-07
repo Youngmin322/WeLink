@@ -47,7 +47,7 @@ struct ShareCardSheetView: View {
                                 ForEach(mpc.discoveredPeers, id: \.displayName) { peer in
                                     PeerCardView(
                                         peerName: peer.displayName,
-                                        profileImage: "person.circle.fill", // 기본 아이콘
+                                        profileImage: "person.circle.fill",
                                         isConnected: mpc.connectedPeers.contains { $0.displayName == peer.displayName },
                                         isConnecting: pendingCardSends.contains(peer.displayName) || mpc.waitingForResponse?.displayName == peer.displayName
                                     ) {
@@ -67,7 +67,6 @@ struct ShareCardSheetView: View {
                                         isConnecting: false
                                     ) {
                                         print("다나와 연결 시도")
-                                        // 목업 카드 데이터 생성
                                         let mockCard = CardModel(
                                             name: "다나",
                                             age: 25,
@@ -98,7 +97,6 @@ struct ShareCardSheetView: View {
                 }
             }
             
-            // 연결 요청이 있을 때 - 전체 화면을 덮는 연결 요청 알림만 표시
             if let invitation = mpc.incomingInvitation {
                 Color("BackgroundColor")
                     .ignoresSafeArea()
@@ -138,7 +136,6 @@ struct ShareCardSheetView: View {
                 }
             }
             
-            // 응답 대기 중 화면 - 중앙에 텍스트만 표시
             if let waitingPeer = mpc.waitingForResponse {
                 VStack(spacing: 16) {
                     Text("\(waitingPeer.displayName) 님의 수락을 기다리는 중...")
@@ -147,7 +144,6 @@ struct ShareCardSheetView: View {
                         .multilineTextAlignment(.center)
                         .bold()
                     
-                    // 취소 버튼 부분만 수정
                     Button("취소") {
                         // 대기 상태 해제
                         mpc.waitingForResponse = nil
@@ -233,7 +229,6 @@ struct PeerCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // 프로필 이미지
             Image(systemName: profileImage)
                 .font(.system(size: 40))
                 .foregroundColor(.blue)
@@ -241,7 +236,6 @@ struct PeerCardView: View {
                 .background(Color.gray.opacity(0.1))
                 .clipShape(Circle())
             
-            // 사용자 이름
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 0) {
                     Text(peerName)
@@ -266,7 +260,6 @@ struct PeerCardView: View {
             
             Spacer()
             
-            // 카드 전송 버튼
             Button(buttonText) {
                 if !isConnected && !isConnecting {
                     onConnect()
@@ -288,8 +281,6 @@ struct PeerCardView: View {
     }
 }
 
-
-// 연결 요청 알림 컴포넌트
 struct ConnectionRequestAlert: View {
     let peerName: String
     let onAccept: () -> Void
