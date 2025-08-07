@@ -81,13 +81,28 @@ struct FriendsTabView: View {
                         .animation(.easeInOut, value: showSearchBar)
                     }
 
+                    if !filteredCards.isEmpty {
+                        HStack(spacing: 0) {
+                            Text(filteredCards[selectedIndex].name)
+                                .foregroundColor(Color("MainColor"))
+                            Text(" 님의 카드")
+                                .foregroundColor(.black)
+                        }
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.leading, 20)
+                        .padding(.bottom, 30)
+                        .multilineTextAlignment(.center)
+                    }
+
                     ScrollViewReader { proxy in
                         VStack {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
                                     ForEach(Array(filteredCards.enumerated()), id: \.element.id) { index, card in
                                         MyProfileCardOnlyView(card: card)
-                                            .frame(width: 300)
+                                            .frame(width: 270, height: 450)
                                             .id(index)
                                             .background(
                                                 GeometryReader { geo in
@@ -141,8 +156,7 @@ struct FriendsTabView: View {
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.horizontal)
-                        }
+                            .padding(.horizontal)                        }
                     }
                     Spacer()
                 }
@@ -185,8 +199,4 @@ struct FriendsTabView: View {
     private func insertDummyCards() {
         CardDataProvider.insertDummyCards(into: context)
     }
-}
-
-#Preview {
-    FriendsTabView()
 }

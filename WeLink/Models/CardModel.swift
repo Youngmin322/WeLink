@@ -1,10 +1,3 @@
-//
-//  Item.swift
-//  Wishing
-//
-//  Created by 조영민 on 8/4/25.
-//
-
 import Foundation
 import SwiftData
 
@@ -19,12 +12,25 @@ class CardModel: Codable {
     var tag: String
     var dDay: Int
     var imageData: Data
+    
+    var backgroundImageData: Data?
 
     enum CodingKeys: String, CodingKey {
-        case id, name, age, cardDescription, birthDate, mbti, tag, dDay, imageData
+        case id, name, age, cardDescription, birthDate, mbti, tag, dDay, imageData, backgroundImageData
     }
 
-    init(id: UUID = UUID(), name: String, age: Int, description: String, birthDate: String, mbti: String, tag: String, dDay: Int, imageData: Data) {
+    init(
+        id: UUID = UUID(),
+        name: String,
+        age: Int,
+        description: String,
+        birthDate: String,
+        mbti: String,
+        tag: String,
+        dDay: Int,
+        imageData: Data,
+        backgroundImageData: Data? = nil  // 기본값 nil
+    ) {
         self.id = id
         self.name = name
         self.age = age
@@ -34,6 +40,7 @@ class CardModel: Codable {
         self.tag = tag
         self.dDay = dDay
         self.imageData = imageData
+        self.backgroundImageData = backgroundImageData
     }
 
     required init(from decoder: Decoder) throws {
@@ -47,6 +54,7 @@ class CardModel: Codable {
         self.tag = try container.decode(String.self, forKey: .tag)
         self.dDay = try container.decode(Int.self, forKey: .dDay)
         self.imageData = try container.decode(Data.self, forKey: .imageData)
+        self.backgroundImageData = try container.decodeIfPresent(Data.self, forKey: .backgroundImageData)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -60,5 +68,6 @@ class CardModel: Codable {
         try container.encode(tag, forKey: .tag)
         try container.encode(dDay, forKey: .dDay)
         try container.encode(imageData, forKey: .imageData)
+        try container.encodeIfPresent(backgroundImageData, forKey: .backgroundImageData)
     }
 }
