@@ -7,25 +7,32 @@ struct MyProfileCardOnlyView: View {
     var body: some View {
         FlipCard {
             ZStack {
-                Image("Winter")
-                    .resizable()
-                    .frame(width: 302, height: 500)
-                    .scaledToFit()
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color("CategoryColor"), lineWidth: 2)
-                    )
-                    .overlay(
-                        LinearGradient(
-                            gradient: Gradient(colors: [.clear, Color.black.opacity(0.4)]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        .blur(radius: 20)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                    )
-                
+                if let uiImage = UIImage(data: card.imageData) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 302, height: 500)
+                                        .clipped() // 이미지가 프레임을 벗어나는 부분을 잘라냅니다.
+                                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(Color("CategoryColor"), lineWidth: 2)
+                                        )
+                                        .overlay(
+                                            LinearGradient(
+                                                gradient: Gradient(colors: [.clear, Color.black.opacity(0.4)]),
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                            .blur(radius: 20)
+                                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                                        )
+                                } else {
+                                    // 이미지 데이터가 없을 경우 기본 뷰를 표시
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .foregroundColor(.gray)
+                                        .frame(width: 302, height: 500)
+                                }
                 VStack {
                     Text("D-\(card.dDay)")
                         .foregroundColor(.white)
@@ -40,8 +47,8 @@ struct MyProfileCardOnlyView: View {
                             .foregroundColor(.white)
                             .font(.system(size: 40))
                             .bold()
-                            .offset(x: -50, y: 100)
-                        
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 20)
                         Text("(\(card.age))")
                             .foregroundColor(.white)
                             .font(.system(size: 14))
@@ -59,7 +66,7 @@ struct MyProfileCardOnlyView: View {
                     .offset(x: -35, y: 110)
                     
                     HStack(spacing: 19) {
-                        ForEach([card.birthDate, card.mbti, card.tag], id: \.self) { label in
+                        ForEach([formattedBirthDate(from: card.birthDate), card.mbti, card.tag], id: \.self) { label in
                             ZStack {
                                 RoundedRectangle(cornerRadius: 45)
                                     .foregroundColor(Color.gray)
@@ -103,101 +110,6 @@ struct MyProfileCardOnlyView: View {
                             .opacity(0.4)
                     }
                     .padding()
-                    
-                    VStack(alignment: .leading, spacing:9){
-                        HStack(spacing:30){
-                            Text("🎵 요즘 듣는 노래는?")
-                                .font(.system(size: 13))
-                            Text("백예린 - Antifreeze")
-                                .font(.system(size: 12))
-                        }
-                        HStack(spacing:30){
-                            Text("🧩 요즘 빠진 취미는?")
-                                .font(.system(size: 13))
-                            Text("과학유튜브 보기")
-                                .font(.system(size: 12))
-                        }
-                        HStack(spacing:30){
-                            Text("🏞️ 자주 가는 장소는?")
-                                .font(.system(size: 13))
-                            Text("포스텍 C5 6층")
-                                .font(.system(size: 12))
-                        }
-                    }
-                    .padding()
-                    
-                    HStack(spacing:182){
-                        Text("트렌디")
-                            .font(.system(size: 13))
-                            .bold()
-                            .foregroundColor(.black)
-                        Text("클래식")
-                            .font(.system(size: 13))
-                            .bold()
-                            .foregroundColor(.black)
-                    }
-                    .padding(.horizontal)
-                    
-                    Slider(value: .constant(0.5))
-                        .accentColor(Color("MainColor"))
-                        .padding(.horizontal)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.gray.opacity(0.5))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.clear, lineWidth: 2)
-                        )
-                        .padding()
-                    
-                    HStack(spacing:130){
-                        Text("보장된 만족")
-                            .font(.system(size: 13))
-                            .bold()
-                            .foregroundColor(.black)
-                        Text("새로운 설렘")
-                            .font(.system(size: 13))
-                            .bold()
-                            .foregroundColor(.black)
-                    }
-                    
-                    Slider(value: .constant(0.5))
-                        .accentColor(Color("MainColor"))
-                        .padding(.horizontal)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.gray.opacity(0.5))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.clear, lineWidth: 2)
-                        )
-                        .padding()
-                    
-                    HStack(spacing:204){
-                        Text("실용")
-                            .font(.system(size: 13))
-                            .bold()
-                            .foregroundColor(.black)
-                        Text("감성")
-                            .font(.system(size: 13))
-                            .bold()
-                            .foregroundColor(.black)
-                    }
-                    
-                    Slider(value: .constant(0.5))
-                        .accentColor(Color("MainColor"))
-                        .padding(.horizontal)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.gray.opacity(0.5))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.clear, lineWidth: 2)
-                        )
-                        .padding()
                     
                     NavigationLink(destination: MyProfileTabDetailView()) {
                         ZStack{
@@ -244,3 +156,20 @@ struct FlipCard<Front: View, Back: View>: View {
         }
     }
 }
+
+func formattedBirthDate(from dateString: String) -> String {
+    let inputFormatter = DateFormatter()
+    inputFormatter.dateFormat = "yyyy-MM-dd"
+    inputFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+    let outputFormatter = DateFormatter()
+    outputFormatter.dateFormat = "d MMM"
+    outputFormatter.locale = Locale(identifier: "en_US") // 영어 월 표기
+
+    if let date = inputFormatter.date(from: dateString) {
+        return outputFormatter.string(from: date)
+    } else {
+        return dateString // 포맷이 잘못되었을 경우 원본 그대로 반환
+    }
+}
+

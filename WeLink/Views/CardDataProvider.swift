@@ -15,35 +15,35 @@ struct CardDataProvider {
                 imageData: UIImage(named: "Winter")?.jpegData(compressionQuality: 0.8) ?? Data()
             ),
             CardModel(
-                name: "Summer",
+                name: "Karina",
                 age: 27,
-                description: "여름에는 바다를 좋아해요.",
+                description: "너와 나의 세대가 마지막이면 어떡해~",
                 birthDate: "1996-07-15",
                 mbti: "ISFP",
-                tag: "여행",
+                tag: "간호사",
                 dDay: 150,
-                imageData: UIImage(named: "Summer")?.jpegData(compressionQuality: 0.8) ?? Data()
+                imageData: UIImage(named: "Karina")?.jpegData(compressionQuality: 0.8) ?? Data()
             ),
             CardModel(
-                name: "Spring",
+                name: "Ning Ning",
                 age: 24,
-                description: "봄꽃이 참 좋아요.",
+                description: "닌닌 아니고 닠닠 아니고 닝닝입니다.",
                 birthDate: "1999-04-10",
                 mbti: "INTJ",
-                tag: "책읽기",
+                tag: "직장인",
                 dDay: 50,
-                imageData: UIImage(named: "Spring")?.jpegData(compressionQuality: 0.8) ?? Data()
+                imageData: UIImage(named: "NingNing")?.jpegData(compressionQuality: 0.8) ?? Data()
             ),
             CardModel(
-                name: "Autumn",
+                name: "Giselle",
                 age: 26,
-                description: "가을 단풍 구경을 좋아합니다.",
+                description: "지젤은 처음 들었을 때 조금 가젤 같았음",
                 birthDate: "1997-10-20",
                 mbti: "INFJ",
-                tag: "사진",
+                tag: "대학생",
                 dDay: 75,
-                imageData: UIImage(named: "Autumn")?.jpegData(compressionQuality: 0.8) ?? Data()
-            )
+                imageData: UIImage(named: "Giselle")?.jpegData(compressionQuality: 0.8) ?? Data()
+            ),
         ]
 
         for card in dummyCards {

@@ -18,52 +18,121 @@ struct FriendsTabView: View {
     @State private var selectedIndex: Int = 0
     @State private var showSearchBar = false
     @State private var searchText = ""
+    
+    @State private var scrollViewProxy: ScrollViewProxy?
 
     var filteredCards: [CardModel] {
+        let baseCards: [CardModel]
         if searchText.isEmpty {
-            return cards
+            baseCards = cards
         } else {
-            return cards.filter { card in
+            baseCards = cards.filter { card in
                 card.name.localizedCaseInsensitiveContains(searchText) ||
                 card.cardDescription.localizedCaseInsensitiveContains(searchText) ||
                 card.mbti.localizedCaseInsensitiveContains(searchText) ||
                 card.tag.localizedCaseInsensitiveContains(searchText)
             }
         }
+        return baseCards.sorted { $0.dDay < $1.dDay } // D-Day 기준 정렬
     }
 
     var body: some View {
         NavigationStack {
-            VStack {
-                if showSearchBar {
-                    TextField("검색어 입력", text: $searchText, onCommit:  {
-                        if !searchText.isEmpty, let firstFilteredCard = filteredCards.first,
-                           let firstIndex = cards.firstIndex(where: { $0.id == firstFilteredCard.id }) {
-                            selectedIndex = firstIndex
+            ZStack {
+                VStack(spacing: 0) {
+                    HStack {
+                        Text("친구")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding(.leading, 20)
+                        Spacer()
+                        Button(action: {
+                            withAnimation {
+                                showSearchBar.toggle()
+                                if !showSearchBar {
+                                    searchText = ""
+                                }
+                            }
+                        }) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 24))
+                                .foregroundColor(Color("MainColor"))
+                                .padding()
                         }
-                    })
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .animation(.easeInOut, value: showSearchBar)
-                }
+                        .contentShape(Rectangle())
+                        .padding(.trailing, 20)
+                    }
+                    .padding(.top, 15)
+                    .padding(.bottom, 5)
+                    .background(Color.white)
 
-                ScrollViewReader { proxy in
-                    VStack {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
-                                    MyProfileCardOnlyView(card: card)
-                                        .frame(width: 300)
-                                        .id(index)
-                                        .opacity(filteredCards.contains(where: { $0.id == card.id }) ? 1 : 0.3)
-                                        .disabled(!filteredCards.contains(where: { $0.id == card.id }))
-                                        .background(
-                                            GeometryReader { geo in
-                                                Color.clear
-                                                    .preference(key: CardPositionPreferenceKey.self, value: [index: geo.frame(in: .global).midX])
+                    if showSearchBar {
+                        TextField("검색어 입력", text: $searchText, onCommit: {
+                            if !searchText.isEmpty, let firstFilteredCard = filteredCards.first,
+                               let firstIndex = filteredCards.firstIndex(where: { $0.id == firstFilteredCard.id }) {
+                                selectedIndex = firstIndex
+                                scrollViewProxy?.scrollTo(firstIndex, anchor: .center)
+                            }
+                        })
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                        .padding(.vertical)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .animation(.easeInOut, value: showSearchBar)
+                    }
+
+                    ScrollViewReader { proxy in
+                        VStack {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(Array(filteredCards.enumerated()), id: \.element.id) { index, card in
+                                        MyProfileCardOnlyView(card: card)
+                                            .frame(width: 300)
+                                            .id(index)
+                                            .background(
+                                                GeometryReader { geo in
+                                                    Color.clear
+                                                        .preference(key: CardPositionPreferenceKey.self, value: [index: geo.frame(in: .global).midX])
+                                                }
+                                            )
+                                            .onTapGesture {
+                                                withAnimation {
+                                                    selectedIndex = index
+                                                }
                                             }
-                                        )
+                                    }
+                                }
+                                .padding()
+                            }
+                            .onAppear {
+                                self.scrollViewProxy = proxy
+                            }
+                            .onPreferenceChange(CardPositionPreferenceKey.self) { positions in
+                                let screenMidX = UIScreen.main.bounds.midX
+                                if let closest = positions.min(by: { abs($0.value - screenMidX) < abs($1.value - screenMidX) }) {
+                                    if selectedIndex != closest.key {
+                                        selectedIndex = closest.key
+                                    }
+                                }
+                            }
+                            .onChange(of: selectedIndex) { newIndex in
+                                guard newIndex >= 0 && newIndex < filteredCards.count else { return }
+                                withAnimation {
+                                    proxy.scrollTo(newIndex, anchor: .center)
+                                }
+                            }
+                            .onChange(of: searchText) { newSearchText in
+                                if newSearchText.isEmpty {
+                                    selectedIndex = 0
+                                }
+                            }
+
+                            HStack(spacing: 8) {
+                                ForEach(Array(filteredCards.enumerated()), id: \.element.id) { index, _ in
+                                    Capsule()
+                                        .fill(index == selectedIndex ? Color("MainColor") : Color.gray.opacity(0.3))
+                                        .frame(width: index == selectedIndex ? 24 : 8, height: 8)
+                                        .animation(.easeInOut(duration: 0.25), value: selectedIndex)
                                         .onTapGesture {
                                             withAnimation {
                                                 selectedIndex = index
@@ -71,68 +140,27 @@ struct FriendsTabView: View {
                                         }
                                 }
                             }
-                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.horizontal)
                         }
-                        // 카드 위치 변화 감지
-                        .onPreferenceChange(CardPositionPreferenceKey.self) { positions in
-                            let screenMidX = UIScreen.main.bounds.midX
-                            // 화면 중앙과 가장 가까운 카드 인덱스 찾기
-                            if let closest = positions.min(by: { abs($0.value - screenMidX) < abs($1.value - screenMidX) }) {
-                                if selectedIndex != closest.key {
-                                    selectedIndex = closest.key
-                                }
-                            }
-                        }
-                        // selectedIndex 변경 시 강제 스크롤
-                        .onChange(of: selectedIndex) { newIndex in
-                            guard newIndex >= 0 && newIndex < cards.count else { return }
-                            withAnimation {
-                                proxy.scrollTo(newIndex, anchor: .center)
-                            }
-                        }
-                        // 검색어 변경 시 selectedIndex를 초기화하는 로직
-                        .onChange(of: searchText) { newSearchText in
-                            if newSearchText.isEmpty {
-                                selectedIndex = 0
-                            }
-                        }
-
-                        // 인디케이터
-                        HStack(spacing: 8) {
-                            ForEach(Array(cards.enumerated()), id: \.element.id) { index, _ in
-                                Capsule()
-                                    .fill(index == selectedIndex ? Color("MainColor") : Color.gray.opacity(0.3))
-                                    .frame(width: index == selectedIndex ? 24 : 8, height: 8)
-                                    .animation(.easeInOut(duration: 0.25), value: selectedIndex)
-                                    .onTapGesture {
-                                        withAnimation {
-                                            selectedIndex = index
-                                        }
-                                    }
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
                     }
-                }
-
-                HStack {
                     Spacer()
+                }
+                .padding(.top, 20)
+                .overlay(alignment: .bottomTrailing) {
                     Button(action: {
                         showShareSheet = true
                     }) {
                         Image(systemName: "plus.circle.fill")
                             .font(.system(size: 40))
                             .foregroundColor(Color("MainColor"))
+                            .padding()
                     }
+                    .offset(x: -15, y: -60)
                 }
-                .padding(.bottom, 20)
-                .padding(.horizontal)
-                .padding(.top, 20)
                 .sheet(isPresented: $showShareSheet) {
-                    if cards.indices.contains(selectedIndex) {
-                        ShareCardSheetView(myCard: cards[selectedIndex])
+                    if filteredCards.indices.contains(selectedIndex) {
+                        ShareCardSheetView(myCard: filteredCards[selectedIndex])
                             .presentationDetents([.medium, .large])
                             .presentationDragIndicator(.visible)
                             .presentationBackgroundInteraction(.enabled)
@@ -143,22 +171,8 @@ struct FriendsTabView: View {
                     }
                 }
             }
-            .navigationTitle("친구")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        withAnimation {
-                            showSearchBar.toggle()
-                            if !showSearchBar {
-                                searchText = ""
-                            }
-                        }
-                    }) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(Color("MainColor"))
-                    }
-                }
-            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .onAppear {
                 if cards.isEmpty && !didInsertSample {
                     insertDummyCards()
@@ -172,7 +186,6 @@ struct FriendsTabView: View {
         CardDataProvider.insertDummyCards(into: context)
     }
 }
-
 
 #Preview {
     FriendsTabView()
