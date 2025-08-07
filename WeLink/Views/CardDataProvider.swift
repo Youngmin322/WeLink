@@ -1,84 +1,59 @@
-//
-//  CardDataProvider.swift
-//  WeLink
-//
-//  Created by weonyee on 8/4/25.
-//
-
-import SwiftUI
+import UIKit
 import SwiftData
 
 struct CardDataProvider {
     static func insertDummyCards(into context: ModelContext) {
-        let dummy = [
+        let dummyCards = [
             CardModel(
                 name: "Winter",
                 age: 25,
                 description: "사실 저는 여름이 더 좋긴 해요.",
-                birthDate: "1999-07-25",
+                birthDate: "1998-12-01",
                 mbti: "ENFJ",
-                tag: "#끈기",
-                dDay: 10,
-                imageData: UIImage(systemName: "person.fill")!.jpegData(compressionQuality: 1.0)!
+                tag: "아이돌",
+                dDay: 98,
+                imageData: UIImage(named: "Winter")?.jpegData(compressionQuality: 0.8) ?? Data()
             ),
             CardModel(
-                name: "Ning Ning",
-                age: 23,
-                description: "닌닌 아니고 닠닠 아니고 닝닝입니다.",
-                birthDate: "2004-01-12",
-                mbti: "INFP",
-                tag: "#야근",
-                dDay: 18,
-                imageData: UIImage(systemName: "person.crop.circle")!.jpegData(compressionQuality: 1.0)!
+                name: "Summer",
+                age: 27,
+                description: "여름에는 바다를 좋아해요.",
+                birthDate: "1996-07-15",
+                mbti: "ISFP",
+                tag: "여행",
+                dDay: 150,
+                imageData: UIImage(named: "Summer")?.jpegData(compressionQuality: 0.8) ?? Data()
+            ),
+            CardModel(
+                name: "Spring",
+                age: 24,
+                description: "봄꽃이 참 좋아요.",
+                birthDate: "1999-04-10",
+                mbti: "INTJ",
+                tag: "책읽기",
+                dDay: 50,
+                imageData: UIImage(named: "Spring")?.jpegData(compressionQuality: 0.8) ?? Data()
+            ),
+            CardModel(
+                name: "Autumn",
+                age: 26,
+                description: "가을 단풍 구경을 좋아합니다.",
+                birthDate: "1997-10-20",
+                mbti: "INFJ",
+                tag: "사진",
+                dDay: 75,
+                imageData: UIImage(named: "Autumn")?.jpegData(compressionQuality: 0.8) ?? Data()
             )
         ]
-        for card in dummy {
+
+        for card in dummyCards {
             context.insert(card)
         }
-    }
-
-    static func addDummyCard(into context: ModelContext) {
-        let names = ["장원영", "안유진", "리즈", "레이", "가을", "이서"]
-        let ages = [18, 20, 22, 25, 27, 30]
-        let descriptions = [
-            "새로 추가된 친구",
-            "친절하고 상냥한 친구",
-            "열심히 사는 사람",
-            "늘 웃는 얼굴",
-            "모험을 좋아함"
-        ]
-        let mbtis = ["ISFP", "ENFJ", "INTJ", "INFP", "ESFP", "ENTP"]
-        let tags = ["#친구", "#추가", "#즐거움", "#열정", "#성실", "#웃음"]
         
-        // 애셋에 있는 이미지 이름 배열
-        let imageNames = ["Winter", "NingNing"]
-        let images = imageNames.compactMap { UIImage(named: $0) }
-        
-        let randomName = names.randomElement() ?? "새 친구"
-        let randomAge = ages.randomElement() ?? 20
-        let randomDesc = descriptions.randomElement() ?? "새로 추가된 친구"
-        let randomMBTI = mbtis.randomElement() ?? "ISFP"
-        let randomTag = tags.randomElement() ?? "#친구"
-        let randomImageOptional = images.randomElement()
-        
-        guard let randomImage = randomImageOptional,
-              let imageData = randomImage.jpegData(compressionQuality: 1.0) else {
-            print("이미지 변환 실패")
-            return
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save dummy cards: \(error)")
         }
-        
-        let newCard = CardModel(
-            name: randomName,
-            age: randomAge,
-            description: randomDesc,
-            birthDate: "2000-01-01",
-            mbti: randomMBTI,
-            tag: randomTag,
-            dDay: Int.random(in: 0...30),
-            imageData: imageData
-        )
-        context.insert(newCard)
     }
-
-
 }
