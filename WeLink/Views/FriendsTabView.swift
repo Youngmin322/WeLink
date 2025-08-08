@@ -279,3 +279,4 @@ struct FriendsTabView: View {
         }
     }
 }
+
