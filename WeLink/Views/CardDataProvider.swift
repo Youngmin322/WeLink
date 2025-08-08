@@ -12,7 +12,8 @@ struct CardDataProvider {
                 mbti: "ENFJ",
                 tag: "아이돌",
                 dDay: 3,
-                imageData: UIImage(named: "ningning")?.jpegData(compressionQuality: 0.8) ?? Data(),
+
+                imageData: UIImage(named: "winter")?.jpegData(compressionQuality: 0.8) ?? Data(),
                 //윈터 사진 바꿔야함
             ),
             CardModel(
@@ -23,7 +24,8 @@ struct CardDataProvider {
                 mbti: "ENFJ",
                 tag: "아이돌",
                 dDay: 98,
-                imageData: UIImage(named: "backgroundwinnoblur")?.jpegData(compressionQuality: 0.8) ?? Data(),
+
+                imageData: UIImage(named: "winter")?.jpegData(compressionQuality: 0.8) ?? Data(),
                 //윈터 사진 바꿔야함
             ),
             CardModel(

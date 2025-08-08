@@ -53,8 +53,8 @@ struct MyProfileTabView: View {
                         ZStack {
                             Image("backgroundwinnoblur")
                                 .resizable()
+                                .scaledToFill()
                                 .frame(width: 302, height: 500)
-                                .scaledToFit()
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20)
