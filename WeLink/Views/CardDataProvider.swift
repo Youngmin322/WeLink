@@ -1,84 +1,69 @@
-//
-//  CardDataProvider.swift
-//  WeLink
-//
-//  Created by weonyee on 8/4/25.
-//
-
-import SwiftUI
+import UIKit
 import SwiftData
 
 struct CardDataProvider {
     static func insertDummyCards(into context: ModelContext) {
-        let dummy = [
+        let dummyCards = [
+            CardModel(
+                name: "Howard",
+                age: 25,
+                description: "내 귀에 캔디\n하워드의 라이브 코딩\n테크멘토 하워드",
+                birthDate: "1998-08-17",
+                mbti: "ENFJ",
+                tag: "아이돌",
+                dDay: 3,
+                imageData: UIImage(named: "Winter")?.jpegData(compressionQuality: 0.8) ?? Data(),
+            ),
             CardModel(
                 name: "Winter",
                 age: 25,
-                description: "사실 저는 여름이 더 좋긴 해요.",
-                birthDate: "1999-07-25",
+                description: "사실 저는 여름이 더 좋긴 해요.\n겨울에는 생존하느라 기억이 희미해요.\n절전모드로 들어가야하거든요.",
+                birthDate: "1998-12-01",
                 mbti: "ENFJ",
-                tag: "#끈기",
-                dDay: 10,
-                imageData: UIImage(systemName: "person.fill")!.jpegData(compressionQuality: 1.0)!
+                tag: "아이돌",
+                dDay: 98,
+                imageData: UIImage(named: "Winter")?.jpegData(compressionQuality: 0.8) ?? Data(),
+            ),
+            CardModel(
+                name: "Karina",
+                age: 27,
+                description: "너와 나의 세대가 마지막이면 어떡해~\n또 다른 빙하기가 찾아오면 어떡해~",
+                birthDate: "1996-07-15",
+                mbti: "ISFP",
+                tag: "간호사",
+                dDay: 150,
+                imageData: UIImage(named: "Karina")?.jpegData(compressionQuality: 0.8) ?? Data(),
             ),
             CardModel(
                 name: "Ning Ning",
-                age: 23,
-                description: "닌닌 아니고 닠닠 아니고 닝닝입니다.",
-                birthDate: "2004-01-12",
-                mbti: "INFP",
-                tag: "#야근",
-                dDay: 18,
-                imageData: UIImage(systemName: "person.crop.circle")!.jpegData(compressionQuality: 1.0)!
-            )
+                age: 24,
+                description: "닌닌 아니고 닠닠 아니고\n닝닝입니다 Ning Ning. 알겠닝?\nWarning !!!",
+                birthDate: "1999-04-10",
+                mbti: "INTJ",
+                tag: "직장인",
+                dDay: 50,
+                imageData: UIImage(named: "NingNing")?.jpegData(compressionQuality: 0.8) ?? Data(),
+            ),
+            CardModel(
+                name: "Giselle",
+                age: 26,
+                description: "지젤은 처음 들었을 때 조금 가젤 같았음\n지젤의 인스타아이디 @aerichandesu 간지",
+                birthDate: "1997-10-20",
+                mbti: "INFJ",
+                tag: "대학생",
+                dDay: 75,
+                imageData: UIImage(named: "Giselle")?.jpegData(compressionQuality: 0.8) ?? Data(),
+            ),
         ]
-        for card in dummy {
+
+        for card in dummyCards {
             context.insert(card)
         }
-    }
-
-    static func addDummyCard(into context: ModelContext) {
-        let names = ["장원영", "안유진", "리즈", "레이", "가을", "이서"]
-        let ages = [18, 20, 22, 25, 27, 30]
-        let descriptions = [
-            "새로 추가된 친구",
-            "친절하고 상냥한 친구",
-            "열심히 사는 사람",
-            "늘 웃는 얼굴",
-            "모험을 좋아함"
-        ]
-        let mbtis = ["ISFP", "ENFJ", "INTJ", "INFP", "ESFP", "ENTP"]
-        let tags = ["#친구", "#추가", "#즐거움", "#열정", "#성실", "#웃음"]
         
-        // 애셋에 있는 이미지 이름 배열
-        let imageNames = ["Winter", "NingNing"]
-        let images = imageNames.compactMap { UIImage(named: $0) }
-        
-        let randomName = names.randomElement() ?? "새 친구"
-        let randomAge = ages.randomElement() ?? 20
-        let randomDesc = descriptions.randomElement() ?? "새로 추가된 친구"
-        let randomMBTI = mbtis.randomElement() ?? "ISFP"
-        let randomTag = tags.randomElement() ?? "#친구"
-        let randomImageOptional = images.randomElement()
-        
-        guard let randomImage = randomImageOptional,
-              let imageData = randomImage.jpegData(compressionQuality: 1.0) else {
-            print("이미지 변환 실패")
-            return
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save dummy cards: \(error)")
         }
-        
-        let newCard = CardModel(
-            name: randomName,
-            age: randomAge,
-            description: randomDesc,
-            birthDate: "2000-01-01",
-            mbti: randomMBTI,
-            tag: randomTag,
-            dDay: Int.random(in: 0...30),
-            imageData: imageData
-        )
-        context.insert(newCard)
     }
-
-
 }
