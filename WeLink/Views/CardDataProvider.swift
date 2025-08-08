@@ -5,6 +5,16 @@ struct CardDataProvider {
     static func insertDummyCards(into context: ModelContext) {
         let dummyCards = [
             CardModel(
+                name: "Howard",
+                age: 25,
+                description: "내 귀에 캔디\n하워드의 라이브 코딩\n테크멘토 하워드",
+                birthDate: "1998-08-17",
+                mbti: "ENFJ",
+                tag: "아이돌",
+                dDay: 3,
+                imageData: UIImage(named: "Winter")?.jpegData(compressionQuality: 0.8) ?? Data(),
+            ),
+            CardModel(
                 name: "Winter",
                 age: 25,
                 description: "사실 저는 여름이 더 좋긴 해요.\n겨울에는 생존하느라 기억이 희미해요.\n절전모드로 들어가야하거든요.",
