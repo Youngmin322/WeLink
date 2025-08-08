@@ -18,7 +18,7 @@ struct MyProfileTabView: View {
     var body: some View {
         NavigationView {
             ZStack{
-                Image("Winter")
+                Image("backgroundwin")
                     .resizable()
                     .blur(radius: 3)
                     .frame(width: 600, height: 1000)
@@ -47,11 +47,11 @@ struct MyProfileTabView: View {
                         
                     }
                     
-                    .padding(.bottom,30)
+                    .padding(.bottom,50)
                     
                     NavigationLink(destination: MyProfileTabDetailView()) {
                         ZStack {
-                            Image("Winter")
+                            Image("backgroundwinnoblur")
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 302, height: 500)
@@ -141,9 +141,9 @@ struct MyProfileTabView: View {
 
                     // 메뉴 본체
                     VStack(alignment: .leading, spacing: 0) {
-                        Button("프로필 수정") {
-                            print("프로필 수정")
-                            showMenu = false
+                        
+                        NavigationLink(destination: ProfileCustomView(progress: 0.5)) {
+                           Text("프로필 수정")
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -152,9 +152,8 @@ struct MyProfileTabView: View {
 
                         Divider().background(Color.white)
 
-                        Button("취향 카테고리 수정") {
-                            print("취향 카테고리 수정")
-                            showMenu = false
+                        NavigationLink(destination: CategoryView(progress: 0.5)) {
+                           Text("취향 카테고리 수정")
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -165,16 +164,21 @@ struct MyProfileTabView: View {
                     .cornerRadius(12)
                     .frame(width: 160)
                     .shadow(radius: 5)
-                    .offset(x: 60, y: -250) // 필요에 따라 위치 조정
+                    .offset(x: 50, y: -230) // 필요에 따라 위치 조정
                     .transition(.opacity)
                 }
             }
+            .padding(.bottom,100)
         }
     }
+    
 }
+ 
 
 
 #Preview {
-    MyProfileTabView()
+    NavigationStack {
+        MyProfileTabView()
+    }
 }
 
