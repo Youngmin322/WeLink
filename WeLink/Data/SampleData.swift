@@ -11,7 +11,7 @@ struct SampleData {
             mbti: "INFP",
             tag: "직장인",
             dDay: 3,
-            imageData: UIImage(named: "NingNing")!.jpegData(compressionQuality: 1.0)!
+            imageData: UIImage(named: "ningning")!.jpegData(compressionQuality: 1.0)!
         ),
         CardModel(
             id: UUID(),
