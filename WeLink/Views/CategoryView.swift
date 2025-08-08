@@ -53,6 +53,8 @@ struct CategoryView: View {
                             //TODO: View 이동 action 추가하기
                             
                                 print(myID.first?.id.uuidString ?? "uuid not found")
+                            print("\(cardModel.name)")
+                            print("\(cardModel.birthDate)")
                         }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 28))
