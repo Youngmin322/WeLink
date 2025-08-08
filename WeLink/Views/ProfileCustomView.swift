@@ -18,6 +18,12 @@ struct ProfileCustomView: View {
     @State private var showPicker = false
     @State private var selectedImage: UIImage?
     @FocusState private var focusedField: FocusField?
+    
+    @State private var cardModel: CardModel?
+    @State private var goNext:Bool = false
+    
+    @Environment(\.modelContext) private var context
+    let myID = MyUUID(id: UUID())
 
     enum FocusField: Hashable {
         case name, birthDate, nickname, introduction, mbti, job
@@ -66,17 +72,61 @@ var body: some View {
                         profileImageInputView
                         userInfoFieldsView
                         
-                        NavigationLink(destination: CategoryView(progress: 0.5)) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 45)
-                                    .foregroundColor(Color("MainColor"))
-                                    .frame(width: 324, height: 58)
-                                Text("확인")
-                                    .bold()
-                                    .foregroundColor(.black)
-                                    .font(.system(size: 17))
+                        //TODO: 나이, 디데이 계산 로직 만들기
+                        let age = 20
+                        let dDay = 30
+                        
+                        let isReady = (!name.isEmpty &&
+                        !birthDate.isEmpty &&
+                        !nickname.isEmpty &&
+                        !introduction.isEmpty &&
+                        !mbti.isEmpty &&
+                        !job.isEmpty &&
+                        selectedImage != nil)
+                        
+                        VStack {
+                                Button(action: {
+                                    // 여기에 버튼 눌렀을 때 실행할 로직 작성
+                                        // 예: cardModel 생성
+                                    cardModel = CardModel(id: myID.id,
+                                            name: name,
+                                            age: age,
+                                            description: introduction,
+                                            birthDate: birthDate,
+                                            mbti: mbti,
+                                            tag: job,
+                                            dDay: dDay,
+                                            imageData: selectedImage!.pngData()!
+                                        )
+                                    
+                                    context.insert(myID)
+                                    try? context.save()
+                                    
+                                    
+                                        // 화면 이동 트리거
+                                        goNext = true
+                                                                    }) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 45)
+                                            .foregroundColor(isReady ? Color("MainColor") : Color(.gray))
+                                            .frame(width: 324, height: 58)
+                                        Text("확인")
+                                            .bold()
+                                            .foregroundColor(.black)
+                                            .font(.system(size: 17))
+                                    }
+                                }
+//                                .disabled(!isReady)
+
+                                // 화면 이동을 위한 NavigationLink
+                                .navigationDestination(isPresented: $goNext) {
+                                        if let cardModel = cardModel {
+                                            CategoryView(progress: 2.0/4.0, cardModel: cardModel)
+                                        }
+                                    }
                             }
-                        }
+                        
+    
                     }
                 }
             }

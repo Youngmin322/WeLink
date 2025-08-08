@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct MyProfileTabView: View {
+    @Query private var myID: [MyUUID]
     @Query private var cards: [CardModel]
     @State private var showMenu = false
     @State private var value1: Double = 0.5
@@ -16,9 +17,13 @@ struct MyProfileTabView: View {
     @State private var value3: Double = 0.5
     
     var body: some View {
+        
+        let myProfile = cards.first(where: { $0.id == myID.first!.id })!
+        
         NavigationView {
             ZStack{
-                Image("Winter")
+//                Image("Winter")
+                Image(uiImage: UIImage(data: myProfile.imageData)!)
                     .resizable()
                     .blur(radius: 3)
                     .frame(width: 600, height: 1000)
@@ -174,7 +179,7 @@ struct MyProfileTabView: View {
 }
 
 
-#Preview {
-    MyProfileTabView()
-}
+//#Preview {
+//    MyProfileTabView()
+//}
 

@@ -3,6 +3,7 @@ import UIKit
 struct SampleData {
     static let sampleCards: [CardModel] = [
         CardModel(
+            id: UUID(),
             name: "Ning Ning",
             age: 23,
             description: "닌닌 아니고 닠닠 아니고 닝닝입니다.",
@@ -13,6 +14,7 @@ struct SampleData {
             imageData: UIImage(named: "NingNing")!.jpegData(compressionQuality: 1.0)!
         ),
         CardModel(
+            id: UUID(),
             name: "Karina",
             age: 26,
             description: "너와 나의 세대가 마지막이면 어떡해~",

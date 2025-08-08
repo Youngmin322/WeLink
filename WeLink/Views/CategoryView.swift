@@ -6,13 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CategoryView: View {
     var progress: CGFloat
+    @ObservedObject var cardModel: CardModel
     let categories: Category = Category()
     @State var selectedTopics: [mainTopic] = []
     @State var isReady: Bool = false
     @State private var goNext:Bool = false
+    
+    @Query private var myID: [MyUUID]
     
     var body: some View {
         NavigationStack{
@@ -47,6 +51,8 @@ struct CategoryView: View {
                     HStack(){
                         Button(action: {
                             //TODO: View 이동 action 추가하기
+                            
+                                print(myID.first?.id.uuidString ?? "uuid not found")
                         }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 28))
@@ -110,13 +116,16 @@ struct CategoryView: View {
             }
             .navigationDestination(isPresented: $goNext) {
                 CategoryDetailedView(
-                    progress: 4.0 / 5.0,
+                    progress: 3.0 / 4.0,
                     selectedTopics: selectedTopics,
-                    categories: categories
+                    categories: categories,
+                    cardModel: cardModel
                 )
             }
         }
+        .navigationBarHidden(true)
     }
+    
         
         
         struct CategoryButton: View {
@@ -153,6 +162,7 @@ struct CategoryView: View {
     }
 
 
+
 func updateSelectedTopicList(topicList: inout [mainTopic], tgt: mainTopic){
     if tgt.isSelected{
         topicList.append(mainTopic(title: tgt.title, emoji: tgt.emoji, children: tgt.children, isSelected: false))
@@ -167,6 +177,6 @@ func updateSelectedTopicList(topicList: inout [mainTopic], tgt: mainTopic){
 }
 
 
-#Preview{
-    CategoryView(progress: 3.0 / 5.0)
-}
+//#Preview{
+//    CategoryView(progress: 3.0 / 5.0)
+//}

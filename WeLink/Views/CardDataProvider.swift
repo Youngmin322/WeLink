@@ -5,6 +5,7 @@ struct CardDataProvider {
     static func insertDummyCards(into context: ModelContext) {
         let dummyCards = [
             CardModel(
+                id: UUID(),
                 name: "Winter",
                 age: 25,
                 description: "사실 저는 여름이 더 좋긴 해요.",
@@ -15,6 +16,7 @@ struct CardDataProvider {
                 imageData: UIImage(named: "Winter")?.jpegData(compressionQuality: 0.8) ?? Data()
             ),
             CardModel(
+                id: UUID(),
                 name: "Summer",
                 age: 27,
                 description: "여름에는 바다를 좋아해요.",
@@ -25,6 +27,7 @@ struct CardDataProvider {
                 imageData: UIImage(named: "Summer")?.jpegData(compressionQuality: 0.8) ?? Data()
             ),
             CardModel(
+                id: UUID(),
                 name: "Spring",
                 age: 24,
                 description: "봄꽃이 참 좋아요.",
@@ -35,6 +38,7 @@ struct CardDataProvider {
                 imageData: UIImage(named: "Spring")?.jpegData(compressionQuality: 0.8) ?? Data()
             ),
             CardModel(
+                id: UUID(),
                 name: "Autumn",
                 age: 26,
                 description: "가을 단풍 구경을 좋아합니다.",
