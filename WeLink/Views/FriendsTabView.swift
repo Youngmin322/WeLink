@@ -242,8 +242,8 @@ struct FriendsTabView: View {
                 .foregroundColor(Color("MainColor"))
                 .padding()
         }
-        .padding(.bottom, 60)
-        .padding(.trailing, 20)
+        .padding(.bottom, -55)
+        .padding(.trailing, 40)
     }
 
     private var shareSheet: some View {
