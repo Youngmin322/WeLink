@@ -53,7 +53,7 @@ class Category: ObservableObject{
             }
             let title:String = String(mainTitle.split(separator: " ")[0])
             let emoji:String = String(mainTitle.split(separator: " ")[1])
-            self.mainTopics[title] = mainTopic(title: title, emoji: emoji, children: subTopicDict)
+            self.mainTopics[title] = mainTopic(title: title, emoji: emoji, children: subTopicDict, isSelected: false)
         }
     }
     
@@ -69,11 +69,11 @@ class mainTopic: Identifiable, ObservableObject{
     var children: [String:subTopic]
     @Published var isSelected: Bool
     
-    init(title: String, emoji: String, children: [String:subTopic]) {
+    init(title: String, emoji: String, children: [String:subTopic], isSelected: Bool) {
         self.title = title
         self.emoji = emoji
         self.children = children
-        self.isSelected = false
+        self.isSelected = isSelected
     }
     
     func addSubTopic(target: subTopic){
@@ -81,7 +81,7 @@ class mainTopic: Identifiable, ObservableObject{
     }
 }
 
-class subTopic{
+class subTopic: Identifiable{
     let title: String
     var children: [String: detailedTopic]
     
@@ -95,12 +95,12 @@ class subTopic{
     }
 }
 
-class detailedTopic{
+class detailedTopic: Identifiable, ObservableObject{
     let title: String
-    var isSeleted: Bool
+    @Published var isSelected: Bool
     
     init(title: String) {
         self.title = title
-        self.isSeleted = false
+        self.isSelected = false
     }
 }
