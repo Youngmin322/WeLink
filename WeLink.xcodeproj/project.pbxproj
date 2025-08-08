@@ -10,9 +10,22 @@
 		54E276742E4080C000E05B5D /* WeLink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeLink.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		540077902E4479CB00F5D021 /* Exceptions for "WeLink" folder in "WeLink" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 54E276732E4080C000E05B5D /* WeLink */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		54E276762E4080C000E05B5D /* WeLink */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				540077902E4479CB00F5D021 /* Exceptions for "WeLink" folder in "WeLink" target */,
+			);
 			path = WeLink;
 			sourceTree = "<group>";
 		};
@@ -253,9 +266,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5R33532VPH;
+				DEVELOPMENT_TEAM = UWCRQWUTS5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WeLink/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 기기와 카드를 공유하기 위해 로컬 네트워크 접근이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -266,7 +281,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = co.kr.youngmin.WeLink;
+				PRODUCT_BUNDLE_IDENTIFIER = co.kr.youngmin.WeLink2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -281,9 +296,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5R33532VPH;
+				DEVELOPMENT_TEAM = UWCRQWUTS5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WeLink/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 기기와 카드를 공유하기 위해 로컬 네트워크 접근이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -294,7 +311,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = co.kr.youngmin.WeLink;
+				PRODUCT_BUNDLE_IDENTIFIER = co.kr.youngmin.WeLink2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
