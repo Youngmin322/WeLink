@@ -117,40 +117,40 @@ struct CategoryView: View {
             }
         }
     }
+    
+    
+    struct CategoryButton: View {
+        @ObservedObject var topic: mainTopic
+        @Binding var selectedTopics: [mainTopic]
+        @Binding var isReady: Bool
         
+        let boxSize: CGFloat = 155
         
-        struct CategoryButton: View {
-            @ObservedObject var topic: mainTopic
-            @Binding var selectedTopics: [mainTopic]
-            @Binding var isReady: Bool
-            
-            let boxSize: CGFloat = 155
-            
-            var body: some View {
-                Button(action: {
-                    if !(selectedTopics.count == 3 && !topic.isSelected){
-                        topic.isSelected.toggle()
-                        updateSelectedTopicList(topicList: &selectedTopics, tgt: topic)
+        var body: some View {
+            Button(action: {
+                if !(selectedTopics.count == 3 && !topic.isSelected){
+                    topic.isSelected.toggle()
+                    updateSelectedTopicList(topicList: &selectedTopics, tgt: topic)
+                }
+                isReady = (selectedTopics.count > 0 && selectedTopics.count < 4) ? true : false
+            }) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(topic.isSelected ? Color("MainColor") : Color("CategoryColor"))
+                        .frame(width: boxSize, height: boxSize)
+                    
+                    VStack(spacing: 8) {
+                        Text(topic.emoji)
+                        Text(topic.title)
+                            .font(.headline)
+                            .foregroundColor(topic.isSelected ? .black : .white)
                     }
-                    isReady = (selectedTopics.count > 0 && selectedTopics.count < 4) ? true : false
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(topic.isSelected ? Color("MainColor") : Color("CategoryColor"))
-                            .frame(width: boxSize, height: boxSize)
-                        
-                        VStack(spacing: 8) {
-                            Text(topic.emoji)
-                            Text(topic.title)
-                                .font(.headline)
-                                .foregroundColor(topic.isSelected ? .black : .white)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
         }
     }
+}
 
 
 func updateSelectedTopicList(topicList: inout [mainTopic], tgt: mainTopic){

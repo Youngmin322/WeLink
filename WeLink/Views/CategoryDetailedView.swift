@@ -21,7 +21,7 @@ struct CategoryDetailedView: View {
     @State private var goNext:Bool = false
     
     var body: some View {
-
+        
         ZStack{
             Color("BackgroundColor")
                 .ignoresSafeArea()
@@ -101,8 +101,8 @@ struct CategoryDetailedView: View {
                         
                         // 중, 소 주제 배경
                         RoundedRectangle(cornerRadius: 20)
-                                        .fill(Color("CategoryColor"))
-                                        .frame(width: sectionWidth, height: sectionTotalHeights[currentIndex])
+                            .fill(Color("CategoryColor"))
+                            .frame(width: sectionWidth, height: sectionTotalHeights[currentIndex])
                         
                         // 각 섹션
                         VStack(spacing: 0) {
@@ -192,7 +192,7 @@ struct CategoryDetailedView: View {
         
         let buttonWidth: CGFloat = 110
         let buttonHeight: CGFloat = 45
-
+        
         var body: some View {
             let numRows: Int = ((subTopic.children.count-1) / 3) + 1
             let height: CGFloat = (buttonHeight + 15.0) * CGFloat(numRows) + 50.0
@@ -201,9 +201,9 @@ struct CategoryDetailedView: View {
             
             ZStack(alignment: .top){
                 RoundedRectangle(cornerRadius: 20)
-                                .fill(Color("CategoryColor"))
-                                .frame(width: width, height: height)
-            
+                    .fill(Color("CategoryColor"))
+                    .frame(width: width, height: height)
+                
                 VStack{
                     HStack(spacing: 0){
                         Text("#")

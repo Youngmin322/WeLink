@@ -51,7 +51,7 @@ struct MyProfileTabView: View {
                     
                     NavigationLink(destination: MyProfileTabDetailView()) {
                         ZStack {
-                            Image("backgroundwinnoblur")
+                            Image("winter")
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 302, height: 500)

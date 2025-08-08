@@ -18,76 +18,76 @@ struct ProfileCustomView: View {
     @State private var showPicker = false
     @State private var selectedImage: UIImage?
     @FocusState private var focusedField: FocusField?
-
+    
     enum FocusField: Hashable {
         case name, birthDate, nickname, introduction, mbti, job
     }
     
     var progress: CGFloat
     
-var body: some View {
-    NavigationStack {
-        ZStack{
-            Color("BackgroundColor")
-                .ignoresSafeArea()
-            
-            VStack{
-                ZStack(alignment: .leading) {
-                    let barWidth: CGFloat = 324
-                    let barHeight: CGFloat = 2
-                    
-                    // 회색 배경 바
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.gray.opacity(0.4))
-                        .frame(width: barWidth, height: barHeight)
-                    
-                    // 연두색 프로그레스 바
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color("MainColor"))
-                        .frame(width: barWidth * 0.2, height: barHeight)
-                }
-                .padding(.bottom, 20)
+    var body: some View {
+        NavigationStack {
+            ZStack{
+                Color("BackgroundColor")
+                    .ignoresSafeArea()
                 
-                ScrollView(.vertical) {
-                    VStack {
-                        VStack(alignment: .leading, spacing: 7) {
-                            Text("프로필을 입력해주세요!")
-                                .foregroundColor(.white)
-                                .font(.system(size: 21))
-                                .bold()
-                            Text("당신만의 취향카드를 만들어드릴게요.")
-                                .font(.system(size: 15))
-                                .foregroundColor(Color("MainColor"))
-                        }
-                        .padding(.trailing, 100)
-
-                        Spacer(minLength: 34)
-
-                        profileImageInputView
-                        userInfoFieldsView
+                VStack{
+                    ZStack(alignment: .leading) {
+                        let barWidth: CGFloat = 324
+                        let barHeight: CGFloat = 2
                         
-                        NavigationLink(destination: CategoryView(progress: 0.5)) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 45)
-                                    .foregroundColor(Color("MainColor"))
-                                    .frame(width: 324, height: 58)
-                                Text("확인")
+                        // 회색 배경 바
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.gray.opacity(0.4))
+                            .frame(width: barWidth, height: barHeight)
+                        
+                        // 연두색 프로그레스 바
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color("MainColor"))
+                            .frame(width: barWidth * 0.2, height: barHeight)
+                    }
+                    .padding(.bottom, 20)
+                    
+                    ScrollView(.vertical) {
+                        VStack {
+                            VStack(alignment: .leading, spacing: 7) {
+                                Text("프로필을 입력해주세요!")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 21))
                                     .bold()
-                                    .foregroundColor(.black)
-                                    .font(.system(size: 17))
+                                Text("당신만의 취향카드를 만들어드릴게요.")
+                                    .font(.system(size: 15))
+                                    .foregroundColor(Color("MainColor"))
+                            }
+                            .padding(.trailing, 100)
+                            
+                            Spacer(minLength: 34)
+                            
+                            profileImageInputView
+                            userInfoFieldsView
+                            
+                            NavigationLink(destination: CategoryView(progress: 0.5)) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 45)
+                                        .foregroundColor(Color("MainColor"))
+                                        .frame(width: 324, height: 58)
+                                    Text("확인")
+                                        .bold()
+                                        .foregroundColor(.black)
+                                        .font(.system(size: 17))
+                                }
                             }
                         }
                     }
                 }
-            }
-        
-        
+                
+                
             }
             
         }
     }
-        
-
+    
+    
     
     private var profileImageInputView: some View {
         VStack {
@@ -102,7 +102,7 @@ var body: some View {
                     .onTapGesture {
                         showPicker = true
                     }
-
+                
                 if let image = selectedImage {
                     Image(uiImage: image)
                         .resizable()
@@ -117,7 +117,7 @@ var body: some View {
                                     Circle()
                                         .frame(width: 50, height: 50)
                                         .foregroundColor(Color("BackGround"))
-
+                                    
                                     Image(systemName: "camera.fill")
                                         .resizable()
                                         .frame(width: 25, height: 20)
@@ -143,7 +143,7 @@ var body: some View {
             PhotoPicker(selectedImage: $selectedImage)
         }
     }
-
+    
     private var userInfoFieldsView: some View {
         
         VStack(spacing: 40) {
@@ -266,16 +266,11 @@ var body: some View {
             }
             .padding(.horizontal, 30)
             .foregroundColor(Color("BackgroundColor"))
-
+            
             Spacer()
-            
-        
-            
         }
     }
 }
-    
-
 
 #Preview {
     NavigationStack {
