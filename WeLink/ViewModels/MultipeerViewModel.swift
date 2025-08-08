@@ -1,5 +1,5 @@
 //
-//  MultipeerViewModel.swift
+//  MultipeerManager.swift
 //  WeLink
 //
 //  Created by 조영민 on 8/4/25.
@@ -17,6 +17,9 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     private var browser: MCNearbyServiceBrowser!
 
     @Published var receivedCard: CardModel?
+    @Published var isConnected: Bool = false
+    @Published var discoveredPeers: [MCPeerID] = [] // 발견된 피어들
+    @Published var connectedPeers: [MCPeerID] = [] // 연결된 피어들
 
     override init() {
         super.init()
@@ -38,6 +41,25 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         browser.startBrowsingForPeers()
     }
 
+    func stopHosting() {
+        advertiser.stopAdvertisingPeer()
+    }
+
+    func stopBrowsing() {
+        browser.stopBrowsingForPeers()
+    }
+
+    func disconnect() {
+        session.disconnect()
+        stopHosting()
+        stopBrowsing()
+    }
+    
+    // 특정 피어에게 연결 요청
+    func invitePeer(_ peerID: MCPeerID) {
+        browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
+    }
+
     func sendCard(_ card: CardModel) {
         guard !session.connectedPeers.isEmpty else { return }
         do {
@@ -50,7 +72,21 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     
     // MARK: - MCSessionDelegate
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        print("Peer \(peerID.displayName) changed state to \(state.rawValue)")
+        DispatchQueue.main.async {
+            self.isConnected = !session.connectedPeers.isEmpty
+            self.connectedPeers = session.connectedPeers
+            
+            switch state {
+            case .connected:
+                print("Connected to \(peerID.displayName)")
+            case .connecting:
+                print("Connecting to \(peerID.displayName)")
+            case .notConnected:
+                print("Disconnected from \(peerID.displayName)")
+            @unknown default:
+                print("Unknown state for \(peerID.displayName)")
+            }
+        }
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
@@ -69,6 +105,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
 
     // MARK: - MCNearbyServiceAdvertiserDelegate
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+        // 자동으로 초대를 수락
         invitationHandler(true, session)
     }
 
@@ -78,10 +115,20 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
 
     // MARK: - MCNearbyServiceBrowserDelegate
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
-        browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
+        DispatchQueue.main.async {
+            if !self.discoveredPeers.contains(peerID) {
+                self.discoveredPeers.append(peerID)
+                print("Found peer: \(peerID.displayName)")
+            }
+        }
     }
 
-    func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {}
+    func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
+        DispatchQueue.main.async {
+            self.discoveredPeers.removeAll { $0 == peerID }
+            print("Lost peer: \(peerID.displayName)")
+        }
+    }
 
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
         print("Failed to browse: \(error.localizedDescription)")

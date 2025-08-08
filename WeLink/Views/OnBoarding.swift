@@ -1,40 +1,42 @@
 import SwiftUI
 
 struct OnboardingView: View {
+    @State private var isTapped = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
                 Color(hex: "#2C2C2C")
                     .ignoresSafeArea()
+                    .onTapGesture {
+                        isTapped = true
+                    }
                 
-                VStack(spacing: 20) {
-                    // 아이콘 자리 (임시 네모)
+                VStack {
+                    Spacer()
+                    
                     Rectangle()
                         .fill(Color(hex: "#C0FF00"))
                         .frame(width: 180, height: 180)
                         .cornerRadius(30)
                     
-                    // 앱 이름 텍스트
                     Text("WeLink")
-                        .font(.system(size: 55, weight: .semibold))
+                        .font(.system(size: 55, weight: .bold))
                         .foregroundStyle(.white)
                     
-                    // 시작하기 버튼
-                    NavigationLink(destination: NextView()) {
-                        Text("시작하기")
-                            .font(.headline)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 12)
-                            .background(Color(hex: "#C0FF00"))
-                            .cornerRadius(12)
-                            .padding(.top, 40)
-                    }
+                    Spacer()
+                }
+                .padding()
+                
+                // Invisible NavigationLink triggered by tap
+                NavigationLink(destination: NextView(), isActive: $isTapped) {
+                    EmptyView()
                 }
             }
         }
     }
 }
+
 
 struct NextView: View {
     var body: some View {
@@ -43,20 +45,22 @@ struct NextView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                Spacer().frame(height: 170) // 네모와 맨 위 간격 유지
+                Spacer().frame(height: 140)
                 
-                Rectangle()
-                    .fill(Color(hex: "#C0FF00"))
-                    .frame(width: 180, height: 180)
-                    .cornerRadius(30)
+                Image("Onboarding1")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill) // or .fit
+                    .frame(width: 250, height: 250)
+                    .clipped() // .fill인 경우 넘치는 이미지 자르기
+
                 
                 Spacer().frame(height: 60)
                 
                 Text("위링이 처음이신가요?")
-                    .font(.system(size: 40, weight: .bold))
+                    .font(.system(size: 30, weight: .bold))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 80)
+                    .padding(.horizontal, 20)
                 
                 Spacer().frame(height: 20)
                 
@@ -66,33 +70,53 @@ struct NextView: View {
                     .lineSpacing(4)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
-                Spacer()
-//                    .padding(.bottom, 80)
                 
-                VStack {
-                    HStack {
-                        Text("skip")
-                            .font(.system(size: 16, weight: .semibold))
+                Spacer()
+                
+                
+                HStack {
+                    // Skip
+                    NavigationLink(destination: FinalView()) {
+                        Text("Skip")
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(Color(hex: "#C0FF00"))
-                            .padding(.leading, 35)
-                        
-                        Spacer()
-                        
-                        NavigationLink(destination: ThirdView()) {
-                            Image(systemName: "arrow.forward")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(Color(hex: "#C0FF00"))
-                                .padding(.trailing, 35)
+                            .padding(.leading, 30)
+                    }
+                    Spacer()
+                    
+                    // 인디케이터 부분
+                    HStack(spacing: 10) {
+                        ForEach(1...3, id: \.self) { index in
+                            if index == 1 { // ← 현재 단계를 1로
+                                Capsule()
+                                    .fill(Color(hex: "#C0FF00"))
+                                    .frame(width: 20, height: 10)
+                            } else {
+                                Circle()
+                                    .fill(Color.gray.opacity(0.6))
+                                    .frame(width: 10, height: 10)
+                            }
                         }
                     }
-                    .padding(.bottom, 0)
+
+                    Spacer()
+
+                    // 화살표 버튼
+                    NavigationLink(destination: ThirdView()) {
+                        Image(systemName: "arrow.forward")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Color(hex: "#C0FF00"))
+                            .padding(.trailing, 30)
+                    }
                 }
+                .padding(.bottom, 10)
+
             }
             .navigationBarBackButtonHidden(true)
-
         }
     }
 }
+
 
 struct ThirdView: View {
     var body: some View {
@@ -101,12 +125,14 @@ struct ThirdView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                Spacer().frame(height: 170) // 네모와 맨 위 간격 유지
+                Spacer().frame(height: 140) // 네모와 맨 위 간격 유지
                 
-                Rectangle()
-                    .fill(Color(hex: "#C0FF00"))
-                    .frame(width: 180, height: 180)
-                    .cornerRadius(30)
+                Image("Onboarding2")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill) // or .fit
+                    .frame(width: 250, height: 250)
+                    .offset(x: -38) // ← 왼쪽으로 20만큼 이동
+
                 
                 Spacer().frame(height: 60)
                 
@@ -127,23 +153,44 @@ struct ThirdView: View {
                 Spacer()
                     .padding(.bottom, 80)
                 
-                VStack {
-                    HStack {
+                HStack {
+                    // Skip
+                    NavigationLink(destination: FinalView()) {
                         Text("Skip")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(Color(hex: "#C0FF00"))
-                            .padding(.leading, 35)
-                        
-                        Spacer()
-                        
-                        NavigationLink(destination: ThirdplusoneView()) {
-                            Image(systemName: "arrow.forward")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(Color(hex: "#C0FF00"))
-                                .padding(.trailing, 35)
+                            .padding(.leading, 30)
+                    }
+                    
+                    Spacer()
+
+                    // 인디케이터
+                    HStack(spacing: 10) {
+                        ForEach(1...3, id: \.self) { index in
+                            if index == 2 {
+                                Capsule()
+                                    .fill(Color(hex: "#C0FF00"))
+                                    .frame(width: 20, height: 10)
+                            } else {
+                                Circle()
+                                    .fill(Color.gray.opacity(0.6))
+                                    .frame(width: 10, height: 10)
+                            }
                         }
                     }
-                    .padding(.bottom, 0)
+
+                    Spacer()
+
+                    // 화살표 버튼
+                    NavigationLink(destination: ThirdplusoneView()) {
+                        Image(systemName: "arrow.forward")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Color(hex: "#C0FF00"))
+                            .padding(.trailing, 30)
+                    }
+                }
+                .padding(.bottom, 10)
+
                 }
             }
             .navigationBarBackButtonHidden(true)
@@ -151,7 +198,6 @@ struct ThirdView: View {
         }
     }
     
-}
 
 
 struct ThirdplusoneView: View {
@@ -161,14 +207,15 @@ struct ThirdplusoneView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                Spacer().frame(height: 170) // 네모와 맨 위 간격 유지
+                Spacer().frame(height: 170)
                 
-                Rectangle()
-                    .fill(Color(hex: "#C0FF00"))
-                    .frame(width: 180, height: 180)
-                    .cornerRadius(30)
+                Image("Onboarding3")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill) // or .fit
+                    .frame(width: 200, height: 200)
+                    .offset(x: -0) // ← 왼쪽으로 20만큼 이동
                 
-                Spacer().frame(height: 60)
+                Spacer().frame(height: 80)
                 
                 Text("당신의 취향이 누군가에게 큰 힌트가 됩니다.")
                     .font(.system(size: 30, weight: .bold))
@@ -184,34 +231,88 @@ struct ThirdplusoneView: View {
                     .lineSpacing(4)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
-                Spacer()
-                    .padding(.bottom, 80)
                 
-                VStack {
-                    HStack {
+                Spacer()
+                
+                HStack {
+                    // Skip
+                    NavigationLink(destination: FinalView()) {
                         Text("Skip")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(Color(hex: "#C0FF00"))
-                            .padding(.leading, 35)
-                        
-                        Spacer()
-                        
-                        NavigationLink(destination: ThirdView()) {
-                            Text("Done")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(Color(hex: "#C0FF00"))
-                                .padding(.trailing, 35)
-                        }
-
+                            .padding(.leading, 30)
                     }
-                    .padding(.bottom, 0)
+                    
+                    Spacer()
+
+                    // Indicator (3단계)
+                    HStack(spacing: 10) {
+                        ForEach(1...3, id: \.self) { index in
+                            if index == 3 {
+                                Capsule()
+                                    .fill(Color(hex: "#C0FF00"))
+                                    .frame(width: 20, height: 10)
+                            } else {
+                                Circle()
+                                    .fill(Color.gray.opacity(0.6))
+                                    .frame(width: 10, height: 10)
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    // Done 버튼
+                    NavigationLink(destination: FinalView()) {
+                        Text("Done")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(Color(hex: "#C0FF00"))
+                            .padding(.trailing, 30)
+                    }
                 }
+                .padding(.bottom, 10) // 하단 여백
             }
             .navigationBarBackButtonHidden(true)
-
         }
     }
 }
+
+
+struct FinalView: View {
+    var body: some View {
+        ZStack {
+            Color(hex: "#C0FF00")
+                .ignoresSafeArea()
+            
+            VStack{
+                Spacer() // 위 공간 확보
+
+                Rectangle()
+                    .fill(Color(hex: "#2C2C2C"))
+                    .frame(width: 180, height: 180)
+                    .cornerRadius(30)
+                
+                Text("WeLink")
+                    .font(.system(size: 55, weight: .bold))
+                    .foregroundStyle(.black)
+                Spacer() // 중간 공간 확보
+
+                Text("시작하기")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 135)
+                    .padding(.vertical, 18)
+                    .background(Color(hex: "#2C2C2C"))
+                    .cornerRadius(30)
+                // 버튼은 비워두거나 필요에 따라 추가 가능
+            }
+            .padding(.bottom, 20) // 하단 여백
+
+        }
+        .navigationBarBackButtonHidden(true)
+    }
+}
+
 
 // HEX 색상 확장
 extension Color {
