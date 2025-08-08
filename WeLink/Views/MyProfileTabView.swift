@@ -18,7 +18,7 @@ struct MyProfileTabView: View {
     
     var body: some View {
         
-        let myProfile = cards.first(where: { $0.id == myID.first!.id })!
+        let myProfile = findMyProfile(cards: cards, id: myID.last!.id)
         
         NavigationView {
             ZStack{
@@ -54,9 +54,10 @@ struct MyProfileTabView: View {
                     
                     .padding(.bottom,30)
                     
-                    NavigationLink(destination: MyProfileTabDetailView()) {
+                    NavigationLink(destination: MyProfileTabDetailView(myProfile: myProfile)) {
                         ZStack {
-                            Image("Winter")
+//                            Image("Winter")
+                            Image(uiImage: UIImage(data: myProfile.imageData)!)
                                 .resizable()
                                 .frame(width: 302, height: 500)
                                 .scaledToFit()
@@ -76,7 +77,8 @@ struct MyProfileTabView: View {
                                 )
                             
                             VStack {
-                                Text("D-98")
+//                                Text("D-98")
+                                Text("D-\(myProfile.dDay)")
                                     .foregroundColor(.white)
                                     .opacity(0.9)
                                     .font(.system(size: 32))
@@ -85,13 +87,13 @@ struct MyProfileTabView: View {
                                     .offset(x: 100, y: -145)
                                 
                                 HStack {
-                                    Text("Winter")
+                                    Text(myProfile.name)
                                         .foregroundColor(.white)
                                         .font(.system(size: 40))
                                         .bold()
                                         .offset(x: -50, y: 100)
                                     
-                                    Text("(25)")
+                                    Text("(\(myProfile.age))")
                                         .foregroundColor(.white)
                                         .font(.system(size: 14))
                                         .bold()
@@ -99,9 +101,10 @@ struct MyProfileTabView: View {
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("사실 저는 여름이 더 좋긴 해요.")
-                                    Text("겨울에는 생존하느라 기억이 희미해요.")
-                                    Text("절전모드로 들어가야하거든요.")
+//                                    Text("사실 저는 여름이 더 좋긴 해요.")
+//                                    Text("겨울에는 생존하느라 기억이 희미해요.")
+//                                    Text("절전모드로 들어가야하거든요.")
+                                    Text(myProfile.cardDescription)
                                 }
                                 .foregroundColor(.white)
                                 .font(.system(size: 12))
@@ -111,7 +114,7 @@ struct MyProfileTabView: View {
                                 
                                 
                                 HStack(spacing: 19) {
-                                    ForEach(["25 July", "ENFJ", "아이돌"], id: \.self) { label in
+                                    ForEach([formattedBirthDate(from: myProfile.birthDate), (myProfile.mbti), myProfile.tag], id: \.self) { label in
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 45)
                                                 .foregroundColor(Color.gray)
@@ -176,6 +179,17 @@ struct MyProfileTabView: View {
             }
         }
     }
+}
+
+func findMyProfile(cards: [CardModel], id: UUID)->CardModel{
+    var idx:Int = 0
+    for (i, card) in cards.enumerated(){
+        if card.id == id{
+            idx = i
+            break
+        }
+    }
+    return cards[idx]
 }
 
 

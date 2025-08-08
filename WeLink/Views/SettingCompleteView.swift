@@ -88,6 +88,7 @@ struct SettingCompleteView: View {
                     Button(action: {
                         context.insert(cardModel)
                         try? context.save()
+                        
                         goNext = true
                     }) {
                         Text("앱 시작하기")
@@ -104,7 +105,7 @@ struct SettingCompleteView: View {
         }
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $goNext) {
-            MyProfileTabView()
+            ContentView()
         }
         
     }
