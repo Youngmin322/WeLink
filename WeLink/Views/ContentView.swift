@@ -61,23 +61,18 @@ struct ContentView: View {
                         .animation(.easeInOut(duration: 0.3), value: selectedTab)
                     
                     HStack(spacing: 0) {
-                        TabBarItem(title: "메뉴", systemImage: "line.3.horizontal", isSelected: selectedTab == 0)
-                            .frame(width: tabWidth)
-                            .onTapGesture {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    selectedTab = 0
-                                }
+                        TabBarItem(title: "메뉴", systemImage: "line.3.horizontal", isSelected: selectedTab == 0) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedTab = 0
                             }
-                        TabBarItem(title: "메인", systemImage: "person.3.fill", isSelected: selectedTab == 1)
-                            .frame(width: tabWidth)
-                            .onTapGesture {
+                        }
+                            
+                        TabBarItem(title: "메인", systemImage: "person.3.fill", isSelected: selectedTab == 1) {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     selectedTab = 1
                                 }
                             }
-                        TabBarItem(title: "마이페이지", systemImage: "person.crop.circle", isSelected: selectedTab == 2)
-                            .frame(width: tabWidth)
-                            .onTapGesture {
+                        TabBarItem(title: "마이페이지", systemImage: "person.crop.circle", isSelected: selectedTab == 2) {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     selectedTab = 2
                                 }
@@ -97,6 +92,7 @@ struct TabBarItem: View {
     let title: String
     let systemImage: String
     let isSelected: Bool
+    let action: () -> Void
 
     var body: some View {
         ZStack {
@@ -113,6 +109,10 @@ struct TabBarItem: View {
                 .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
         .padding(.horizontal, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            action()
+        }
     }
 }
 
