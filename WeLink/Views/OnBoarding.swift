@@ -52,7 +52,7 @@ struct NextView: View {
                     .aspectRatio(contentMode: .fill) // or .fit
                     .frame(width: 250, height: 250)
                     .clipped() // .fill인 경우 넘치는 이미지 자르기
-
+                
                 
                 Spacer().frame(height: 60)
                 
@@ -98,9 +98,9 @@ struct NextView: View {
                             }
                         }
                     }
-
+                    
                     Spacer()
-
+                    
                     // 화살표 버튼
                     NavigationLink(destination: ThirdView()) {
                         Image(systemName: "arrow.forward")
@@ -110,7 +110,7 @@ struct NextView: View {
                     }
                 }
                 .padding(.bottom, 10)
-
+                
             }
             .navigationBarBackButtonHidden(true)
         }
@@ -132,7 +132,7 @@ struct ThirdView: View {
                     .aspectRatio(contentMode: .fill) // or .fit
                     .frame(width: 250, height: 250)
                     .offset(x: -38) // ← 왼쪽으로 20만큼 이동
-
+                
                 
                 Spacer().frame(height: 60)
                 
@@ -163,7 +163,7 @@ struct ThirdView: View {
                     }
                     
                     Spacer()
-
+                    
                     // 인디케이터
                     HStack(spacing: 10) {
                         ForEach(1...3, id: \.self) { index in
@@ -178,9 +178,9 @@ struct ThirdView: View {
                             }
                         }
                     }
-
+                    
                     Spacer()
-
+                    
                     // 화살표 버튼
                     NavigationLink(destination: ThirdplusoneView()) {
                         Image(systemName: "arrow.forward")
@@ -190,14 +190,14 @@ struct ThirdView: View {
                     }
                 }
                 .padding(.bottom, 10)
-
-                }
+                
             }
-            .navigationBarBackButtonHidden(true)
-
         }
+        .navigationBarBackButtonHidden(true)
+        
     }
-    
+}
+
 
 
 struct ThirdplusoneView: View {
@@ -244,7 +244,7 @@ struct ThirdplusoneView: View {
                     }
                     
                     Spacer()
-
+                    
                     // Indicator (3단계)
                     HStack(spacing: 10) {
                         ForEach(1...3, id: \.self) { index in
@@ -259,9 +259,9 @@ struct ThirdplusoneView: View {
                             }
                         }
                     }
-
+                    
                     Spacer()
-
+                    
                     // Done 버튼
                     NavigationLink(destination: FinalView()) {
                         Text("Done")
@@ -286,7 +286,7 @@ struct FinalView: View {
             
             VStack{
                 Spacer() // 위 공간 확보
-
+                
                 Rectangle()
                     .fill(Color(hex: "#2C2C2C"))
                     .frame(width: 180, height: 180)
@@ -296,7 +296,7 @@ struct FinalView: View {
                     .font(.system(size: 55, weight: .bold))
                     .foregroundStyle(.black)
                 Spacer() // 중간 공간 확보
-
+                
                 Text("시작하기")
                     .font(.headline)
                     .foregroundColor(.white)
@@ -307,7 +307,7 @@ struct FinalView: View {
                 // 버튼은 비워두거나 필요에 따라 추가 가능
             }
             .padding(.bottom, 20) // 하단 여백
-
+            
         }
         .navigationBarBackButtonHidden(true)
     }
