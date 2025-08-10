@@ -258,6 +258,7 @@ struct PeerCardView: View {
 
 #Preview {
     ShareCardSheetView(myCard: CardModel(
+        id: UUID(),
         name: "테스트",
         age: 25,
         description: "테스트 카드",

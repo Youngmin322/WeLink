@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct MyProfileTabView: View {
+    @Query private var myID: [MyUUID]
     @Query private var cards: [CardModel]
     @State private var showMenu = false
     @State private var value1: Double = 0.5
@@ -16,9 +17,13 @@ struct MyProfileTabView: View {
     @State private var value3: Double = 0.5
     
     var body: some View {
+        
+        let myProfile = findMyProfile(cards: cards, id: myID.last!.id)
+        
         NavigationView {
             ZStack{
-                Image("backgroundwin")
+//                Image("Winter")
+                Image(uiImage: UIImage(data: myProfile.imageData)!)
                     .resizable()
                     .blur(radius: 3)
                     .frame(width: 600, height: 1000)
@@ -47,14 +52,15 @@ struct MyProfileTabView: View {
                         
                     }
                     
-                    .padding(.bottom,50)
+                    .padding(.bottom,30)
                     
-                    NavigationLink(destination: MyProfileTabDetailView()) {
+                    NavigationLink(destination: MyProfileTabDetailView(myProfile: myProfile)) {
                         ZStack {
-                            Image("winter")
+//                            Image("Winter")
+                            Image(uiImage: UIImage(data: myProfile.imageData)!)
                                 .resizable()
-                                .scaledToFill()
                                 .frame(width: 302, height: 500)
+                                .scaledToFit()
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20)
@@ -71,7 +77,8 @@ struct MyProfileTabView: View {
                                 )
                             
                             VStack {
-                                Text("D-98")
+//                                Text("D-98")
+                                Text("D-\(myProfile.dDay)")
                                     .foregroundColor(.white)
                                     .opacity(0.9)
                                     .font(.system(size: 32))
@@ -80,13 +87,13 @@ struct MyProfileTabView: View {
                                     .offset(x: 100, y: -145)
                                 
                                 HStack {
-                                    Text("Winter")
+                                    Text(myProfile.name)
                                         .foregroundColor(.white)
                                         .font(.system(size: 40))
                                         .bold()
                                         .offset(x: -50, y: 100)
                                     
-                                    Text("(25)")
+                                    Text("(\(myProfile.age))")
                                         .foregroundColor(.white)
                                         .font(.system(size: 14))
                                         .bold()
@@ -94,9 +101,10 @@ struct MyProfileTabView: View {
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("사실 저는 여름이 더 좋긴 해요.")
-                                    Text("겨울에는 생존하느라 기억이 희미해요.")
-                                    Text("절전모드로 들어가야하거든요.")
+//                                    Text("사실 저는 여름이 더 좋긴 해요.")
+//                                    Text("겨울에는 생존하느라 기억이 희미해요.")
+//                                    Text("절전모드로 들어가야하거든요.")
+                                    Text(myProfile.cardDescription)
                                 }
                                 .foregroundColor(.white)
                                 .font(.system(size: 12))
@@ -106,7 +114,7 @@ struct MyProfileTabView: View {
                                 
                                 
                                 HStack(spacing: 19) {
-                                    ForEach(["25 July", "ENFJ", "아이돌"], id: \.self) { label in
+                                    ForEach([formattedBirthDate(from: myProfile.birthDate), (myProfile.mbti), myProfile.tag], id: \.self) { label in
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 45)
                                                 .foregroundColor(Color.gray)
@@ -141,9 +149,9 @@ struct MyProfileTabView: View {
 
                     // 메뉴 본체
                     VStack(alignment: .leading, spacing: 0) {
-                        
-                        NavigationLink(destination: ProfileCustomView(progress: 0.5)) {
-                           Text("프로필 수정")
+                        Button("프로필 수정") {
+                            print("프로필 수정")
+                            showMenu = false
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -152,8 +160,9 @@ struct MyProfileTabView: View {
 
                         Divider().background(Color.white)
 
-                        NavigationLink(destination: CategoryView(progress: 0.5)) {
-                           Text("취향 카테고리 수정")
+                        Button("취향 카테고리 수정") {
+                            print("취향 카테고리 수정")
+                            showMenu = false
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -164,21 +173,27 @@ struct MyProfileTabView: View {
                     .cornerRadius(12)
                     .frame(width: 160)
                     .shadow(radius: 5)
-                    .offset(x: 50, y: -230) // 필요에 따라 위치 조정
+                    .offset(x: 60, y: -250) // 필요에 따라 위치 조정
                     .transition(.opacity)
                 }
             }
-            .padding(.bottom,100)
         }
     }
-    
 }
- 
 
-
-#Preview {
-    NavigationStack {
-        MyProfileTabView()
+func findMyProfile(cards: [CardModel], id: UUID)->CardModel{
+    var idx:Int = 0
+    for (i, card) in cards.enumerated(){
+        if card.id == id{
+            idx = i
+            break
+        }
     }
+    return cards[idx]
 }
+
+
+//#Preview {
+//    MyProfileTabView()
+//}
 

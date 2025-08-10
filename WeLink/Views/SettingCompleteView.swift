@@ -16,8 +16,10 @@ import SwiftUI
 
 struct SettingCompleteView: View {
     var progress: CGFloat
+    @ObservedObject var cardModel: CardModel
     @State private var goNext:Bool = false
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var context
     
     var body: some View {
         ZStack{
@@ -84,6 +86,9 @@ struct SettingCompleteView: View {
                     
                     Spacer()
                     Button(action: {
+                        context.insert(cardModel)
+                        try? context.save()
+                        
                         goNext = true
                     }) {
                         Text("앱 시작하기")
@@ -100,7 +105,7 @@ struct SettingCompleteView: View {
         }
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $goNext) {
-            MyProfileTabView()
+            ContentView()
         }
         
     }
@@ -110,6 +115,6 @@ struct SettingCompleteView: View {
 
 
 
-#Preview{
-    SettingCompleteView(progress: 5.0 / 5.0)
-}
+//#Preview{
+//    SettingCompleteView(progress: 5.0 / 5.0)
+//}

@@ -13,6 +13,7 @@ struct WeLinkApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             CardModel.self,
+            MyUUID.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +26,8 @@ struct WeLinkApp: App {
 
     var body: some Scene {
         WindowGroup {
-        ContentView()
+//        ContentView()
+            ProfileCustomView(progress: 1.0 / 4.0)
         }
         .modelContainer(sharedModelContainer)
     }

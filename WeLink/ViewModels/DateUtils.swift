@@ -14,7 +14,7 @@ func formattedBirthDate(from dateString: String) -> String {
     
     let outputFormatter = DateFormatter()
     outputFormatter.dateFormat = "d MMM"
-    outputFormatter.locale = Locale(identifier: "en_US")
+    outputFormatter.locale = Locale(identifier: "en_US_POSIX")
     
     if let date = inputFormatter.date(from: dateString) {
         return outputFormatter.string(from: date)

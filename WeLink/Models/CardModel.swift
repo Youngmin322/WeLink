@@ -9,8 +9,17 @@ import Foundation
 import SwiftData
 
 @Model
-class CardModel: Codable {
-    @Attribute(.unique) var id: UUID
+class MyUUID{
+    var id: UUID
+    
+    init(id: UUID){
+        self.id = id
+    }
+}
+
+@Model
+class CardModel: Codable, ObservableObject {
+    var id: UUID
     var name: String
     var age: Int
     var cardDescription: String
@@ -19,12 +28,13 @@ class CardModel: Codable {
     var tag: String
     var dDay: Int
     var imageData: Data
+    var topics: [mainTopic] = []
     
     enum CodingKeys: String, CodingKey {
-        case id, name, age, cardDescription, birthDate, mbti, tag, dDay, imageData
+        case id, name, age, cardDescription, birthDate, mbti, tag, dDay, imageData, topics
     }
     
-    init(id: UUID = UUID(), name: String, age: Int, description: String, birthDate: String, mbti: String, tag: String, dDay: Int, imageData: Data) {
+    init(id: UUID , name: String, age: Int, description: String, birthDate: String, mbti: String, tag: String, dDay: Int, imageData: Data) {
         self.id = id
         self.name = name
         self.age = age
@@ -47,6 +57,7 @@ class CardModel: Codable {
         self.tag = try container.decode(String.self, forKey: .tag)
         self.dDay = try container.decode(Int.self, forKey: .dDay)
         self.imageData = try container.decode(Data.self, forKey: .imageData)
+        self.topics = try container.decode([mainTopic].self, forKey: .topics)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -60,12 +71,14 @@ class CardModel: Codable {
         try container.encode(tag, forKey: .tag)
         try container.encode(dDay, forKey: .dDay)
         try container.encode(imageData, forKey: .imageData)
+        try container.encode(topics, forKey: .topics)
     }
 }
 
 // 테스트용 목업 데이터 extension
 extension CardModel {
     static let mockCard1 = CardModel(
+        id: UUID(),
         name: "조영민",
         age: 26,
         description: "iOS 개발자입니다. 좋은 앱을 만들고 싶어요!",
@@ -77,6 +90,7 @@ extension CardModel {
     )
     
     static let mockCard2 = CardModel(
+        id: UUID(),
         name: "김철수",
         age: 25,
         description: "안녕하세요! 백엔드 개발자 김철수입니다.",
@@ -88,6 +102,7 @@ extension CardModel {
     )
     
     static let mockCard3 = CardModel(
+        id: UUID(),
         name: "이영희",
         age: 28,
         description: "UI/UX 디자이너 이영희입니다!",
@@ -100,6 +115,7 @@ extension CardModel {
     
     // 기본 테스트용 카드
     static let defaultMockCard = CardModel(
+        id: UUID(),
         name: "홍길동",
         age: 30,
         description: "반갑습니다!",

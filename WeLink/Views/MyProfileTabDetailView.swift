@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct MyProfileTabDetailView: View {
+    @ObservedObject var myProfile: CardModel
     @State private var selectedCategory: String = "패션"
     var body: some View {
         ScrollView{
             ZStack{
+                //TODO: 배경 이미지 바꾸고, 밑에 카테고리는 스크롤로 하기
                 Image("winrer_category")
                     .resizable()
                     .scaledToFit()
@@ -37,31 +39,35 @@ struct MyProfileTabDetailView: View {
                     VStack(spacing: 30){
                         
                         VStack(spacing:10){
-                            Text("Winter")
+                            Text(myProfile.name)
                                 .font(.system(size: 50))
                                 .bold()
                                 .foregroundColor(.white)
                             
                             VStack(spacing:10){
-                                Text(" 사실 저는 여름이 더 좋긴 해요.")
-                                    .font(.system(size: 14))
-                                    .bold()
-                                    .foregroundColor(.white)
-                                
-                                Text("겨울에는 생존하느라 기억이 희미해요.")
-                                    .font(.system(size: 14))
-                                    .bold()
-                                    .foregroundColor(.white)
-                                
-                                
-                                Text("절전모드로 들어가야하거든요.")
+//                                Text(" 사실 저는 여름이 더 좋긴 해요.")
+//                                    .font(.system(size: 14))
+//                                    .bold()
+//                                    .foregroundColor(.white)
+//                                
+//                                Text("겨울에는 생존하느라 기억이 희미해요.")
+//                                    .font(.system(size: 14))
+//                                    .bold()
+//                                    .foregroundColor(.white)
+//                                
+//                                
+//                                Text("절전모드로 들어가야하거든요.")
+//                                    .font(.system(size: 14))
+//                                    .bold()
+//                                    .foregroundColor(.white)
+                                Text(myProfile.cardDescription)
                                     .font(.system(size: 14))
                                     .bold()
                                     .foregroundColor(.white)
                             }
                         }
                         HStack(spacing: 19) {
-                            ForEach(["25 July", "ENFJ", "아이돌"], id: \.self) { label in
+                            ForEach([formattedBirthDate(from: myProfile.birthDate), myProfile.mbti, myProfile.tag], id: \.self) { label in
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 45)
                                         .foregroundColor(Color.gray)
@@ -1602,6 +1608,6 @@ struct MyProfileTabDetailView: View {
 
 
 
-#Preview {
-    MyProfileTabDetailView()
-}
+//#Preview {
+//    MyProfileTabDetailView()
+//}

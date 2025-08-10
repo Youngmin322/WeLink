@@ -14,6 +14,7 @@ struct CategoryDetailedView: View {
     // selectedDetailedTopicsDict["스포츠"].append(~~)
     @State private var selectedDetailedTopicsList: [[detailedTopic]] = [[], [], []]
     @ObservedObject var categories: Category
+    @ObservedObject var cardModel: CardModel
     @Environment(\.dismiss) var dismiss
     
     @State var sectionTotalHeights: [CGFloat] = [0, 0, 0]
@@ -125,9 +126,12 @@ struct CategoryDetailedView: View {
                 if isReady{
                     Button(action: {
                         sectionTotalHeights = [0, 0, 0]
+                        cardModel.topics = []
+                        for topic in selectedTopics{
+                            cardModel.topics.append(topic)
+                        }
                         goNext = true
-                        
-                        //TODO: 선택한 카테고리 저장하는 로직
+    
                         
                     }) {
                         Text("다음")
@@ -145,6 +149,7 @@ struct CategoryDetailedView: View {
             .navigationDestination(isPresented: $goNext) {
                 SettingCompleteView(
                     progress: 5.0 / 5.0,
+                    cardModel: cardModel
                 )
             }
         }

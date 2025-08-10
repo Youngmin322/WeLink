@@ -63,44 +63,109 @@ class Category: ObservableObject{
     
 }
 
-class mainTopic: Identifiable, ObservableObject{
+class mainTopic: Identifiable, ObservableObject, Codable{
+    var id: UUID
     let title: String
     let emoji: String
     var children: [String:subTopic]
     @Published var isSelected: Bool
     
-    init(title: String, emoji: String, children: [String:subTopic], isSelected: Bool) {
+    enum CodingKeys: String, CodingKey {
+            case id, title, emoji, isSelected, children
+        }
+    
+    
+    init(id: UUID = UUID(), title: String, emoji: String, children: [String:subTopic], isSelected: Bool) {
+        self.id = id
         self.title = title
         self.emoji = emoji
         self.children = children
         self.isSelected = isSelected
     }
     
+    required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.id = try container.decode(UUID.self, forKey: .id)
+            self.title = try container.decode(String.self, forKey: .title)
+            self.emoji = try container.decode(String.self, forKey: .emoji)
+            self.isSelected = try container.decode(Bool.self, forKey: .isSelected)
+            self.children = try container.decode([String: subTopic].self, forKey: .children)  // 수정된 부분
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(id, forKey: .id)
+            try container.encode(title, forKey: .title)
+            try container.encode(emoji, forKey: .emoji)
+            try container.encode(isSelected, forKey: .isSelected)
+            try container.encode(children, forKey: .children)  // 수정된 부분
+        }
+    
     func addSubTopic(target: subTopic){
         self.children[target.title] = target
     }
 }
 
-class subTopic: Identifiable{
+class subTopic: Identifiable, Codable{
+    var id: UUID
     let title: String
     var children: [String: detailedTopic]
     
-    init(title: String, children: [String: detailedTopic]) {
+    enum CodingKeys: String, CodingKey {
+            case id, title, children
+        }
+    
+    init(id:UUID = UUID(), title: String, children: [String: detailedTopic]) {
+        self.id = id
         self.title = title
         self.children = children
     }
+    
+    required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.id = try container.decode(UUID.self, forKey: .id)
+            self.title = try container.decode(String.self, forKey: .title)
+            self.children = try container.decode([String: detailedTopic].self, forKey: .children)  // 수정된 부분
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(id, forKey: .id)
+            try container.encode(title, forKey: .title)
+            try container.encode(children, forKey: .children)  // 수정된 부분
+        }
     
     func addDetailedTopic(target: detailedTopic){
         self.children[target.title] = target
     }
 }
 
-class detailedTopic: Identifiable, ObservableObject{
+class detailedTopic: Identifiable, ObservableObject, Codable{
+    var id: UUID
     let title: String
     @Published var isSelected: Bool
     
-    init(title: String) {
+    enum CodingKeys: String, CodingKey {
+            case id, title, isSelected
+        }
+    
+    init(id:UUID = UUID(), title: String) {
+        self.id = id
         self.title = title
         self.isSelected = false
     }
+    
+    required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.id = try container.decode(UUID.self, forKey: .id)
+            self.title = try container.decode(String.self, forKey: .title)
+            self.isSelected = try container.decode(Bool.self, forKey: .isSelected)  // 수정된 부분
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(id, forKey: .id)
+            try container.encode(title, forKey: .title)
+            try container.encode(isSelected, forKey: .isSelected)  // 수정된 부분
+        }
 }
