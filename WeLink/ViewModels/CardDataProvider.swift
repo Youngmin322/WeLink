@@ -38,7 +38,7 @@ struct CardDataProvider {
                 mbti: "ISFP",
                 tag: "간호사",
                 dDay: 150,
-                imageData: UIImage(named: "Karina")?.jpegData(compressionQuality: 0.8) ?? Data(),
+                imageData: UIImage(named: "karina")?.jpegData(compressionQuality: 0.8) ?? Data(),
             ),
             CardModel(
                 id: UUID(),
