@@ -39,11 +39,17 @@ struct MyProfileTabDetailView: View {
                     VStack(spacing: 30){
                         
                         VStack(spacing:10){
-                            Text(myProfile.name)
-                                .font(.system(size: 50))
-                                .bold()
-                                .foregroundColor(.white)
-                            
+                            HStack{
+                                Text(myProfile.name)
+                                    .font(.system(size: 50))
+                                    .bold()
+                                    .foregroundColor(.white)
+                                
+//                                Text(myProfile.age)
+//                                    .font(.system(size: 50))
+//                                    .bold()
+//                                    .foregroundColor(.white)
+                            }
                             VStack(spacing:10){
 //                                Text(" 사실 저는 여름이 더 좋긴 해요.")
 //                                    .font(.system(size: 14))

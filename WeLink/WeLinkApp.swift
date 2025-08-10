@@ -26,8 +26,9 @@ struct WeLinkApp: App {
 
     var body: some Scene {
         WindowGroup {
-        ContentView()
-//            ProfileCustomView(progress: 1.0 / 4.0)
+//
+//        ContentView()
+            ProfileCustomView(progress: 1.0 / 4.0)
         }
         .modelContainer(sharedModelContainer)
     }
