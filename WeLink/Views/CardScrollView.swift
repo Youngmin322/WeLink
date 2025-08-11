@@ -36,7 +36,8 @@ struct CardScrollView: View {
                 let cardWidth: CGFloat = 280
                 let cardHeight: CGFloat = 480
                 let spacing: CGFloat = 20
-                let sideSpacing: CGFloat = 50
+                let totalWidth = geometry.size.width
+                let centerPadding = (totalWidth - cardWidth) / 2
                 
                 ScrollView(.horizontal) {
                     LazyHStack(spacing: spacing) {
@@ -58,7 +59,7 @@ struct CardScrollView: View {
                             .frame(width: cardWidth, height: cardHeight)
                         }
                     }
-                    .padding(.horizontal, sideSpacing)
+                    .padding(.horizontal, centerPadding)
                     .scrollTargetLayout()
                 }
                 .scrollIndicators(.hidden)
