@@ -33,17 +33,17 @@ struct MyProfileTabDetailView: View {
                                 .scaledToFit()
                                 .overlay( VStack{
                                     Spacer()
-                                    
-                                    // 어둡게 그라데이션
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            Color(hex: 0x010101),
-                                            Color.clear
-                                        ]),
-                                        startPoint: .bottom,
-                                        endPoint: .top
-                                    )
-                                    .frame(height: 200)
+                                
+                                        // 어둡게 그라데이션
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                Color(hex: 0x010101),
+                                                Color.clear
+                                            ]),
+                                            startPoint: .bottom,
+                                            endPoint: .top
+                                        )
+                                        .frame(height: 200)
                                 }
                                 )
                             
@@ -75,22 +75,36 @@ struct MyProfileTabDetailView: View {
                             .padding(.top, 50)
                             
                             Spacer()
-                            
-                            
-                            VStack(spacing: 30){
-                                // 상단 이름 & 한줄소개
-                                VStack(spacing:10){
-                                    Text(myProfile.name)
-                                        .font(.system(size: 50))
-                                        .bold()
-                                        .foregroundColor(.white)
-                                    
+                        
+                        
+                                VStack(spacing: 30){
+                                    // 상단 이름 & 한줄소개
                                     VStack(spacing:10){
-                                        Text(myProfile.cardDescription)
-                                            .font(.system(size: 14))
+                                        Text(myProfile.name)
+                                            .font(.system(size: 50))
                                             .bold()
                                             .foregroundColor(.white)
+                                        
+                                        VStack(spacing:10){
+                                            Text(myProfile.cardDescription)
+                                                .font(.system(size: 14))
+                                                .bold()
+                                                .foregroundColor(.white)
+                                        }
                                     }
+                                    
+                                    // 생일, MBTI, 직업
+                                    HStack(spacing: 19) {
+                                        ForEach([formattedBirthDate(from: myProfile.birthDate), myProfile.mbti, myProfile.tag], id: \.self) { label in
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 45)
+                                                    .foregroundColor(Color.gray)
+                                                    .frame(width: 76, height: 29)
+                                                    .opacity(0.6)
+                                                Text(label)
+                                                    .foregroundColor(.white)
+                                                    .font(.system(size: 13))
+                                            }
                                 }
                                 
                                 // 생일, MBTI, 직업
@@ -106,9 +120,8 @@ struct MyProfileTabDetailView: View {
                                                 .font(.system(size: 13))
                                         }
                                     }
+                                    .padding(.bottom, 15)
                                 }
-                                .padding(.bottom, 15)
-                            }
                         }
                     }
                     
@@ -122,26 +135,27 @@ struct MyProfileTabDetailView: View {
                         }
                         .padding(.top, 20)
                         .padding(.bottom, 20)
-                    }
-                    
-                    Group {
-                        VStack{
-                            ForEach(Array($currentTopic.children.values)
-                                .sorted { $0.wrappedValue.title < $1.wrappedValue.title }, id:  \.id){ $subTopic in
-                                    subTopicWindow(topic: $subTopic)
-                                }
                         }
+                        
+                        Group {
+                            VStack{
+                                ForEach(Array($currentTopic.children.values)
+                                    .sorted { $0.wrappedValue.title < $1.wrappedValue.title }, id:  \.id){ $subTopic in
+                                        subTopicWindow(topic: $subTopic)
+                                    }
+                            }
+                        }
+                        
                     }
-                    
                 }
             }
-            .background(Color(hex: 0x010101))
-            .navigationBarHidden(true)
-            .ignoresSafeArea()
-            
-        }
+        .background(Color(hex: 0x010101))
+        .navigationBarHidden(true)
+        .ignoresSafeArea()
         
     }
+
+
     
     struct mainTopicButton: View{
         @Binding var topic: mainTopic
