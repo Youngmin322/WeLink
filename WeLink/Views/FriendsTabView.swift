@@ -14,11 +14,22 @@ struct FriendsTabView: View {
     @FocusState private var isTextFieldFocused: Bool
     
     private var cards: [CardModel] {
-        let allCards = allCards.filter { $0.id != myID.last!.id}
+        guard let myUUID = myID.last?.id else {
+            if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return allCards
+            } else {
+                return allCards.filter { card in
+                    card.name.localizedCaseInsensitiveContains(searchText.trimmingCharacters(in: .whitespacesAndNewlines))
+                }
+            }
+        }
+        
+        let filteredCards = allCards.filter { $0.id != myUUID }
+        
         if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return allCards
+            return filteredCards
         } else {
-            return allCards.filter { card in
+            return filteredCards.filter { card in
                 card.name.localizedCaseInsensitiveContains(searchText.trimmingCharacters(in: .whitespacesAndNewlines))
             }
         }
@@ -311,6 +322,7 @@ struct FriendsTabView: View {
     }
     
     private func handleAllCardsChange(oldCards: [CardModel], newCards: [CardModel]) {
+        // 안전한 인덱스 처리 추가
         if newCards.count < oldCards.count && currentIndex >= newCards.count && newCards.count > 0 {
             DispatchQueue.main.async {
                 currentIndex = max(0, newCards.count - 1)
@@ -411,6 +423,14 @@ struct BackgroundImageView: View {
                 }
             )
             .clipped()
+    }
+}
+
+// MARK: - Collection Extension (safeIndex를 위한 확장)
+extension Collection {
+    func safeIndex(_ index: Int) -> Int {
+        guard !isEmpty else { return 0 }
+        return Swift.max(0, Swift.min(index, count - 1))
     }
 }
 
