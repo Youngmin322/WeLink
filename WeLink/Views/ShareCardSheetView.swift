@@ -126,14 +126,7 @@ struct ShareCardSheetView: View {
                     
                     Button("취소") {
                         print("연결 요청 취소")
-                        mpc.waitingForResponse = nil
-                        pendingCardSends.remove(waitingPeer.displayName)
-                        mpc.disconnect()
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            mpc.startHosting()
-                            mpc.startBrowsing()
-                        }
+                        mpc.cancelInvitation()
                     }
                     .font(.system(size: 16))
                     .frame(width: 80, height: 35)
@@ -183,6 +176,13 @@ struct ShareCardSheetView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
                     rejectedPeers.remove(rejectedPeerName)
                 }
+            }
+        }
+        // 🔥 새로 추가된 부분: waitingForResponse 변경 감지
+        .onChange(of: mpc.waitingForResponse) { oldValue, newValue in
+            // waitingForResponse가 nil이 되면 (취소되면) pendingCardSends에서도 제거
+            if let oldPeer = oldValue, newValue == nil {
+                pendingCardSends.remove(oldPeer.displayName)
             }
         }
     }
