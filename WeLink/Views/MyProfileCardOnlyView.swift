@@ -15,7 +15,7 @@ struct MyProfileCardOnlyView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color("CategoryColor"), lineWidth: 2)
+                            .stroke(Color("Stroke"), lineWidth: 2)
                     )
                     .overlay(
                         LinearGradient(

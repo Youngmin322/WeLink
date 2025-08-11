@@ -13,6 +13,7 @@ struct ShareCardSheetView: View {
     @State private var dotCount: Int = 0
     @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     @State private var pendingCardSends: Set<String> = []
+    @State private var rejectedPeers: Set<String> = []
     
     let myCard: CardModel
     
@@ -57,7 +58,8 @@ struct ShareCardSheetView: View {
                                         peerName: peer.displayName,
                                         profileImage: "person.circle.fill",
                                         isConnected: mpc.connectedPeers.contains { $0.displayName == peer.displayName },
-                                        isConnecting: pendingCardSends.contains(peer.displayName) || mpc.waitingForResponse?.displayName == peer.displayName
+                                        isConnecting: pendingCardSends.contains(peer.displayName) || mpc.waitingForResponse?.displayName == peer.displayName,
+                                        isRejected: rejectedPeers.contains(peer.displayName)
                                     ) {
                                         print("연결 시도: \(peer.displayName)")
                                         pendingCardSends.insert(peer.displayName)
@@ -124,14 +126,7 @@ struct ShareCardSheetView: View {
                     
                     Button("취소") {
                         print("연결 요청 취소")
-                        mpc.waitingForResponse = nil
-                        pendingCardSends.remove(waitingPeer.displayName)
-                        mpc.disconnect()
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            mpc.startHosting()
-                            mpc.startBrowsing()
-                        }
+                        mpc.cancelInvitation()
                     }
                     .font(.system(size: 16))
                     .frame(width: 80, height: 35)
@@ -172,6 +167,21 @@ struct ShareCardSheetView: View {
                 pendingCardSends.removeAll()
             }
         }
+        .onChange(of: mpc.connectionRejected) { oldValue, newValue in
+            if let rejectedPeerName = newValue {
+                rejectedPeers.insert(rejectedPeerName)
+                pendingCardSends.remove(rejectedPeerName)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    rejectedPeers.remove(rejectedPeerName)
+                }
+            }
+        }
+        .onChange(of: mpc.waitingForResponse) { oldValue, newValue in
+            if let oldPeer = oldValue, newValue == nil {
+                pendingCardSends.remove(oldPeer.displayName)
+            }
+        }
     }
 }
 
@@ -180,6 +190,7 @@ struct PeerCardView: View {
     let profileImage: String
     let isConnected: Bool
     let isConnecting: Bool
+    let isRejected: Bool
     let onConnect: () -> Void
     
     var buttonText: String {
@@ -187,6 +198,8 @@ struct PeerCardView: View {
             return "카드 전송됨"
         } else if isConnecting {
             return "요청 중..."
+        } else if isRejected {
+            return "거절됨"
         } else {
             return "연결하기"
         }
@@ -197,6 +210,8 @@ struct PeerCardView: View {
             return Color.green
         } else if isConnecting {
             return Color.orange
+        } else if isRejected {
+            return Color.red
         } else {
             return Color(red: 0.75, green: 1, blue: 0)
         }
@@ -230,13 +245,17 @@ struct PeerCardView: View {
                     Text("요청 대기 중...")
                         .font(.caption)
                         .foregroundColor(.orange)
+                } else if isRejected {
+                    Text("연결 거절됨")
+                        .font(.caption)
+                        .foregroundColor(.red)
                 }
             }
             
             Spacer()
             
             Button(buttonText) {
-                if !isConnected && !isConnecting {
+                if !isConnected && !isConnecting && !isRejected {
                     onConnect()
                 }
             }
@@ -248,7 +267,7 @@ struct PeerCardView: View {
                     .background(buttonColor)
                     .cornerRadius(19.5)
             )
-            .disabled(isConnected || isConnecting)
+            .disabled(isConnected || isConnecting || isRejected)
             .foregroundColor(.black)
         }
         .padding(.horizontal, 5)
