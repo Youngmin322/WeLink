@@ -11,6 +11,8 @@ struct MyProfileTabDetailView: View {
     @ObservedObject var myProfile: CardModel
     @State private var currentTopic: mainTopic
     @Environment(\.dismiss) var dismiss
+    @State private var showMenu = false
+
     
     init(myProfile: CardModel) {
         self.myProfile = myProfile
@@ -33,21 +35,23 @@ struct MyProfileTabDetailView: View {
                                 .scaledToFit()
                                 .overlay( VStack{
                                     Spacer()
-                                
-                                        // 어둡게 그라데이션
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                Color(hex: 0x010101),
-                                                Color.clear
-                                            ]),
-                                            startPoint: .bottom,
-                                            endPoint: .top
-                                        )
-                                        .frame(height: 200)
+                                    
+                                    // 어둡게 그라데이션
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color(hex: 0x010101),
+                                            Color.clear
+                                        ]),
+                                        startPoint: .bottom,
+                                        endPoint: .top
+                                    )
+                                    .frame(height: 200)
                                 }
                                 )
                             
                         }
+                        
+                        Spacer()
                         
                         VStack{
                             // 상단 메뉴 버튼들
@@ -63,6 +67,7 @@ struct MyProfileTabDetailView: View {
                                 
                                 Button(action:{
                                     //TODO: 프로필, 카테고리 수정 탭
+                                    showMenu.toggle()
                                 }){
                                     Image(systemName: "ellipsis")
                                         .foregroundColor(Color("MainColor"))
@@ -72,7 +77,45 @@ struct MyProfileTabDetailView: View {
                                 }
                                 
                             }
-                            .padding(.top, 50)
+                            .padding(.top, 80)
+                            
+                            if showMenu {
+                                // 배경 클릭 시 메뉴 닫기
+                                Color.black.opacity(0.001)
+                                    .ignoresSafeArea()
+                                    .onTapGesture {
+                                        withAnimation {
+                                            showMenu = false
+                                        }
+                                    }
+
+                                // 메뉴 본체
+                                VStack(alignment: .leading, spacing: 0) {
+                                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0).onAppear { showMenu = false }) {
+                                        Text("프로필 수정")
+                                            .padding()
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .background(Color(.darkGray))
+                                            .foregroundColor(.white)
+                                    }
+
+                                    Divider().background(Color.white)
+
+                                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile).onAppear { showMenu = false }) {
+                                        Text("취향 카테고리 수정")
+                                            .padding()
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .background(Color(.darkGray))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                                .background(Color(.darkGray))
+                                .cornerRadius(12)
+                                .frame(width: 160)
+                                .shadow(radius: 5)
+                                .offset(x: 60, y: -200)
+//                                 .transition(.opacity)
+                            }
                             
                             Spacer()
                         

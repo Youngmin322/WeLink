@@ -4,6 +4,7 @@ import SwiftData
 struct FriendsTabView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allCards: [CardModel]
+    @Query private var myID: [MyUUID]
     @State private var currentIndex = 0
     @State private var showingShareSheet = false
     @State private var preloadedImages: [Int: UIImage] = [:]
@@ -13,6 +14,7 @@ struct FriendsTabView: View {
     @FocusState private var isTextFieldFocused: Bool
     
     private var cards: [CardModel] {
+        let allCards = allCards.filter { $0.id != myID.last!.id}
         if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return allCards
         } else {
