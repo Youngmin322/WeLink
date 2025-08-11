@@ -22,14 +22,19 @@ struct CardScrollView: View {
     }
     
     var body: some View {
-        VStack(spacing: 1) {
+        VStack(spacing: 0) {
             if !cards.isEmpty {
-                Text("\(cards[safeCurrentIndex].name) 님의 카드")
-                    .font(.custom("Pretendard-Medium", size: 20))
-                    .foregroundColor(Color("MainColor"))
-                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                    .animation(AnimationConstants.indexChange, value: safeCurrentIndex)
-                    .padding(.bottom, 30)
+                HStack(spacing: 0) {
+                    Text(cards[safeCurrentIndex].name)
+                        .font(.custom("Pretendard-Bold", size: 20))
+                        .foregroundColor(Color("MainColor"))
+                        .animation(AnimationConstants.indexChange, value: safeCurrentIndex)
+                    
+                    Text(" 님의 카드")
+                        .font(.custom("Pretendard-Bold", size: 20))
+                        .foregroundColor(.white)
+                }
+                .padding(.bottom, -30)
             }
             
             GeometryReader { geometry in
@@ -60,6 +65,7 @@ struct CardScrollView: View {
                         }
                     }
                     .padding(.horizontal, centerPadding)
+                    .padding(.vertical, 60)
                     .scrollTargetLayout()
                 }
                 .scrollIndicators(.hidden)
@@ -67,6 +73,7 @@ struct CardScrollView: View {
                 .scrollPosition(id: $scrollPosition)
                 .scrollDisabled(isAnyCardDragging)
                 .clipShape(Rectangle())
+                .clipped(antialiased: false)
                 .onChange(of: scrollPosition) { _, newPosition in
                     if let newPosition = newPosition,
                        let index = cards.firstIndex(where: { $0.id == newPosition }) {
@@ -76,7 +83,7 @@ struct CardScrollView: View {
                     }
                 }
             }
-            .frame(height: 480)
+            .frame(height: 600)
             
             if cards.count > 1 {
                 HStack(spacing: 6) {
@@ -92,7 +99,7 @@ struct CardScrollView: View {
                             }
                     }
                 }
-                .padding(.top, 2)
+                .padding(.top, -50)
             }
         }
         .onAppear {
@@ -205,6 +212,7 @@ struct SwipeableCardView: View {
             
             cardView
         }
+        .contentShape(Rectangle())
         .simultaneousGesture(dragGesture)
         .onTapGesture {
             handleTap()
@@ -219,14 +227,14 @@ struct SwipeableCardView: View {
                     .fill(.ultraThinMaterial)
                     .opacity(0.8)
                     .environment(\.colorScheme, .dark)
-                    .frame(width: 70, height: 70)
+                    .frame(width: 65, height: 65)
                     .overlay(
                         Circle()
                             .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
                     )
                 
                 Image(systemName: "trash")
-                    .font(.system(size: 32, weight: .medium))
+                    .font(.system(size: 28, weight: .medium))
                     .foregroundColor(.red)
             }
             .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
@@ -247,7 +255,7 @@ struct SwipeableCardView: View {
                 x: 0,
                 y: isSelected ? 8 : 4
             )
-            .offset(x: 0, y: verticalOffset)
+            .offset(x: 0, y: min(max(verticalOffset, -300), 50))
             .scaleEffect(isDragging ? 0.95 : 1.0)
             .animation(AnimationConstants.cardTransition, value: isSelected)
             .animation(AnimationConstants.indexChange, value: isDragging)
@@ -276,7 +284,9 @@ struct SwipeableCardView: View {
                 isDragging = true
                 onDragStateChanged(true)
             }
-            verticalOffset = value.translation.height
+            
+            let limitedOffset = min(max(value.translation.height, -300), 50)
+            verticalOffset = limitedOffset
             
             withAnimation(AnimationConstants.indexChange) {
                 showDeleteButton = value.translation.height < showDeleteButtonThreshold
@@ -306,4 +316,60 @@ struct SwipeableCardView: View {
             onTap()
         }
     }
+}
+
+
+#Preview {
+    struct PreviewWrapper: View {
+        @State private var currentIndex = 0
+        
+        var body: some View {
+            CardScrollView(
+                cards: sampleCards,
+                currentIndex: $currentIndex
+            )
+            .background(Color.black)
+            .modelContainer(for: CardModel.self, inMemory: true)
+        }
+        
+        private var sampleCards: [CardModel] {
+            [
+                CardModel(
+                    id: UUID(),
+                    name: "민지",
+                    age: 25,
+                    description: "안녕하세요! 함께 즐거운 시간 보내요 😊",
+                    birthDate: "2000-03-15",
+                    mbti: "ENFP",
+                    tag: "여행러버",
+                    dDay: 150,
+                    imageData: Data()
+                ),
+                CardModel(
+                    id: UUID(),
+                    name: "준호",
+                    age: 28,
+                    description: "개발자입니다. 커피와 코딩을 좋아해요",
+                    birthDate: "1996-08-22",
+                    mbti: "INTJ",
+                    tag: "개발자",
+                    dDay: 75,
+                    imageData: Data()
+                ),
+                CardModel(
+                    id: UUID(),
+                    name: "유나",
+                    age: 23,
+                    description: "예술과 음악을 사랑하는 사람입니다",
+                    birthDate: "2001-12-05",
+                    mbti: "ISFP",
+                    tag: "아티스트",
+                    dDay: 200,
+                    imageData: Data()
+                )
+            ]
+        }
+    }
+    
+    return PreviewWrapper()
 }
