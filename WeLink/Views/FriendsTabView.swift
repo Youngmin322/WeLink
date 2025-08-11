@@ -106,14 +106,14 @@ struct FriendsTabView: View {
                         Circle()
                             .fill(.ultraThinMaterial)
                             .environment(\.colorScheme, .dark)
-                            .frame(width: 40, height: 40)
+                            .frame(width: 50, height: 50)
                             .overlay(
                                 Circle()
                                     .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
                             )
                         
                         Image(systemName: "plus")
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(size: 24, weight: .medium))
                             .foregroundColor(cards.isEmpty ? .white.opacity(0.5) : Color("MainColor"))
                     }
                     .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
