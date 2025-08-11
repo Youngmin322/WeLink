@@ -219,14 +219,14 @@ struct SwipeableCardView: View {
                     .fill(.ultraThinMaterial)
                     .opacity(0.8)
                     .environment(\.colorScheme, .dark)
-                    .frame(width: 70, height: 70)
+                    .frame(width: 65, height: 65)
                     .overlay(
                         Circle()
                             .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
                     )
                 
                 Image(systemName: "trash")
-                    .font(.system(size: 32, weight: .medium))
+                    .font(.system(size: 28, weight: .medium))
                     .foregroundColor(.red)
             }
             .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
