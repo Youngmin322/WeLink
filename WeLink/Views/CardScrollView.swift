@@ -25,7 +25,7 @@ struct CardScrollView: View {
         VStack(spacing: 1) {
             if !cards.isEmpty {
                 Text("\(cards[safeCurrentIndex].name) 님의 카드")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 20, weight: .medium))
                     .foregroundColor(Color("MainColor"))
                     .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                     .animation(AnimationConstants.indexChange, value: safeCurrentIndex)
