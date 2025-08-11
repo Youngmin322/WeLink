@@ -170,7 +170,7 @@ struct FriendsTabView: View {
                 .foregroundColor(.white.opacity(0.8))
                 .font(.system(size: 18, weight: .medium))
             
-            TextField("친구 이름으로 검색", text: $searchText)
+            TextField("", text: $searchText)
                 .foregroundColor(.white)
                 .font(.system(size: 17))
                 .tint(.white)
@@ -405,7 +405,7 @@ struct BackgroundImageView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .clipped()
                             .scaleEffect(1.1)
-                            .blur(radius: 2)
+                            .blur(radius: 4)
                             .overlay(
                                 LinearGradient(
                                     colors: [
