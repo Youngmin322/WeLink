@@ -27,7 +27,7 @@ struct WeLinkApp: App {
     var body: some Scene {
         WindowGroup {
 //        ContentView()
-         OnboardingView()
+            OnboardingView()
         }
         .modelContainer(sharedModelContainer)
     }
