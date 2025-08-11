@@ -5,7 +5,6 @@ struct FriendsTabView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allCards: [CardModel]
     @State private var currentIndex = 0
-    @State private var showingAddSheet = false
     @State private var showingShareSheet = false
     @State private var preloadedImages: [Int: UIImage] = [:]
     @State private var searchText = ""
@@ -24,8 +23,7 @@ struct FriendsTabView: View {
     }
     
     private var safeCurrentIndex: Int {
-        guard !cards.isEmpty else { return 0 }
-        return min(currentIndex, cards.count - 1)
+        cards.safeIndex(currentIndex)
     }
     
     var body: some View {
@@ -71,59 +69,25 @@ struct FriendsTabView: View {
             .navigationBarHidden(true)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                keyboardHeight = keyboardFrame.height
-            }
+            handleKeyboardShow(notification)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
             keyboardHeight = 0
         }
         .onAppear {
-            if allCards.isEmpty {
-                CardDataProvider.insertDummyCards(into: modelContext)
-            } else {
-                preloadImages()
-            }
+            handleViewAppear()
         }
         .onChange(of: allCards) { oldCards, newCards in
-            if newCards.count < oldCards.count && currentIndex >= newCards.count && newCards.count > 0 {
-                DispatchQueue.main.async {
-                    currentIndex = max(0, newCards.count - 1)
-                }
-            }
-            
-            if !newCards.isEmpty {
-                preloadImages()
-            }
+            handleAllCardsChange(oldCards: oldCards, newCards: newCards)
         }
         .onChange(of: cards) { oldCards, newCards in
-            DispatchQueue.main.async {
-                if newCards.isEmpty {
-                    currentIndex = 0
-                } else {
-                    if newCards.count < oldCards.count {
-                        currentIndex = min(currentIndex, max(0, newCards.count - 1))
-                    } else {
-                        currentIndex = min(currentIndex, newCards.count - 1)
-                    }
-                }
-                preloadImages()
-            }
+            handleFilteredCardsChange(oldCards: oldCards, newCards: newCards)
         }
         .onChange(of: searchText) { _, _ in
-            DispatchQueue.main.async {
-                currentIndex = 0
-            }
+            resetCurrentIndex()
         }
         .sheet(isPresented: $showingShareSheet) {
-            if !cards.isEmpty && safeCurrentIndex < cards.count {
-                NavigationView {
-                    ShareCardSheetView(myCard: cards[safeCurrentIndex])
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-            }
+            shareSheetView
         }
     }
     
@@ -155,6 +119,214 @@ struct FriendsTabView: View {
         }
     }
     
+    // MARK: - Header View
+    private var headerView: some View {
+        HStack(spacing: 12) {
+            if isSearching {
+                searchBarView
+            } else {
+                titleView
+            }
+            
+            searchToggleButton
+        }
+    }
+    
+    private var titleView: some View {
+        HStack {
+            Text("친구")
+                .foregroundColor(.white)
+                .font(.system(size: 35, weight: .bold))
+            
+            Spacer()
+        }
+    }
+    
+    private var searchBarView: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.white.opacity(0.8))
+                .font(.system(size: 18, weight: .medium))
+            
+            TextField("친구 이름으로 검색", text: $searchText)
+                .foregroundColor(.white)
+                .font(.system(size: 17))
+                .tint(.white)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+                .submitLabel(.search)
+                .focused($isTextFieldFocused)
+            
+            if !searchText.isEmpty {
+                Button(action: {
+                    searchText = ""
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.white.opacity(0.6))
+                        .font(.system(size: 16))
+                }
+            }
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+                .environment(\.colorScheme, .dark)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.3),
+                            Color.white.opacity(0.1)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+        .frame(maxWidth: .infinity)
+    }
+    
+    private var searchToggleButton: some View {
+        Button(action: toggleSearchMode) {
+            ZStack {
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .environment(\.colorScheme, .dark)
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+                
+                Image(systemName: isSearching ? "xmark" : "magnifyingglass")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.white)
+                    .rotationEffect(.degrees(isSearching ? 180 : 0))
+                    .scaleEffect(isSearching ? 0.9 : 1.0)
+            }
+            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+        }
+        .contentShape(Circle())
+    }
+    
+    // MARK: - Empty State View
+    private var emptyStateView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: searchText.isEmpty ? "person.3" : "magnifyingglass")
+                .font(.system(size: 60))
+                .foregroundColor(.white.opacity(0.8))
+                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
+            
+            Text(searchText.isEmpty ? "아직 친구가 없어요" : "검색 결과가 없어요")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(.white.opacity(0.9))
+                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
+            
+            Text(searchText.isEmpty ? "+ 버튼을 눌러 첫 번째 친구를 추가해보세요!" : "다른 이름으로 검색해보세요")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.7))
+                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
+        }
+    }
+    
+    // MARK: - Share Sheet View
+    private var shareSheetView: some View {
+        Group {
+            if !cards.isEmpty && safeCurrentIndex < cards.count {
+                NavigationView {
+                    ShareCardSheetView(myCard: cards[safeCurrentIndex])
+                        .navigationBarTitleDisplayMode(.inline)
+                }
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+            }
+        }
+    }
+    
+    // MARK: - Private Methods
+    private func toggleSearchMode() {
+        if isSearching {
+            exitSearchMode()
+        } else {
+            enterSearchMode()
+        }
+    }
+    
+    private func enterSearchMode() {
+        withAnimation(AnimationConstants.cardTransition) {
+            isSearching = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            isTextFieldFocused = true
+        }
+    }
+    
+    private func exitSearchMode() {
+        isTextFieldFocused = false
+        searchText = ""
+        resetCurrentIndex()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(AnimationConstants.cardTransition) {
+                isSearching = false
+            }
+        }
+    }
+    
+    private func resetCurrentIndex() {
+        DispatchQueue.main.async {
+            currentIndex = 0
+        }
+    }
+    
+    private func handleKeyboardShow(_ notification: Notification) {
+        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+            keyboardHeight = keyboardFrame.height
+        }
+    }
+    
+    private func handleViewAppear() {
+        if allCards.isEmpty {
+            CardDataProvider.insertDummyCards(into: modelContext)
+        } else {
+            preloadImages()
+        }
+    }
+    
+    private func handleAllCardsChange(oldCards: [CardModel], newCards: [CardModel]) {
+        if newCards.count < oldCards.count && currentIndex >= newCards.count && newCards.count > 0 {
+            DispatchQueue.main.async {
+                currentIndex = max(0, newCards.count - 1)
+            }
+        }
+        
+        if !newCards.isEmpty {
+            preloadImages()
+        }
+    }
+    
+    private func handleFilteredCardsChange(oldCards: [CardModel], newCards: [CardModel]) {
+        DispatchQueue.main.async {
+            if newCards.isEmpty {
+                currentIndex = 0
+            } else {
+                if newCards.count < oldCards.count {
+                    currentIndex = min(currentIndex, max(0, newCards.count - 1))
+                } else {
+                    currentIndex = min(currentIndex, newCards.count - 1)
+                }
+            }
+            preloadImages()
+        }
+    }
+    
     // MARK: - Image Preloading
     private func preloadImages() {
         let currentCards = cards
@@ -181,126 +353,6 @@ struct FriendsTabView: View {
         let renderer = UIGraphicsImageRenderer(size: targetSize)
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: targetSize))
-        }
-    }
-    
-    // MARK: - Header View
-    private var headerView: some View {
-        HStack(spacing: 12) {
-            if isSearching {
-                HStack(spacing: 10) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.white.opacity(0.8))
-                        .font(.system(size: 18, weight: .medium))
-                    
-                    TextField("친구 이름으로 검색", text: $searchText)
-                        .foregroundColor(.white)
-                        .font(.system(size: 17))
-                        .tint(.white)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                        .submitLabel(.search)
-                        .focused($isTextFieldFocused)
-                    
-                    if !searchText.isEmpty {
-                        Button(action: {
-                            searchText = ""
-                        }) {
-                        }
-                    }
-                }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 14)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(.ultraThinMaterial)
-                        .environment(\.colorScheme, .dark)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.3),
-                                    Color.white.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                )
-                .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
-                .frame(maxWidth: .infinity)
-            } else {
-                // 타이틀
-                Text("친구")
-                    .foregroundColor(.white)
-                    .font(.system(size: 35, weight: .bold))
-                
-                Spacer()
-            }
-            
-            Button(action: {
-                if isSearching {
-                    isTextFieldFocused = false
-                    searchText = ""
-                    currentIndex = 0
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            isSearching = false
-                        }
-                    }
-                } else {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        isSearching = true
-                    }
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        isTextFieldFocused = true
-                    }
-                }
-            }) {
-                ZStack {
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                        .environment(\.colorScheme, .dark)
-                        .frame(width: 40, height: 40)
-                        .overlay(
-                            Circle()
-                                .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-                        )
-                    
-                    Image(systemName: isSearching ? "xmark" : "magnifyingglass")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.white)
-                        .rotationEffect(.degrees(isSearching ? 180 : 0))
-                        .scaleEffect(isSearching ? 0.9 : 1.0)
-                }
-                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-            }
-            .contentShape(Circle())
-        }
-    }
-    
-    // MARK: - Empty State View
-    private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: searchText.isEmpty ? "person.3" : "magnifyingglass")
-                .font(.system(size: 60))
-                .foregroundColor(.white.opacity(0.8))
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
-            
-            Text(searchText.isEmpty ? "아직 친구가 없어요" : "검색 결과가 없어요")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(.white.opacity(0.9))
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
-            
-            Text(searchText.isEmpty ? "+ 버튼을 눌러 첫 번째 친구를 추가해보세요!" : "다른 이름으로 검색해보세요")
-                .font(.system(size: 14))
-                .foregroundColor(.white.opacity(0.7))
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
         }
     }
 }

@@ -18,8 +18,7 @@ struct CardScrollView: View {
     @State private var isAnyCardDragging = false
     
     private var safeCurrentIndex: Int {
-        guard !cards.isEmpty else { return 0 }
-        return min(max(currentIndex, 0), cards.count - 1)
+        cards.safeIndex(currentIndex)
     }
     
     var body: some View {
@@ -29,7 +28,7 @@ struct CardScrollView: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(Color("MainColor"))
                     .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                    .animation(.easeInOut(duration: 0.2), value: safeCurrentIndex)
+                    .animation(AnimationConstants.indexChange, value: safeCurrentIndex)
                     .padding(.bottom, 30)
             }
             
@@ -37,7 +36,8 @@ struct CardScrollView: View {
                 let cardWidth: CGFloat = 280
                 let cardHeight: CGFloat = 480
                 let spacing: CGFloat = 20
-                let sideSpacing: CGFloat = 50
+                let totalWidth = geometry.size.width
+                let centerPadding = (totalWidth - cardWidth) / 2
                 
                 ScrollView(.horizontal) {
                     LazyHStack(spacing: spacing) {
@@ -46,12 +46,7 @@ struct CardScrollView: View {
                                 card: card,
                                 isSelected: index == safeCurrentIndex,
                                 onTap: {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        if index >= 0 && index < cards.count {
-                                            currentIndex = index
-                                            scrollPosition = card.id
-                                        }
-                                    }
+                                    updateIndex(to: index)
                                 },
                                 onDelete: {
                                     cardToDelete = card
@@ -64,7 +59,7 @@ struct CardScrollView: View {
                             .frame(width: cardWidth, height: cardHeight)
                         }
                     }
-                    .padding(.horizontal, sideSpacing)
+                    .padding(.horizontal, centerPadding)
                     .scrollTargetLayout()
                 }
                 .scrollIndicators(.hidden)
@@ -91,14 +86,9 @@ struct CardScrollView: View {
                             .frame(width: 6, height: 6)
                             .scaleEffect(index == safeCurrentIndex ? 1.1 : 1.0)
                             .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
-                            .animation(.easeInOut(duration: 0.3), value: safeCurrentIndex)
+                            .animation(AnimationConstants.cardTransition, value: safeCurrentIndex)
                             .onTapGesture {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    if index >= 0 && index < cards.count {
-                                        currentIndex = index
-                                        scrollPosition = cards[index].id
-                                    }
-                                }
+                                updateIndex(to: index)
                             }
                     }
                 }
@@ -106,35 +96,13 @@ struct CardScrollView: View {
             }
         }
         .onAppear {
-            if !cards.isEmpty {
-                if currentIndex >= cards.count {
-                    DispatchQueue.main.async {
-                        currentIndex = 0
-                        scrollPosition = cards[0].id
-                    }
-                } else {
-                    scrollPosition = cards[safeCurrentIndex].id
-                }
-            }
+            initializeScrollPosition()
         }
         .onChange(of: cards) { _, newCards in
-            DispatchQueue.main.async {
-                if newCards.isEmpty {
-                    currentIndex = 0
-                    scrollPosition = nil
-                } else {
-                    let newIndex = min(currentIndex, newCards.count - 1)
-                    currentIndex = newIndex
-                    scrollPosition = newCards[newIndex].id
-                }
-            }
+            handleCardsChange(newCards)
         }
         .onChange(of: currentIndex) { _, newIndex in
-            if !cards.isEmpty && newIndex >= 0 && newIndex < cards.count {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    scrollPosition = cards[newIndex].id
-                }
-            }
+            handleIndexChange(newIndex)
         }
         .alert("카드 삭제", isPresented: $showingDeleteAlert) {
             Button("취소", role: .cancel) {
@@ -153,8 +121,52 @@ struct CardScrollView: View {
         }
     }
     
+    // MARK: - Private Methods
+    private func updateIndex(to newIndex: Int) {
+        guard newIndex >= 0 && newIndex < cards.count else { return }
+        
+        withAnimation(AnimationConstants.cardTransition) {
+            currentIndex = newIndex
+            scrollPosition = cards[newIndex].id
+        }
+    }
+    
+    private func initializeScrollPosition() {
+        if !cards.isEmpty {
+            if currentIndex >= cards.count {
+                DispatchQueue.main.async {
+                    currentIndex = 0
+                    scrollPosition = cards[0].id
+                }
+            } else {
+                scrollPosition = cards[safeCurrentIndex].id
+            }
+        }
+    }
+    
+    private func handleCardsChange(_ newCards: [CardModel]) {
+        DispatchQueue.main.async {
+            if newCards.isEmpty {
+                currentIndex = 0
+                scrollPosition = nil
+            } else {
+                let newIndex = min(currentIndex, newCards.count - 1)
+                currentIndex = newIndex
+                scrollPosition = newCards[newIndex].id
+            }
+        }
+    }
+    
+    private func handleIndexChange(_ newIndex: Int) {
+        if !cards.isEmpty && newIndex >= 0 && newIndex < cards.count {
+            withAnimation(AnimationConstants.cardTransition) {
+                scrollPosition = cards[newIndex].id
+            }
+        }
+    }
+    
     private func deleteCard(_ card: CardModel) {
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(AnimationConstants.cardTransition) {
             if let deleteIndex = cards.firstIndex(where: { $0.id == card.id }) {
                 modelContext.delete(card)
                 
@@ -188,94 +200,109 @@ struct SwipeableCardView: View {
     var body: some View {
         ZStack {
             if showDeleteButton {
-                Button(action: {
-                    onDelete()
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(.ultraThinMaterial)
-                            .environment(\.colorScheme, .dark)
-                            .frame(width: 80, height: 80)
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(Color.white.opacity(0.3), lineWidth: 2)
-                            )
-                        
-                        Image(systemName: "trash")
-                            .font(.system(size: 32, weight: .medium))
-                            .foregroundColor(.red)
-                    }
-                    .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
-                }
-                .offset(y: 100)
-                .scaleEffect(showDeleteButton ? 1.0 : 0.0)
-                .opacity(showDeleteButton ? 1.0 : 0.0)
-                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: showDeleteButton)
+                deleteButtonView
             }
             
-            MyProfileCardOnlyView(card: card)
-                .scaleEffect(isSelected ? 1.0 : 0.85)
-                .opacity(isSelected ? 1.0 : 0.7)
-                .shadow(
-                    color: .black.opacity(0.3),
-                    radius: isSelected ? 15 : 8,
-                    x: 0,
-                    y: isSelected ? 8 : 4
-                )
-                .offset(x: 0, y: verticalOffset)
-                .scaleEffect(isDragging ? 0.95 : 1.0)
-                .animation(.easeInOut(duration: 0.3), value: isSelected)
-                .animation(.easeInOut(duration: 0.15), value: isDragging)
+            cardView
         }
-        .simultaneousGesture(
-            DragGesture()
-                .onChanged { value in
-                    let verticalMovement = abs(value.translation.height)
-                    let horizontalMovement = abs(value.translation.width)
-                    
-                    if verticalMovement > horizontalMovement * 2 &&
-                        (value.translation.height < -10 || (showDeleteButton && value.translation.height > -150)) &&
-                        verticalMovement > 20 {
-                        
-                        if !isDragging {
-                            isDragging = true
-                            onDragStateChanged(true)
-                        }
-                        verticalOffset = value.translation.height
-                        
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            showDeleteButton = value.translation.height < showDeleteButtonThreshold
-                        }
-                    }
-                }
-                .onEnded { value in
-                    withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
-                        if showDeleteButton {
-                            if value.translation.height > 40 {
-                                showDeleteButton = false
-                                verticalOffset = 0
-                            } else {
-                                verticalOffset = -250
-                            }
-                        } else {
-                            verticalOffset = 0
-                        }
-                        isDragging = false
-                        onDragStateChanged(false)
-                    }
-                }
-        )
+        .simultaneousGesture(dragGesture)
         .onTapGesture {
-            if !isDragging && verticalOffset == 0 && !showDeleteButton {
-                onTap()
+            handleTap()
+        }
+    }
+    
+    // MARK: - Private Views
+    private var deleteButtonView: some View {
+        Button(action: onDelete) {
+            ZStack {
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .environment(\.colorScheme, .dark)
+                    .frame(width: 80, height: 80)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(Color.white.opacity(0.3), lineWidth: 2)
+                    )
+                
+                Image(systemName: "trash")
+                    .font(.system(size: 32, weight: .medium))
+                    .foregroundColor(.red)
+            }
+            .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
+        }
+        .offset(y: 100)
+        .scaleEffect(showDeleteButton ? 1.0 : 0.0)
+        .opacity(showDeleteButton ? 1.0 : 0.0)
+        .animation(AnimationConstants.deleteButton, value: showDeleteButton)
+    }
+    
+    private var cardView: some View {
+        MyProfileCardOnlyView(card: card)
+            .scaleEffect(isSelected ? 1.0 : 0.85)
+            .opacity(isSelected ? 1.0 : 0.7)
+            .shadow(
+                color: .black.opacity(0.3),
+                radius: isSelected ? 15 : 8,
+                x: 0,
+                y: isSelected ? 8 : 4
+            )
+            .offset(x: 0, y: verticalOffset)
+            .scaleEffect(isDragging ? 0.95 : 1.0)
+            .animation(AnimationConstants.cardTransition, value: isSelected)
+            .animation(AnimationConstants.indexChange, value: isDragging)
+    }
+    
+    // MARK: - Private Gestures & Methods
+    private var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                handleDragChanged(value)
+            }
+            .onEnded { value in
+                handleDragEnded(value)
+            }
+    }
+    
+    private func handleDragChanged(_ value: DragGesture.Value) {
+        let verticalMovement = abs(value.translation.height)
+        let horizontalMovement = abs(value.translation.width)
+        
+        if verticalMovement > horizontalMovement * 2 &&
+            (value.translation.height < -10 || (showDeleteButton && value.translation.height > -150)) &&
+            verticalMovement > 20 {
+            
+            if !isDragging {
+                isDragging = true
+                onDragStateChanged(true)
+            }
+            verticalOffset = value.translation.height
+            
+            withAnimation(AnimationConstants.indexChange) {
+                showDeleteButton = value.translation.height < showDeleteButtonThreshold
             }
         }
     }
     
-    private func resetStates() {
-        verticalOffset = 0
-        isDragging = false
-        showDeleteButton = false
-        onDragStateChanged(false)
+    private func handleDragEnded(_ value: DragGesture.Value) {
+        withAnimation(AnimationConstants.dragResponse) {
+            if showDeleteButton {
+                if value.translation.height > 40 {
+                    showDeleteButton = false
+                    verticalOffset = 0
+                } else {
+                    verticalOffset = -250
+                }
+            } else {
+                verticalOffset = 0
+            }
+            isDragging = false
+            onDragStateChanged(false)
+        }
+    }
+    
+    private func handleTap() {
+        if !isDragging && verticalOffset == 0 && !showDeleteButton {
+            onTap()
+        }
     }
 }

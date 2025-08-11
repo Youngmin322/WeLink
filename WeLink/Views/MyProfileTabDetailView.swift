@@ -9,1611 +9,254 @@ import SwiftUI
 
 struct MyProfileTabDetailView: View {
     @ObservedObject var myProfile: CardModel
-    @State private var selectedCategory: String = "패션"
+    @State private var currentTopic: mainTopic
+    @Environment(\.dismiss) var dismiss
+    
+    init(myProfile: CardModel) {
+        self.myProfile = myProfile
+        self.currentTopic = myProfile.topics[0]
+        for topic in myProfile.topics{
+            topic.isSelected = false
+        }
+        self.currentTopic.isSelected = true
+    }
+    
     var body: some View {
         ScrollView{
             ZStack{
-                //TODO: 배경 이미지 바꾸고, 밑에 카테고리는 스크롤로 하기
-                Image("winrer_category")
-                    .resizable()
-                    .scaledToFit()
-                
                 VStack{
-                    Spacer()
-                    
-                    HStack(spacing: 285){
-                        Image(systemName: "chevron.backward")
-                            .resizable()
-                            .frame(width: 15, height: 25)
-                            .foregroundColor(Color("MainColor"))
-                        
-                        Image(systemName: "ellipsis")
-                            .foregroundColor(Color("MainColor"))
-                            .font(.system(size: 30))
-                            .rotationEffect(Angle(degrees: 90))
-                            .bold()
-                        
-                    }
-                    .offset(y:100)
-                    
-                    VStack(spacing: 30){
-                        
-                        VStack(spacing:10){
-                            HStack{
-                                Text(myProfile.name)
-                                    .font(.system(size: 50))
-                                    .bold()
-                                    .foregroundColor(.white)
-                                
-//                                Text(myProfile.age)
-//                                    .font(.system(size: 50))
-//                                    .bold()
-//                                    .foregroundColor(.white)
-                            }
-                            VStack(spacing:10){
-//                                Text(" 사실 저는 여름이 더 좋긴 해요.")
-//                                    .font(.system(size: 14))
-//                                    .bold()
-//                                    .foregroundColor(.white)
-//                                
-//                                Text("겨울에는 생존하느라 기억이 희미해요.")
-//                                    .font(.system(size: 14))
-//                                    .bold()
-//                                    .foregroundColor(.white)
-//                                
-//                                
-//                                Text("절전모드로 들어가야하거든요.")
-//                                    .font(.system(size: 14))
-//                                    .bold()
-//                                    .foregroundColor(.white)
-                                Text(myProfile.cardDescription)
-                                    .font(.system(size: 14))
-                                    .bold()
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        HStack(spacing: 19) {
-                            ForEach([formattedBirthDate(from: myProfile.birthDate), myProfile.mbti, myProfile.tag], id: \.self) { label in
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 45)
-                                        .foregroundColor(Color.gray)
-                                        .frame(width: 76, height: 29)
-                                        .opacity(0.6)
-                                    Text(label)
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 13))
+                    ZStack{
+                        ZStack{
+                            //TODO: 배경 이미지 바꾸고, 밑에 카테고리는 스크롤로 하기
+                            Image(uiImage: UIImage(data: myProfile.imageData)!)
+                                .resizable()
+                                .scaledToFit()
+                                .overlay( VStack{
+                                    Spacer()
+                                    
+                                    // 어둡게 그라데이션
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color(hex: 0x010101),
+                                            Color.clear
+                                        ]),
+                                        startPoint: .bottom,
+                                        endPoint: .top
+                                    )
+                                    .frame(height: 200)
                                 }
+                                )
+                            
+                        }
+                        
+                        VStack{
+                            // 상단 메뉴 버튼들
+                            HStack(spacing: 285){
+                                Button(action:{
+                                    dismiss()
+                                }){
+                                    Image(systemName: "chevron.backward")
+                                        .resizable()
+                                        .frame(width: 15, height: 25)
+                                        .foregroundColor(Color("MainColor"))
+                                }
+                                
+                                Button(action:{
+                                    //TODO: 프로필, 카테고리 수정 탭
+                                }){
+                                    Image(systemName: "ellipsis")
+                                        .foregroundColor(Color("MainColor"))
+                                        .font(.system(size: 30))
+                                        .rotationEffect(Angle(degrees: 90))
+                                        .bold()
+                                }
+                                
+                            }
+                            .padding(.top, 50)
+                            
+                            Spacer()
+                            
+                            
+                            VStack(spacing: 30){
+                                // 상단 이름 & 한줄소개
+                                VStack(spacing:10){
+                                    Text(myProfile.name)
+                                        .font(.system(size: 50))
+                                        .bold()
+                                        .foregroundColor(.white)
+                                    
+                                    VStack(spacing:10){
+                                        Text(myProfile.cardDescription)
+                                            .font(.system(size: 14))
+                                            .bold()
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                                
+                                // 생일, MBTI, 직업
+                                HStack(spacing: 19) {
+                                    ForEach([formattedBirthDate(from: myProfile.birthDate), myProfile.mbti, myProfile.tag], id: \.self) { label in
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 45)
+                                                .foregroundColor(Color.gray)
+                                                .frame(width: 76, height: 29)
+                                                .opacity(0.6)
+                                            Text(label)
+                                                .foregroundColor(.white)
+                                                .font(.system(size: 13))
+                                        }
+                                    }
+                                }
+                                .padding(.bottom, 15)
                             }
                         }
-                        //동그라미 3개까지의 화면
-                        
+                    }
+                    
+                    VStack{
+                        // 대주제 버튼
                         HStack(spacing: 21){
-                            Button(action: {
-                                selectedCategory = "패션"
-                            }) {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 100, height: 88)
-                                        .foregroundColor(selectedCategory == "패션" ? Color("MainColor") : Color("CategoryColor"))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.white), lineWidth: 0.3)
-                                        )
-                                    Text("패션")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 17))
-                                        .bold()
-                                }
+                            ForEach($myProfile.topics){topic in
+                                mainTopicButton(topic: topic, currentTopic: $currentTopic)
                             }
                             
-                            Button(action: {
-                                selectedCategory = "여가생활"
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 100, height: 88)
-                                        .foregroundColor(selectedCategory == "여가생활" ? Color("MainColor") : Color("CategoryColor"))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color.white, lineWidth: 0.3)
-                                        )
-                                    Text("여가생활")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 17))
-                                        .bold()
-                                }
-                            }
-                            
-                            Button(action: {
-                                selectedCategory = "스포츠"
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 100, height: 88)
-                                        .foregroundColor(selectedCategory == "스포츠" ? Color("MainColor") : Color("CategoryColor"))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color.white, lineWidth: 0.3)
-                                        )
-                                    Text("스포츠")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 17))
-                                        .bold()
-                                }
-                            }
                         }
-                        
-                        Group {
-                            if selectedCategory == "패션" {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 290)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("스타일")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("미니멀")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("클래식")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("스트릿")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("캐주얼")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("빈티지")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("러블리")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("Y2K")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("젠더리스")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("긱시크")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("힙한")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("스포티")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("심플")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 233)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("아이템")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("가방")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("신발")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("모자")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("시계")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("주얼리")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("벨트")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("헤어소품")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("키링")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("아이웨어")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            
-                                        }
-                                    }
-                                }
-                                
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 224)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("취향 포인트")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("무채색")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("컬러풀")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("트렌디")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("편안함")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("패턴")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("브랜드")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("그래픽")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("그래픽")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                
-                                            }
-                                            
-                                        }
-                                    }
-                                }
-                            } else if selectedCategory == "여가생활" {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 290)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("활동")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("미니멀")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("클래식")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("스트릿")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("캐주얼")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("빈티지")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("러블리")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("Y2K")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("젠더리스")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("긱시크")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("힙한")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("스포티")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("심플")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 233)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("아이템")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("가방")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("신발")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("모자")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("시계")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("주얼리")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("벨트")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("헤어소품")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("키링")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("아이웨어")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            
-                                        }
-                                    }
-                                }
-                                
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 224)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("취향 포인트")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("무채색")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("컬러풀")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("트렌디")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("편안함")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("패턴")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("브랜드")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("그래픽")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("그래픽")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                
-                                            }
-                                            
-                                        }
-                                    }
-                                }
-                            } else if selectedCategory == "스포츠" {
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 290)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("활동2")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("미니멀")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("클래식")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("스트릿")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("캐주얼")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("빈티지")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("러블리")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("Y2K")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("젠더리스")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("긱시크")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("힙한")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("스포티")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("심플")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 233)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("아이템")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("가방")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("신발")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("모자")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("시계")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("주얼리")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("벨트")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("헤어소품")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("키링")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("아이웨어")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            
-                                        }
-                                    }
-                                }
-                                
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .frame(width: 348, height: 224)
-                                        .foregroundColor(Color(hex: 0x3C3C3C))
-                                        .opacity(0.7)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color(.clear), lineWidth: 0.3)
-                                                .opacity(0.5)
-                                        )
-                                    VStack{
-                                        VStack(spacing:22){
-                                            HStack(spacing: 1){
-                                                Text("#")
-                                                    .foregroundColor(Color("MainColor"))
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                Text("취향 포인트")
-                                                    .font(.system(size: 20))
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                                
-                                            }
-                                            
-                                            VStack(spacing:15){
-                                                HStack(spacing:15){
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("무채색")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("컬러풀")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                    
-                                                    ZStack{
-                                                        RoundedRectangle(cornerRadius: 100)
-                                                            .frame(width: 81.77, height: 31.2)
-                                                            .foregroundColor(Color(hex: 0x524B4B))
-                                                            .opacity(0.43)
-                                                        
-                                                        
-                                                        Text("트렌디")
-                                                            .foregroundColor(Color(hex:0xA5A5A5))
-                                                            .font(.system(size: 13))
-                                                            .bold()
-                                                    }
-                                                }
-                                            }
-                                            
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("편안함")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("패턴")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("브랜드")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                            }
-                                            HStack(spacing:15){
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("그래픽")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                ZStack{
-                                                    RoundedRectangle(cornerRadius: 100)
-                                                        .frame(width: 81.77, height: 31.2)
-                                                        .foregroundColor(Color(hex: 0x524B4B))
-                                                        .opacity(0.43)
-                                                    
-                                                    
-                                                    Text("그래픽")
-                                                        .foregroundColor(Color(hex:0xA5A5A5))
-                                                        .font(.system(size: 13))
-                                                        .bold()
-                                                }
-                                                
-                                                
-                                            }
-                                            
-                                        }
-                                    }
-                                }
-                            }
-                            //                            else {
-                            //                                Text("정보를 선택하세요.")
-                            //                            }
-                        }
-                        
+                        .padding(.top, 20)
+                        .padding(.bottom, 20)
                     }
-                    .padding(.top,460)
+                    
+                    Group {
+                        VStack{
+                            ForEach(Array($currentTopic.children.values)
+                                .sorted { $0.wrappedValue.title < $1.wrappedValue.title }, id:  \.id){ $subTopic in
+                                    subTopicWindow(topic: $subTopic)
+                                }
+                        }
+                    }
+                    
                 }
-                
+            }
+            .background(Color(hex: 0x010101))
+            .navigationBarHidden(true)
+            .ignoresSafeArea()
+            
+        }
+        
+    }
+    
+    struct mainTopicButton: View{
+        @Binding var topic: mainTopic
+        @Binding var currentTopic: mainTopic
+        
+        let width: CGFloat = 100
+        let height: CGFloat = 88
+        let textSize: CGFloat = 17
+        var body: some View {
+            Button(action: {
+                currentTopic.isSelected.toggle()
+                topic.isSelected.toggle()
+                currentTopic = topic
+            }) {
+                ZStack{
+                    RoundedRectangle(cornerRadius: 20)
+                        .frame(width: width, height: height)
+                        .foregroundColor(topic.isSelected ? Color("MainColor") : Color("CategoryColor"))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(.white), lineWidth: 0.3)
+                        )
+                    Text(topic.title)
+                        .foregroundColor(.white)
+                        .font(.system(size: textSize))
+                        .bold()
+                }
             }
         }
         
     }
+    
+    struct subTopicWindow: View{
+        @Binding var topic: subTopic
+        let width: CGFloat = 348
+        let color: Color = Color(hex: 0x3C3C3C)
+        
+        let buttonWidth: CGFloat = 100
+        let buttonHeight: CGFloat = 45
+        
+        var body: some View {
+            ZStack{
+                let selectedDetailedTopics = topic.children.values.filter { $0.isSelected }
+                let numDetailedTopics: Int = selectedDetailedTopics.count
+                let numRows = ((numDetailedTopics-1) / 3) + 1
+                
+                let height: CGFloat = (buttonHeight + 15.0) * CGFloat(numRows) + 50.0
+                
+                if numDetailedTopics > 0 {
+                    RoundedRectangle(cornerRadius: 20)
+                        .frame(width: width, height: height)
+                        .foregroundColor(color)
+                        .opacity(0.7)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(.clear), lineWidth: 0.3)
+                                .opacity(0.5)
+                        )
+                    
+                    VStack(spacing:22){
+                        HStack(spacing: 1){
+                            Text("#")
+                                .foregroundColor(Color("MainColor"))
+                                .font(.system(size: 20))
+                                .bold()
+                            Text(topic.title)
+                                .font(.system(size: 20))
+                                .bold()
+                                .foregroundColor(.white)
+                        }
+                        
+                        let columns = [
+                            GridItem(.fixed(buttonWidth), alignment: .center),
+                            GridItem(.fixed(buttonWidth), alignment: .center),
+                            GridItem(.fixed(buttonWidth), alignment: .center)
+                        ]
+                        
+                        LazyVGrid(columns: columns, spacing: 8) {
+                            ForEach($topic.children.values.filter { $0.isSelected.wrappedValue }.sorted { $0.wrappedValue.title < $1.wrappedValue.title }, id: \.id) { detailedTopic in
+                                detailedTopicButton(topic: detailedTopic, width: buttonWidth, height: buttonHeight)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    
+    
+    
+    struct detailedTopicButton: View {
+        @Binding var topic: detailedTopic
+        let width: CGFloat
+        let height: CGFloat
+        let textSize: CGFloat = 15
+        
+        var body: some View {
+            ZStack{
+                RoundedRectangle(cornerRadius: 100)
+                    .stroke(Color("MainColor"), lineWidth: 2)
+                    .foregroundColor(Color("DetailedCategoryColor"))
+                    .frame(width: width, height: height)
+                
+                
+                Text(topic.title)
+                    .foregroundColor(Color("MainColor"))
+                    .font(.system(size: textSize))
+                    .bold()
+            }
+        }
+    }
 }
 
-
-
-//#Preview {
-//    MyProfileTabDetailView()
-//}
+#Preview {
+    MyProfileTabDetailView(myProfile: CardModel(id: UUID() , name: "하워드", age: 30, description: "야생의 하워드가 나타났다!", birthDate: "2003-04-24", mbti: "ISTP", tag: "선생님", dDay: 80, imageData: UIImage(named: "Giselle")!.pngData()!))
+}
