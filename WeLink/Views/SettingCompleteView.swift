@@ -57,15 +57,39 @@ struct SettingCompleteView: View {
                     Spacer()
                 }
                 .frame(width: 330)
-                .padding(.bottom, 20)
+                //.padding(.bottom, 20)
                 
-                //가운데 오브젝트
-                let objWidth: CGFloat = 330
-                let objHeight: CGFloat = 330
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color("MainColor"))
-                    .frame(width: objWidth, height: objHeight)
-                    .padding(.top, 75)
+                ZStack{
+                    //가운데 오브젝트
+                    let objWidth: CGFloat = 350
+                    let objHeight: CGFloat = 350
+                    Image("Onboarding2")
+                        .resizable()               // 이미지 크기 조정 가능
+                        .scaledToFit()
+                        .frame(width: objWidth, height: objHeight, alignment: .leading)
+                        .padding(.top, 75)
+                        .offset(x: -40)
+                    
+                    let numTopics = cardModel.topics.count
+                    Text(cardModel.topics[0].title)
+                        .foregroundColor(.white)
+                        .font(.system(size: 30, weight: .bold))
+                        .offset(x: 65, y: -33)
+                    if numTopics > 1 {
+                        Text(cardModel.topics[1].title)
+                            .foregroundColor(.white)
+                            .font(.system(size: 23, weight: .bold))
+                            .offset(x: 50, y: 112)
+                        if numTopics > 2 {
+                            Text(cardModel.topics[2].title)
+                                .foregroundColor(.white)
+                                .font(.system(size: 18, weight: .bold))
+                                .offset(x: -87, y: 33)
+                        }
+                    }
+                }
+                
+                
                 
                 
                 //중하단 텍스트

@@ -189,6 +189,8 @@ struct CategoryDetailedView: View {
         }
     }
     
+    
+    //TODO: 대주제 3개 선택시 배경 section 박스가 제대로 안나오는 경우가 생김!!
     struct SectionView: View {
         let subTopic: subTopic
         let width: CGFloat
