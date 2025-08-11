@@ -63,9 +63,9 @@ struct MyProfileCardOnlyView: View {
                     ForEach([formattedBirthDate(from: card.birthDate), card.mbti, card.tag], id: \.self) { label in
                         ZStack {
                             RoundedRectangle(cornerRadius: 45)
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(Color.white)
                                 .frame(width: 76, height: 29)
-                                .opacity(0.6)
+                                .opacity(0.25)
                             Text(label)
                                 .font(.custom("Pretendard-Medium", size: 13))
                                 .foregroundColor(.white)
