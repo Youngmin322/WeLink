@@ -72,6 +72,7 @@ struct MyProfileTabDetailView: View {
                     }
 
                 // 메뉴 본체
+                //TODO: 위치 조절
                 VStack(alignment: .leading, spacing: 0) {
                     Button("프로필 수정") {
                         print("프로필 수정")
