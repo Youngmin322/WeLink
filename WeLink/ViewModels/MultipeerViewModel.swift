@@ -19,6 +19,11 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     // 카드 전송을 위한 대기열
     private var pendingCardSends: [MCPeerID: CardModel] = [:]
     
+    // 진행 중인 초대를 추적하기 위한 변수
+    private var currentInvitationHandler: ((Bool, MCSession?) -> Void)?
+    private var currentInvitationPeer: MCPeerID?
+    private var invitationTimeoutTimer: Timer?
+    
     @Published var receivedCard: CardModel?
     @Published var isConnected: Bool = false
     @Published var discoveredPeers: [MCPeerID] = []
@@ -26,6 +31,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     @Published var cardSentSuccessfully: Bool = false
     @Published var waitingForResponse: MCPeerID? = nil
     @Published var incomingInvitation: (peer: MCPeerID, handler: (Bool) -> Void)? = nil
+    @Published var connectionRejected: String? = nil // 거절된 피어 이름
     
     override init() {
         super.init()
@@ -97,6 +103,56 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         }
         
         invitePeer(peerID)
+    }
+    
+    func cancelInvitation() {
+        guard let waitingPeer = waitingForResponse else { return }
+        
+        print("초대 취소: \(waitingPeer.displayName)")
+        
+        // 즉시 상태 초기화 (UI 업데이트)
+        waitingForResponse = nil
+        pendingCardSends.removeValue(forKey: waitingPeer)
+        
+        // 모든 서비스 완전 중단
+        stopHosting()
+        stopBrowsing()
+        session.disconnect()
+        
+        // 조금 더 긴 지연 후 완전 재시작
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.setupSession() // 새로운 세션 생성
+            self.setupAdvertiser() // 새로운 advertiser 생성
+            self.setupBrowser() // 새로운 browser 생성
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.startHosting()
+                self.startBrowsing()
+            }
+        }
+    }
+    
+    func forceCloseInvitation() {
+        print("강제로 초대 화면 닫기")
+        
+        // 타이머 취소
+        invitationTimeoutTimer?.invalidate()
+        invitationTimeoutTimer = nil
+        
+        // 즉시 UI 초기화
+        DispatchQueue.main.async {
+            self.incomingInvitation = nil
+        }
+        
+        // 핸들러가 있다면 거절로 응답
+        if let handler = currentInvitationHandler {
+            print("초대 핸들러에 거절 응답 전송")
+            handler(false, nil)
+        }
+        
+        // 추적 정보 초기화
+        currentInvitationHandler = nil
+        currentInvitationPeer = nil
     }
     
     func respondToInvitation(accept: Bool) {
@@ -187,9 +243,34 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             case .notConnected:
                 print("연결 해제됨: \(peerID.displayName)")
                 
-                if self.waitingForResponse == peerID {
+                // 초대 화면이 열려있는 상태에서 상대방이 취소한 경우 초대 화면 닫기
+                if let currentPeer = self.currentInvitationPeer,
+                   currentPeer.displayName == peerID.displayName,
+                   self.incomingInvitation != nil {
+                    print("상대방이 초대를 취소함, 초대 화면 닫기: \(peerID.displayName)")
+                    self.forceCloseInvitation()
+                }
+                
+                // 연결 거절 처리 (대기 중인 응답이 있고, 연결이 끊어진 경우)
+                // 단, waitingForResponse가 nil이면 이미 취소된 상태이므로 처리하지 않음
+                if let waitingPeer = self.waitingForResponse,
+                   waitingPeer.displayName == peerID.displayName {
+                    
+                    // 연결이 시도되었지만 실패한 경우만 거절로 처리
+                    if self.pendingCardSends[peerID] != nil {
+                        self.connectionRejected = peerID.displayName
+                        print("연결 거절됨: \(peerID.displayName)")
+                        
+                        // connectionRejected를 nil로 재설정 (UI 업데이트를 위해)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self.connectionRejected = nil
+                        }
+                    }
+                    
                     self.waitingForResponse = nil
                 }
+                
+                // 대기열에서 제거
                 self.pendingCardSends.removeValue(forKey: peerID)
                 
             @unknown default:
@@ -221,10 +302,32 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         print("초대 수신: \(peerID.displayName)")
         
+        // 기존 타이머 취소
+        invitationTimeoutTimer?.invalidate()
+        
+        // 현재 초대 정보 저장
+        currentInvitationHandler = invitationHandler
+        currentInvitationPeer = peerID
+        
+        // 30초 후 자동으로 초대 화면 닫기 (타임아웃)
+        invitationTimeoutTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { [weak self] _ in
+            print("초대 타임아웃: \(peerID.displayName)")
+            self?.forceCloseInvitation()
+        }
+        
         DispatchQueue.main.async {
             self.incomingInvitation = (peer: peerID, handler: { accept in
                 print("초대에 응답: \(accept ? "수락" : "거절")")
+                
+                // 타이머 취소
+                self.invitationTimeoutTimer?.invalidate()
+                self.invitationTimeoutTimer = nil
+                
                 invitationHandler(accept, accept ? self.session : nil)
+                
+                // 응답 후 현재 초대 정보 초기화
+                self.currentInvitationHandler = nil
+                self.currentInvitationPeer = nil
             })
         }
     }
@@ -251,6 +354,21 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         DispatchQueue.main.async {
             self.discoveredPeers.removeAll { $0.displayName == peerID.displayName }
             self.pendingCardSends.removeValue(forKey: peerID)
+            
+            // 피어가 사라진 경우 해당 피어의 초대 화면도 닫기
+            if let currentPeer = self.currentInvitationPeer,
+               currentPeer.displayName == peerID.displayName,
+               self.incomingInvitation != nil {
+                print("피어 손실로 인한 초대 화면 닫기: \(peerID.displayName)")
+                self.forceCloseInvitation()
+            }
+            
+            // 대기 중인 응답도 취소
+            if self.waitingForResponse?.displayName == peerID.displayName {
+                print("피어 손실로 인한 대기 상태 취소: \(peerID.displayName)")
+                self.waitingForResponse = nil
+            }
+            
             print("피어 목록에서 제거: \(peerID.displayName)")
         }
     }
