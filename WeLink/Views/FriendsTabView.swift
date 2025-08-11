@@ -108,7 +108,7 @@ struct FriendsTabView: View {
                             .frame(width: 40, height: 40)
                             .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                         Image(systemName: "plus")
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                             .font(.system(size: 24, weight: .medium))
                     }
                 }
