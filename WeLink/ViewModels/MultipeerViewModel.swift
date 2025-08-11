@@ -16,7 +16,6 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     private var advertiser: MCNearbyServiceAdvertiser!
     private var browser: MCNearbyServiceBrowser!
     
-    // 카드 전송을 위한 대기열
     private var pendingCardSends: [MCPeerID: CardModel] = [:]
     
     @Published var receivedCard: CardModel?
@@ -26,6 +25,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     @Published var cardSentSuccessfully: Bool = false
     @Published var waitingForResponse: MCPeerID? = nil
     @Published var incomingInvitation: (peer: MCPeerID, handler: (Bool) -> Void)? = nil
+    @Published var connectionRejected: String? = nil
     
     override init() {
         super.init()
@@ -187,9 +187,17 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             case .notConnected:
                 print("연결 해제됨: \(peerID.displayName)")
                 
+                // 연결 거절 처리
                 if self.waitingForResponse == peerID {
+                    self.connectionRejected = peerID.displayName
                     self.waitingForResponse = nil
+                    
+                    // connectionRejected를 nil로 재설정
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.connectionRejected = nil
+                    }
                 }
+                
                 self.pendingCardSends.removeValue(forKey: peerID)
                 
             @unknown default:
