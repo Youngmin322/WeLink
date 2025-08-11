@@ -54,7 +54,7 @@ struct ContentView: View {
                                 startPoint: .top,
                                 endPoint: .bottom
                             ),
-                            lineWidth: 2
+                            lineWidth: 1
                         )
                         .frame(width: overlayWidth, height: 50)
                         .offset(x: selectedTabOffset)
