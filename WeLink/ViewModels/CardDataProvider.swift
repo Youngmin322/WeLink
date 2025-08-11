@@ -24,10 +24,9 @@ struct CardDataProvider {
                 birthDate: "1998-12-01",
                 mbti: "ENFJ",
                 tag: "아이돌",
-                dDay: 98,
+                dDay: 150,
                 
                 imageData: UIImage(named: "winter")?.jpegData(compressionQuality: 0.8) ?? Data(),
-                //윈터 사진 바꿔야함
             ),
             CardModel(
                 id: UUID(),
@@ -37,7 +36,7 @@ struct CardDataProvider {
                 birthDate: "1996-07-15",
                 mbti: "ISFP",
                 tag: "간호사",
-                dDay: 150,
+                dDay: 50,
                 imageData: UIImage(named: "karina")?.jpegData(compressionQuality: 0.8) ?? Data(),
             ),
             CardModel(
@@ -48,7 +47,7 @@ struct CardDataProvider {
                 birthDate: "1999-04-10",
                 mbti: "INTJ",
                 tag: "직장인",
-                dDay: 50,
+                dDay: 25,
                 imageData: UIImage(named: "ningning")?.jpegData(compressionQuality: 0.8) ?? Data(),
             ),
             CardModel(

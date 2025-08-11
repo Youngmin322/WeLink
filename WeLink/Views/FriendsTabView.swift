@@ -57,19 +57,22 @@ struct FriendsTabView: View {
                     
                     VStack(spacing: 0) {
                         headerView
-                            .padding(.top, geometry.safeAreaInsets.top - 30)
+                            .padding(.top, geometry.safeAreaInsets.top - 40)
                             .padding(.horizontal, 24)
                         
                         Rectangle()
                             .fill(Color.clear)
-                            .frame(height: 8)
+                            .frame(height: 0)
                         
                         if cards.isEmpty {
                             emptyStateView
                                 .frame(maxHeight: .infinity)
                         } else {
-                            CardScrollView(cards: cards, currentIndex: $currentIndex)
-                                .padding(.top, 8)
+                            ScrollView {
+                                CardScrollView(cards: cards, currentIndex: $currentIndex)
+                                    .padding(.top, 20)
+                            }
+                            .scrollDisabled(true)
                         }
                         
                         Spacer(minLength: 60)
@@ -133,7 +136,7 @@ struct FriendsTabView: View {
                 }
                 .disabled(cards.isEmpty)
                 .padding(.trailing, 24)
-                .padding(.bottom, keyboardHeight > 0 ? 140 : geometry.safeAreaInsets.bottom + 140)
+                .padding(.bottom, keyboardHeight > 0 ? 140 : geometry.safeAreaInsets.bottom + 133)
             }
         }
     }
@@ -156,8 +159,6 @@ struct FriendsTabView: View {
             Text("친구")
                 .font(.custom("Pretendard-Bold", size: 35))
                 .foregroundColor(.white)
-                //.font(.custom("Pretendard-Bold.otf", size: 35))
-                //.font(.system(size: 35, weight: .bold))
             
             Spacer()
         }
@@ -322,7 +323,6 @@ struct FriendsTabView: View {
     }
     
     private func handleAllCardsChange(oldCards: [CardModel], newCards: [CardModel]) {
-        // 안전한 인덱스 처리 추가
         if newCards.count < oldCards.count && currentIndex >= newCards.count && newCards.count > 0 {
             DispatchQueue.main.async {
                 currentIndex = max(0, newCards.count - 1)
@@ -366,10 +366,9 @@ struct FriendsTabView: View {
         }
     }
     
-    // 수정된 이미지 리사이징 함수 (간단한 방법)
     private func resizeImageForBackground(_ image: UIImage) -> UIImage {
         let screenSize = UIScreen.main.bounds.size
-        let maxDimension = max(screenSize.width, screenSize.height) * 1.5 // 적당한 크기
+        let maxDimension = max(screenSize.width, screenSize.height) * 1.5
         
         let imageSize = image.size
         let scale = maxDimension / max(imageSize.width, imageSize.height)
@@ -386,7 +385,7 @@ struct FriendsTabView: View {
     }
 }
 
-// MARK: - Background View (수정된 버전)
+// MARK: - Background View
 struct BackgroundImageView: View {
     let cards: [CardModel]
     let currentIndex: Int
@@ -426,7 +425,7 @@ struct BackgroundImageView: View {
     }
 }
 
-// MARK: - Collection Extension (safeIndex를 위한 확장)
+// MARK: - Collection Extension
 extension Collection {
     func safeIndex(_ index: Int) -> Int {
         guard !isEmpty else { return 0 }
