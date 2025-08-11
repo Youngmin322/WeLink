@@ -135,8 +135,10 @@ struct FriendsTabView: View {
     private var titleView: some View {
         HStack {
             Text("친구")
+                .font(.custom("Pretendard-Bold", size: 35))
                 .foregroundColor(.white)
-                .font(.system(size: 35, weight: .bold))
+                //.font(.custom("Pretendard-Bold.otf", size: 35))
+                //.font(.system(size: 35, weight: .bold))
             
             Spacer()
         }
