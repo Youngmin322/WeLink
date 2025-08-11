@@ -104,13 +104,19 @@ struct FriendsTabView: View {
                 }) {
                     ZStack {
                         Circle()
-                            .fill(cards.isEmpty ? Color.gray.opacity(0.5) : Color("MainColor"))
+                            .fill(.ultraThinMaterial)
+                            .environment(\.colorScheme, .dark)
                             .frame(width: 40, height: 40)
-                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                        
                         Image(systemName: "plus")
-                            .foregroundColor(.black)
-                            .font(.system(size: 24, weight: .medium))
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(cards.isEmpty ? .white.opacity(0.5) : Color("MainColor"))
                     }
+                    .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
                 .disabled(cards.isEmpty)
                 .padding(.trailing, 24)
@@ -346,12 +352,19 @@ struct FriendsTabView: View {
         }
     }
     
+    // 수정된 이미지 리사이징 함수 (간단한 방법)
     private func resizeImageForBackground(_ image: UIImage) -> UIImage {
         let screenSize = UIScreen.main.bounds.size
+        let maxDimension = max(screenSize.width, screenSize.height) * 1.5 // 적당한 크기
+        
+        let imageSize = image.size
+        let scale = maxDimension / max(imageSize.width, imageSize.height)
+        
         let targetSize = CGSize(
-            width: screenSize.width * UIScreen.main.scale,
-            height: screenSize.height * UIScreen.main.scale
+            width: imageSize.width * scale,
+            height: imageSize.height * scale
         )
+        
         let renderer = UIGraphicsImageRenderer(size: targetSize)
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: targetSize))
@@ -359,7 +372,7 @@ struct FriendsTabView: View {
     }
 }
 
-// MARK: - Background View
+// MARK: - Background View (수정된 버전)
 struct BackgroundImageView: View {
     let cards: [CardModel]
     let currentIndex: Int
@@ -376,13 +389,16 @@ struct BackgroundImageView: View {
                         Image(uiImage: currentImage)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .blur(radius: 15)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipped()
+                            .scaleEffect(1.1)
+                            .blur(radius: 2)
                             .overlay(
                                 LinearGradient(
                                     colors: [
-                                        Color.black.opacity(0.4),
-                                        Color.black.opacity(0.2),
-                                        Color.black.opacity(0.6)
+                                        Color.black.opacity(0.5),
+                                        Color.black.opacity(0.3),
+                                        Color.black.opacity(0.7)
                                     ],
                                     startPoint: .top,
                                     endPoint: .bottom

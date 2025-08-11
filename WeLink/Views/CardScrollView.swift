@@ -25,7 +25,7 @@ struct CardScrollView: View {
         VStack(spacing: 1) {
             if !cards.isEmpty {
                 Text("\(cards[safeCurrentIndex].name) 님의 카드")
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.custom("Pretendard-Medium", size: 20))
                     .foregroundColor(Color("MainColor"))
                     .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                     .animation(AnimationConstants.indexChange, value: safeCurrentIndex)
@@ -217,11 +217,12 @@ struct SwipeableCardView: View {
             ZStack {
                 Circle()
                     .fill(.ultraThinMaterial)
+                    .opacity(0.8)
                     .environment(\.colorScheme, .dark)
-                    .frame(width: 80, height: 80)
+                    .frame(width: 70, height: 70)
                     .overlay(
                         Circle()
-                            .strokeBorder(Color.white.opacity(0.3), lineWidth: 2)
+                            .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
                     )
                 
                 Image(systemName: "trash")
