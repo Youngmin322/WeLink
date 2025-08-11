@@ -22,7 +22,6 @@ struct MyProfileTabView: View {
         
         NavigationView {
             ZStack{
-//                Image("Winter")
                 Image(uiImage: UIImage(data: myProfile.imageData)!)
                     .resizable()
                     .blur(radius: 3)
@@ -134,7 +133,7 @@ struct MyProfileTabView: View {
                     }
                     
                 }
-                .padding(.bottom,70)
+                .padding(.bottom,110)
                 
                 // 메뉴를 VStack 바깥, ZStack 안에 위치
                 if showMenu {
