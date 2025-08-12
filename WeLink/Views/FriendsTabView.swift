@@ -93,11 +93,25 @@ struct FriendsTabView: View {
         .onAppear {
             handleViewAppear()
         }
-        .onChange(of: allCards) { oldCards, newCards in
-            handleAllCardsChange(oldCards: oldCards, newCards: newCards)
+        .onChange(of: allCards) { oldValue, newValue in
+            handleAllCardsChange(oldCards: oldValue, newCards: newValue)
         }
-        .onChange(of: cards) { oldCards, newCards in
-            handleFilteredCardsChange(oldCards: oldCards, newCards: newCards)
+        .onChange(of: allCards.count) { oldCount, newCount in
+            // 카드 개수가 증가했을 때 (새 카드 추가됨)
+            if newCount > oldCount {
+                print("새 카드가 추가되었습니다. 총 \(newCount)개")
+                
+                // 새로 추가된 카드로 인덱스 업데이트
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    if !cards.isEmpty {
+                        currentIndex = min(currentIndex, cards.count - 1)
+                        preloadImages()
+                    }
+                }
+            }
+        }
+        .onChange(of: cards) { oldValue, newValue in
+            handleFilteredCardsChange(oldCards: oldValue, newCards: newValue)
         }
         .onChange(of: searchText) { _, _ in
             resetCurrentIndex()
@@ -257,11 +271,18 @@ struct FriendsTabView: View {
     // MARK: - Share Sheet View
     private var shareSheetView: some View {
         NavigationView {
-            ShareCardSheetView(myCard: !cards.isEmpty && safeCurrentIndex < cards.count ? cards[safeCurrentIndex] : CardModel.defaultMockCard)
+            // 내 카드를 찾아서 전달
+            ShareCardSheetView(myCard: findMyCard() ?? CardModel.defaultMockCard)
                 .navigationBarTitleDisplayMode(.inline)
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+    }
+
+    // 내 카드를 찾는 메서드 추가
+    private func findMyCard() -> CardModel? {
+        guard let myUUID = myID.last?.id else { return nil }
+        return allCards.first { $0.id == myUUID }
     }
     
     // MARK: - Private Methods
