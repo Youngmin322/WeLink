@@ -113,7 +113,7 @@ struct MyProfileTabDetailView: View {
                                 .cornerRadius(12)
                                 .frame(width: 160)
                                 .shadow(radius: 5)
-                                .offset(x: 60, y: -200)
+                                .offset(x: 60, y: -10)
 //                                 .transition(.opacity)
                             }
                             
