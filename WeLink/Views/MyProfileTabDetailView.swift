@@ -74,25 +74,23 @@ struct MyProfileTabDetailView: View {
                 // 메뉴 본체
                 //TODO: 위치 조절
                 VStack(alignment: .leading, spacing: 0) {
-                    Button("프로필 수정") {
-                        print("프로필 수정")
-                        showMenu = false
+                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)) {
+                        Text("프로필 수정")
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.darkGray))
+                            .foregroundColor(.white)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.darkGray))
-                    .foregroundColor(.white)
 
                     Divider().background(Color.white)
 
-                    Button("취향 카테고리 수정") {
-                        print("취향 카테고리 수정")
-                        showMenu = false
+                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)) {
+                        Text("취향 카테고리 수정")
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.darkGray))
+                            .foregroundColor(.white)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.darkGray))
-                    .foregroundColor(.white)
                 }
                 .background(Color(.darkGray))
                 .cornerRadius(12)
@@ -284,20 +282,16 @@ struct entireSubTopicView: View{
             let sortedKeys = currentTopic.children.keys.sorted {
                 currentTopic.children[$0]!.title < currentTopic.children[$1]!.title
             }
+            
+            var lastSubTopicToShow: String = findLastKey(sortedKeys: sortedKeys, currentTopic: currentTopic)
+            
             ForEach(Array(sortedKeys.enumerated()), id:  \.offset){ (idx, key) in
                 subTopicWindow(topic: Binding<subTopic>(
                     get: { currentTopic.children[key]! },
                     set: { newValue in
                         currentTopic.children[key] = newValue
                     }
-                ), width : width, totalHeight: $totalHeight)
-                if idx != sortedKeys.count - 1{
-                    Divider()
-                        .frame(width: width - 50 , height: 1) // 두께
-                        .background(Color.gray) // 색상
-                        .opacity(0.5)
-                        .padding(.top, 15)
-                }
+                ), width : width, totalHeight: $totalHeight, lastKey: lastSubTopicToShow)
                 }
         }
         .background(
@@ -315,14 +309,16 @@ struct subTopicWindow: View{
     @Binding var topic: subTopic
     private let width: CGFloat
     @Binding private var totalHeight: CGFloat
+    private let lastKey: String
     
     private let buttonWidth: CGFloat = 100
     private let buttonHeight: CGFloat = 45
     
-    init (topic: Binding<subTopic>, width: CGFloat, totalHeight: Binding<CGFloat>){
+    init (topic: Binding<subTopic>, width: CGFloat, totalHeight: Binding<CGFloat>, lastKey:String){
         self._topic = topic
         self.width = width
         self._totalHeight = totalHeight
+        self.lastKey = lastKey
         
         let selectedDetailedTopics = topic.children.values.filter { $0.isSelected.wrappedValue }
         let numDetailedTopics: Int = selectedDetailedTopics.count
@@ -358,6 +354,13 @@ struct subTopicWindow: View{
                             detailedTopicButton(topic: detailedTopic, width: buttonWidth, height: buttonHeight)
                         }
                     }
+                    if topic.title != lastKey{
+                        Divider()
+                            .frame(width: width - 50 , height: 1) // 두께
+                            .background(Color.gray) // 색상
+                            .opacity(0.5)
+                            .padding(.top, 15)
+                    }
                 }
             }
         }
@@ -384,6 +387,21 @@ struct subTopicWindow: View{
             }
         }
     }
+}
+
+func findLastKey(sortedKeys: [String], currentTopic: mainTopic) -> String {
+    var lastSubTopicToShow = ""
+    
+    for (_, key) in sortedKeys.enumerated() {
+        let detailedTopics = Array(currentTopic.children[key]!.children.values)
+        
+        for topic in detailedTopics {
+            if topic.isSelected {
+                lastSubTopicToShow = key
+            }
+        }
+    }
+    return lastSubTopicToShow
 }
 
 #Preview {

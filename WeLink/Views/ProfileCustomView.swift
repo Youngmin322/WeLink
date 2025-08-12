@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ProfileCustomView: View {
+    var progress: CGFloat
     @State private var name: String = ""
     @State private var birthDate: String = ""
     @State private var nickname: String = ""
@@ -30,18 +31,19 @@ struct ProfileCustomView: View {
     
     private var myID: MyUUID = MyUUID(id: UUID())
     
-    init(progress: CGFloat, isEdit: Bool){
+    var isEdit: Bool
+    
+    init(progress: CGFloat, cardModel: CardModel? = nil, isEdit: Bool){
         self.progress = progress
+        self.cardModel = cardModel
         self.isEdit = isEdit
-        let hasMyID: Bool = (IDs.count > 0 && cards.contains { $0.id == IDs.last!.id })
-        self.myID = (isEdit && hasMyID) ? MyUUID(id: IDs.last!.id) : MyUUID(id: UUID())
+        if cardModel != nil {
+            self.myID = isEdit ? MyUUID(id: cardModel!.id) : self.myID
+        }
     }
     enum FocusField: Hashable {
         case name, birthDate, nickname, introduction, mbti, job
     }
-    
-    var progress: CGFloat
-    var isEdit: Bool
     
     private func calculateAgeByYear(from birthDateString: String) -> Int? {
         let formatter = DateFormatter()
@@ -136,7 +138,6 @@ var body: some View {
                                     // 여기에 버튼 눌렀을 때 실행할 로직 작성
                                         // 예: cardModel 생성
                                     if isEdit {
-                                        cardModel = cards.first(where: { $0.id == myID.id })!
                                         cardModel?.name = name
                                         cardModel?.age = age
                                         cardModel?.cardDescription = introduction
@@ -185,7 +186,7 @@ var body: some View {
                                     }
                                     else{
                                         if let cardModel = cardModel {
-                                            CategoryView(progress: 2.0/4.0, cardModel: cardModel)
+                                            CategoryView(progress: 2.0/4.0, cardModel: cardModel, isEdit: true)
                                         }
                                     }
                                     }

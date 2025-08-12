@@ -148,7 +148,7 @@ struct MyProfileTabView: View {
 
                     // 메뉴 본체
                     VStack(alignment: .leading, spacing: 0) {
-                        NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, isEdit: true).onAppear { showMenu = false }) {
+                        NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)) {
                             Text("프로필 수정")
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -158,7 +158,7 @@ struct MyProfileTabView: View {
 
                         Divider().background(Color.white)
 
-                        NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile).onAppear { showMenu = false }) {
+                        NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)) {
                             Text("취향 카테고리 수정")
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
