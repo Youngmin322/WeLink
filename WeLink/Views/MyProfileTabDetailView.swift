@@ -79,13 +79,13 @@ struct MyProfileTabDetailView: View {
 
                                     Divider().background(Color.white)
 
-                                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile).onAppear { showMenu = false }) {
-                                        Text("취향 카테고리 수정")
-                                            .padding()
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .background(Color(.darkGray))
-                                            .foregroundColor(.white)
-                                    }
+                                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)) {
+                                                            Text("취향 카테고리 수정")
+                                                                .padding()
+                                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                                .background(Color(.darkGray))
+                                                                .foregroundColor(.white)
+                                                        }
                                 }
                                 .background(Color(.darkGray))
                                 .cornerRadius(12)
