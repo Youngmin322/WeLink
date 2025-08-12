@@ -15,8 +15,7 @@ struct CategoryView: View {
     @State var selectedTopics: [mainTopic] = []
     @State var isReady: Bool = false
     @State private var goNext:Bool = false
-    
-    @Query private var myID: [MyUUID]
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
             let columns = [
@@ -49,11 +48,7 @@ struct CategoryView: View {
                     let backButtonWidth: CGFloat = 20
                     HStack(){
                         Button(action: {
-                            //TODO: View 이동 action 추가하기
-                            
-                                print(myID.first?.id.uuidString ?? "uuid not found")
-                            print("\(cardModel.name)")
-                            print("\(cardModel.birthDate)")
+                            dismiss()
                         }) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 28))
