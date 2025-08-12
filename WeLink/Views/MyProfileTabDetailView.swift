@@ -77,7 +77,6 @@ struct MyProfileTabDetailView: View {
                     Button("프로필 수정") {
                         print("프로필 수정")
                         showMenu = false
-                        NavigationLink(destination: )
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
