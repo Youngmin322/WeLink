@@ -83,6 +83,11 @@ struct ShareCardSheetView: View {
         .onAppear {
             print("ShareCardSheetView appeared")
             mpc.setModelContext(modelContext)
+            
+            // 사용자 카드 이름으로 피어 ID 설정
+            let cardToUse = actualMyCard ?? CardModel.defaultMockCard
+            mpc.setupPeerWithUserName(cardToUse.name)
+            
             mpc.startHosting()
             mpc.startBrowsing()
         }
@@ -163,6 +168,10 @@ struct ShareCardSheetView: View {
                 mpc.stopHosting()
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // 다시 사용자 이름으로 피어 ID 설정
+                    let cardToUse = actualMyCard ?? CardModel.defaultMockCard
+                    mpc.setupPeerWithUserName(cardToUse.name)
+                    
                     mpc.startHosting()
                     mpc.startBrowsing()
                 }
@@ -360,6 +369,10 @@ struct ShareCardSheetView: View {
                     mpc.disconnect()
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        // 다시 사용자 이름으로 피어 ID 설정
+                        let cardToUse = actualMyCard ?? CardModel.defaultMockCard
+                        mpc.setupPeerWithUserName(cardToUse.name)
+                        
                         mpc.startHosting()
                         mpc.startBrowsing()
                     }

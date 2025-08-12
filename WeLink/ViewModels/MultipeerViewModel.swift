@@ -12,7 +12,7 @@ import SwiftData
 
 class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate {
     private let serviceType = "welink-share"
-    private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
+    private var myPeerID: MCPeerID!
     private var session: MCSession!
     private var advertiser: MCNearbyServiceAdvertiser!
     private var browser: MCNearbyServiceBrowser!
@@ -43,8 +43,20 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         self.modelContext = context
     }
     
+    // 사용자 이름으로 피어 ID 설정하는 메서드
+    func setupPeerWithUserName(_ userName: String) {
+        let displayName = userName.isEmpty ? UIDevice.current.name : userName
+        myPeerID = MCPeerID(displayName: displayName)
+        setupSession()
+        setupAdvertiser()
+        setupBrowser()
+        print("피어 ID 설정 완료: \(displayName)")
+    }
+    
     override init() {
         super.init()
+        // 기본값으로 기기 이름 사용 (나중에 setupPeerWithUserName으로 변경됨)
+        myPeerID = MCPeerID(displayName: UIDevice.current.name)
         setupSession()
         setupAdvertiser()
         setupBrowser()
