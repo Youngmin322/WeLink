@@ -202,6 +202,7 @@ var body: some View {
             }
             
         }
+    .navigationBarHidden(true)
     }
         
 
