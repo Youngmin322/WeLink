@@ -148,11 +148,13 @@ struct upperButtons: View{
             Button(action:{
                 showMenu.toggle()
             }){
-                Image(systemName: "ellipsis")
-                    .foregroundColor(Color("MainColor"))
-                    .font(.system(size: 30))
-                    .rotationEffect(Angle(degrees: 90))
-                    .bold()
+              
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(Color("MainColor"))
+                        .font(.system(size: 30))
+                        .rotationEffect(Angle(degrees: 90))
+                        .bold()
+              
             }
         }
         .padding(.top, 50)

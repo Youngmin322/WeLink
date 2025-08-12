@@ -290,8 +290,7 @@ var body: some View {
                         .font(.system(size: 16))
                     TextField(
                         "",
-                        text: $birthDate,
-                        prompt: Text("2006-03-26").foregroundColor(.gray)
+                        text: $birthDate
                     )
                         .padding()
                         .background(Color("TextFieldBackground"))
