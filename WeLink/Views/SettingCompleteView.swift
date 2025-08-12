@@ -109,29 +109,27 @@ struct SettingCompleteView: View {
                     let nextButtonHeight: CGFloat = 25
                     
                     Spacer()
-                    Button(action: {
-                        context.insert(cardModel)
-                        try? context.save()
-                        
-                        goNext = true
-                    }) {
-                        Text("앱 시작하기")
-                            .font(.headline)
-                            .foregroundColor(.black)
-                            .frame(width: nextButtonWidth, height: nextButtonHeight)
-                            .padding()
-                            .background(Color("MainColor"))
-                            .clipShape(Capsule())
-                    }
+                    NavigationLink(
+                            destination: ContentView().navigationBarHidden(true)
+                                .onAppear {
+                                    context.insert(cardModel)
+                                    try? context.save()
+                                }
+                        ) {
+                            Text("앱 시작하기")
+                                .font(.headline)
+                                .foregroundColor(.black)
+                                .frame(width: nextButtonWidth, height: nextButtonHeight)
+                                .padding()
+                                .background(Color("MainColor"))
+                                .clipShape(Capsule())
+                        }
                 }
             }
             
         }
         .navigationBarHidden(true)
-        .navigationDestination(isPresented: $goNext) {
-            ContentView()
-        }
-        
+
     }
     
 }

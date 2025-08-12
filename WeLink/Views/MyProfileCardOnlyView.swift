@@ -10,7 +10,7 @@ struct MyProfileCardOnlyView: View {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 270, height: 450)
+                    .frame(width: 304, height: 483)
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .overlay(
@@ -29,15 +29,14 @@ struct MyProfileCardOnlyView: View {
             } else {
                 RoundedRectangle(cornerRadius: 20)
                     .foregroundColor(.gray)
-                    .frame(width: 270, height: 450)
+                    .frame(width: 324, height: 540) 
             }
             
             Text("D-\(card.dDay)")
+                .font(.custom("Pretendard-Bold", size: 32))
                 .foregroundColor(.white)
                 .opacity(0.9)
-                .font(.system(size: 32))
-                .bold()
-                .padding(.top, 20)
+                .padding(.top, 15)
                 .padding(.trailing, 16)
             
             VStack(alignment: .leading) {
@@ -45,44 +44,43 @@ struct MyProfileCardOnlyView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .lastTextBaseline) {
                         Text(card.name)
+                            .font(.custom("Pretendard-Bold", size: 42))
                             .foregroundColor(.white)
-                            .font(.system(size: 40))
-                            .bold()
                         Text("(\(card.age))")
+                            .font(.custom("Pretendard-SemiBold", size: 14))
                             .foregroundColor(.white)
-                            .font(.system(size: 14))
-                            .bold()
                     }
                     
                     Text(card.cardDescription)
+                        .font(.custom("Pretendard-Medium", size: 12.5))
+                        .lineSpacing(3)
                         .foregroundColor(.white)
-                        .font(.system(size: 12))
-                        .bold()
-                        .opacity(0.9)
+                        .opacity(0.7)
                 }
-                .padding(.leading, 20)
+                .padding(.leading, -9)
                 
-                HStack(spacing: 12) {
+                HStack(spacing: 15) {
                     ForEach([formattedBirthDate(from: card.birthDate), card.mbti, card.tag], id: \.self) { label in
                         ZStack {
                             RoundedRectangle(cornerRadius: 45)
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(Color.white)
                                 .frame(width: 76, height: 29)
-                                .opacity(0.6)
+                                .opacity(0.25)
                             Text(label)
+                                .font(.custom("Pretendard-Medium", size: 13))
                                 .foregroundColor(.white)
-                                .font(.system(size: 13))
                         }
                     }
                 }
                 .frame(maxWidth: .infinity)
+                .padding(.leading, -35)
                 .padding(.top, 16)
-                .padding(.bottom, 35)
+                .padding(.bottom, 20)
             }
-            .frame(width: 270, height: 450)
-            .padding(.bottom, 30)
+            .frame(width: 270, height: 480)
+            .padding(.bottom, 20)
         }
-        .frame(width: 270, height: 450)
+        .frame(width: 270, height: 480)
     }
 }
 

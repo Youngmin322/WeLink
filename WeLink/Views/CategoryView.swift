@@ -19,7 +19,6 @@ struct CategoryView: View {
     @Query private var myID: [MyUUID]
     
     var body: some View {
-        NavigationStack{
             let columns = [
                 GridItem(.flexible()),
                 GridItem(.flexible())
@@ -100,10 +99,15 @@ struct CategoryView: View {
                     }
                     let nextButtonWidth: CGFloat = 310
                     let nextButtonHeight: CGFloat = 25
-                    if isReady{
-                        Button(action: {
-                            goNext = true
-                        }) {
+                    if isReady {
+                        NavigationLink(
+                            destination: CategoryDetailedView(
+                                progress: 3.0 / 4.0,
+                                selectedTopics: selectedTopics,
+                                categories: categories,
+                                cardModel: cardModel
+                            )
+                        ) {
                             Text("다음")
                                 .font(.headline)
                                 .foregroundColor(.black)
@@ -112,18 +116,9 @@ struct CategoryView: View {
                                 .background(isReady ? Color("MainColor") : Color.gray)
                                 .clipShape(Capsule())
                         }
-                        .disabled(selectedTopics.count==0)
+                        .disabled(selectedTopics.count == 0)
                     }
                 }
-            }
-            .navigationDestination(isPresented: $goNext) {
-                CategoryDetailedView(
-                    progress: 3.0 / 4.0,
-                    selectedTopics: selectedTopics,
-                    categories: categories,
-                    cardModel: cardModel
-                )
-            }
         }
         .navigationBarHidden(true)
     }

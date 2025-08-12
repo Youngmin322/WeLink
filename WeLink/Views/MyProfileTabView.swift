@@ -22,7 +22,6 @@ struct MyProfileTabView: View {
         
         NavigationView {
             ZStack{
-//                Image("Winter")
                 Image(uiImage: UIImage(data: myProfile.imageData)!)
                     .resizable()
                     .blur(radius: 3)
@@ -134,7 +133,7 @@ struct MyProfileTabView: View {
                     }
                     
                 }
-                .padding(.bottom,50)
+                .padding(.bottom,110)
                 
                 // 메뉴를 VStack 바깥, ZStack 안에 위치
                 if showMenu {
@@ -149,25 +148,23 @@ struct MyProfileTabView: View {
 
                     // 메뉴 본체
                     VStack(alignment: .leading, spacing: 0) {
-                        Button("프로필 수정") {
-                            print("프로필 수정")
-                            showMenu = false
+                        NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0).onAppear { showMenu = false }) {
+                            Text("프로필 수정")
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color(.darkGray))
+                                .foregroundColor(.white)
                         }
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.darkGray))
-                        .foregroundColor(.white)
 
                         Divider().background(Color.white)
 
-                        Button("취향 카테고리 수정") {
-                            print("취향 카테고리 수정")
-                            showMenu = false
+                        NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile).onAppear { showMenu = false }) {
+                            Text("취향 카테고리 수정")
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color(.darkGray))
+                                .foregroundColor(.white)
                         }
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.darkGray))
-                        .foregroundColor(.white)
                     }
                     .background(Color(.darkGray))
                     .cornerRadius(12)
@@ -175,6 +172,7 @@ struct MyProfileTabView: View {
                     .shadow(radius: 5)
                     .offset(x: 60, y: -250) // 필요에 따라 위치 조정
                     .transition(.opacity)
+                    
                 }
             }
         }
@@ -196,4 +194,3 @@ func findMyProfile(cards: [CardModel], id: UUID)->CardModel{
 //#Preview {
 //    MyProfileTabView()
 //}
-

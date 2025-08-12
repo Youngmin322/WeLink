@@ -18,7 +18,8 @@ struct ProfileCustomView: View {
     @State private var showPicker = false
     @State private var selectedImage: UIImage?
     @FocusState private var focusedField: FocusField?
-    
+
+    @State private var birthDateError: Bool = false
     @State private var cardModel: CardModel?
     @State private var goNext:Bool = false
     
@@ -30,6 +31,40 @@ struct ProfileCustomView: View {
     }
     
     var progress: CGFloat
+    private func calculateAgeByYear(from birthDateString: String) -> Int? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        guard let birthDate = formatter.date(from: birthDateString) else {
+            return nil
+        }
+        let calendar = Calendar.current
+        let birthYear = calendar.component(.year, from: birthDate)
+        let currentYear = calendar.component(.year, from: Date())
+        // Korean age: currentYear - birthYear + 1
+        return currentYear - birthYear + 1
+    }
+
+    // Calculate D-Day (days until next birthday) from birth date string in yyyy-MM-dd format
+    private func calculateDaysUntilBirthday(from birthDateString: String) -> Int? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        guard let birthDate = formatter.date(from: birthDateString) else {
+            return nil
+        }
+        let calendar = Calendar.current
+        let now = Date()
+        var nextBirthdayComponents = calendar.dateComponents([.month, .day], from: birthDate)
+        nextBirthdayComponents.year = calendar.component(.year, from: now)
+        var nextBirthday = calendar.date(from: nextBirthdayComponents)!
+        if nextBirthday < now {
+            nextBirthdayComponents.year! += 1
+            nextBirthday = calendar.date(from: nextBirthdayComponents)!
+        }
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: nextBirthday)).day ?? 0
+        return days
+    }
     
 var body: some View {
     NavigationStack {
@@ -73,8 +108,8 @@ var body: some View {
                         userInfoFieldsView
                         
                         //TODO: 나이, 디데이 계산 로직 만들기
-                        let age = 20
-                        let dDay = 30
+                        let age = calculateAgeByYear(from: birthDate) ?? 0
+                        let dDay = calculateDaysUntilBirthday(from: birthDate) ?? 0
                         
                         let isReady = (!name.isEmpty &&
                         !birthDate.isEmpty &&
@@ -216,12 +251,16 @@ var body: some View {
                         )
                         .foregroundColor(.white)
                         .focused($focusedField, equals: .name)
-                    
+
                     Text("생년월일")
                         .foregroundColor(Color(hex:0xCACACA))
                         .bold()
                         .font(.system(size: 16))
-                    TextField("", text: $birthDate)
+                    TextField(
+                        "",
+                        text: $birthDate,
+                        prompt: Text("2006-03-26").foregroundColor(.gray)
+                    )
                         .padding()
                         .background(Color("TextFieldBackground"))
                         .cornerRadius(12)
@@ -234,8 +273,22 @@ var body: some View {
                         )
                         .foregroundColor(.white)
                         .focused($focusedField, equals: .birthDate)
-                    
-                    
+                        .onChange(of: birthDate) { newValue in
+                            let formatter = DateFormatter()
+                            formatter.dateFormat = "yyyy-MM-dd"
+                            formatter.locale = Locale(identifier: "en_US_POSIX")
+                            if formatter.date(from: newValue) != nil {
+                                birthDateError = false
+                            } else {
+                                birthDateError = true
+                            }
+                        }
+                    if birthDateError {
+                        Text("생년월일을 yyyy-MM-dd 형식으로 입력해주세요")
+                            .foregroundColor(.red)
+                            .font(.system(size: 14))
+                    }
+
                     Text("닉네임")
                         .foregroundColor(Color(hex:0xCACACA))
                         .bold()
