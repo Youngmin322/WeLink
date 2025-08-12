@@ -69,31 +69,30 @@ struct MyProfileTabDetailView: View {
 
                                 // 메뉴 본체
                                 VStack(alignment: .leading, spacing: 0) {
-                                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0).onAppear { showMenu = false })
-                                        Text("프로필 수정")
-                                            .padding()
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .background(Color(.darkGray))
-                                            .foregroundColor(.white)
-                                    }
+                                                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)) {
+                                                        Text("프로필 수정")
+                                                            .padding()
+                                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                                            .background(Color(.darkGray))
+                                                            .foregroundColor(.white)
+                                                    }
 
-                                    Divider().background(Color.white)
+                                                    Divider().background(Color.white)
 
-                                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile).onAppear { showMenu = false }) {
-                                        Text("취향 카테고리 수정")
-                                            .padding()
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .background(Color(.darkGray))
-                                            .foregroundColor(.white)
-                                    }
-                                }
-                                .background(Color(.darkGray))
-                                .cornerRadius(12)
-                                .frame(width: 160)
-                                .shadow(radius: 5)
-                                .offset(x: 60, y: -10)
-//                                 .transition(.opacity)
-                            }
+                                                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)) {
+                                                        Text("취향 카테고리 수정")
+                                                            .padding()
+                                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                                            .background(Color(.darkGray))
+                                                            .foregroundColor(.white)
+                                                    }
+                                                }
+                                                .background(Color(.darkGray))
+                                                .cornerRadius(12)
+                                                .frame(width: 160)
+                                                .shadow(radius: 5)
+                                                .offset(x: 60, y: 30) // 필요에 따라 위치 조정
+                                                .transition(.opacity)                            }
                             
                             Spacer()
                             
