@@ -10,6 +10,7 @@ import SwiftData
 
 @main
 struct WeLinkApp: App {
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             CardModel.self,
@@ -26,9 +27,21 @@ struct WeLinkApp: App {
 
     var body: some Scene {
         WindowGroup {
-        ContentView()
-//           ProfileCustomView(progress: 1.0 / 4.0)
+            RootView()
         }
         .modelContainer(sharedModelContainer)
+    }
+}
+
+struct RootView: View {
+    @Query private var myID: [MyUUID]
+    @Query private var cards: [CardModel]
+
+    var body: some View {
+        if (myID.count > 0 && cards.contains { $0.id == myID.last!.id }) {
+            ContentView()
+        } else {
+            OnboardingView()
+        }
     }
 }

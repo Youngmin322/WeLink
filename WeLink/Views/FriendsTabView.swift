@@ -4,6 +4,7 @@ import SwiftData
 struct FriendsTabView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allCards: [CardModel]
+    @Query private var myID: [MyUUID]
     @State private var currentIndex = 0
     @State private var showingShareSheet = false
     @State private var preloadedImages: [Int: UIImage] = [:]
@@ -13,10 +14,22 @@ struct FriendsTabView: View {
     @FocusState private var isTextFieldFocused: Bool
     
     private var cards: [CardModel] {
+        guard let myUUID = myID.last?.id else {
+            if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return allCards
+            } else {
+                return allCards.filter { card in
+                    card.name.localizedCaseInsensitiveContains(searchText.trimmingCharacters(in: .whitespacesAndNewlines))
+                }
+            }
+        }
+        
+        let filteredCards = allCards.filter { $0.id != myUUID }
+        
         if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return allCards
+            return filteredCards
         } else {
-            return allCards.filter { card in
+            return filteredCards.filter { card in
                 card.name.localizedCaseInsensitiveContains(searchText.trimmingCharacters(in: .whitespacesAndNewlines))
             }
         }
@@ -44,19 +57,22 @@ struct FriendsTabView: View {
                     
                     VStack(spacing: 0) {
                         headerView
-                            .padding(.top, geometry.safeAreaInsets.top - 30)
+                            .padding(.top, geometry.safeAreaInsets.top - 40)
                             .padding(.horizontal, 24)
                         
                         Rectangle()
                             .fill(Color.clear)
-                            .frame(height: 8)
+                            .frame(height: 0)
                         
                         if cards.isEmpty {
                             emptyStateView
                                 .frame(maxHeight: .infinity)
                         } else {
-                            CardScrollView(cards: cards, currentIndex: $currentIndex)
-                                .padding(.top, 8)
+                            ScrollView {
+                                CardScrollView(cards: cards, currentIndex: $currentIndex)
+                                    .padding(.top, 20)
+                            }
+                            .scrollDisabled(true)
                         }
                         
                         Spacer(minLength: 60)
@@ -104,17 +120,23 @@ struct FriendsTabView: View {
                 }) {
                     ZStack {
                         Circle()
-                            .fill(cards.isEmpty ? Color.gray.opacity(0.5) : Color("MainColor"))
-                            .frame(width: 40, height: 40)
-                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .fill(.ultraThinMaterial)
+                            .environment(\.colorScheme, .dark)
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                        
                         Image(systemName: "plus")
-                            .foregroundColor(.white)
                             .font(.system(size: 24, weight: .medium))
+                            .foregroundColor(cards.isEmpty ? .white.opacity(0.5) : Color("MainColor"))
                     }
+                    .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
                 .disabled(cards.isEmpty)
                 .padding(.trailing, 24)
-                .padding(.bottom, keyboardHeight > 0 ? 140 : geometry.safeAreaInsets.bottom + 140)
+                .padding(.bottom, keyboardHeight > 0 ? 140 : geometry.safeAreaInsets.bottom + 133)
             }
         }
     }
@@ -137,8 +159,6 @@ struct FriendsTabView: View {
             Text("친구")
                 .font(.custom("Pretendard-Bold", size: 35))
                 .foregroundColor(.white)
-                //.font(.custom("Pretendard-Bold.otf", size: 35))
-                //.font(.system(size: 35, weight: .bold))
             
             Spacer()
         }
@@ -150,7 +170,7 @@ struct FriendsTabView: View {
                 .foregroundColor(.white.opacity(0.8))
                 .font(.system(size: 18, weight: .medium))
             
-            TextField("친구 이름으로 검색", text: $searchText)
+            TextField("", text: $searchText)
                 .foregroundColor(.white)
                 .font(.system(size: 17))
                 .tint(.white)
@@ -348,10 +368,16 @@ struct FriendsTabView: View {
     
     private func resizeImageForBackground(_ image: UIImage) -> UIImage {
         let screenSize = UIScreen.main.bounds.size
+        let maxDimension = max(screenSize.width, screenSize.height) * 1.5
+        
+        let imageSize = image.size
+        let scale = maxDimension / max(imageSize.width, imageSize.height)
+        
         let targetSize = CGSize(
-            width: screenSize.width * UIScreen.main.scale,
-            height: screenSize.height * UIScreen.main.scale
+            width: imageSize.width * scale,
+            height: imageSize.height * scale
         )
+        
         let renderer = UIGraphicsImageRenderer(size: targetSize)
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: targetSize))
@@ -376,13 +402,16 @@ struct BackgroundImageView: View {
                         Image(uiImage: currentImage)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .blur(radius: 15)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipped()
+                            .scaleEffect(1.1)
+                            .blur(radius: 4)
                             .overlay(
                                 LinearGradient(
                                     colors: [
-                                        Color.black.opacity(0.4),
-                                        Color.black.opacity(0.2),
-                                        Color.black.opacity(0.6)
+                                        Color.black.opacity(0.5),
+                                        Color.black.opacity(0.3),
+                                        Color.black.opacity(0.7)
                                     ],
                                     startPoint: .top,
                                     endPoint: .bottom
@@ -393,6 +422,14 @@ struct BackgroundImageView: View {
                 }
             )
             .clipped()
+    }
+}
+
+// MARK: - Collection Extension
+extension Collection {
+    func safeIndex(_ index: Int) -> Int {
+        guard !isEmpty else { return 0 }
+        return Swift.max(0, Swift.min(index, count - 1))
     }
 }
 

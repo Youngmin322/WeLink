@@ -297,14 +297,17 @@ struct FinalView: View {
                     .foregroundStyle(.black)
                 Spacer() // 중간 공간 확보
                 
-                Text("시작하기")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 135)
-                    .padding(.vertical, 18)
-                    .background(Color(hex: "#2C2C2C"))
-                    .cornerRadius(30)
-                // 버튼은 비워두거나 필요에 따라 추가 가능
+                
+                NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, isEdit: false)) {
+                    Text("시작하기")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 135)
+                        .padding(.vertical, 18)
+                        .background(Color(hex: "#2C2C2C"))
+                        .cornerRadius(30)
+                    // 버튼은 비워두거나 필요에 따라 추가 가능
+                }
             }
             .padding(.bottom, 20) // 하단 여백
             
