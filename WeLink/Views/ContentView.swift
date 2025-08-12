@@ -25,7 +25,7 @@ struct ContentView: View {
 
             GeometryReader { geometry in
                 let screenWidth = geometry.size.width
-                let tabBarWidth = screenWidth * 0.9
+                let tabBarWidth = screenWidth * 0.885
                 let tabWidth = tabBarWidth / 3
                 let overlayWidth = tabWidth - 8
                 let selectedTabOffset = (CGFloat(selectedTab) - 1) * tabWidth
@@ -33,7 +33,7 @@ struct ContentView: View {
                 ZStack {
                     Rectangle()
                         .foregroundColor(.clear)
-                        .frame(width: tabBarWidth, height: 55)
+                        .frame(width: tabBarWidth, height: 52)
                         .background(Color(red: 0.16, green: 0.16, blue: 0.16).opacity(0.5))
                         .cornerRadius(31)
                         .overlay(
@@ -54,9 +54,9 @@ struct ContentView: View {
                                 startPoint: .top,
                                 endPoint: .bottom
                             ),
-                            lineWidth: 2
+                            lineWidth: 1
                         )
-                        .frame(width: overlayWidth, height: 50)
+                        .frame(width: overlayWidth, height: 48)
                         .offset(x: selectedTabOffset)
                         .animation(.easeInOut(duration: 0.3), value: selectedTab)
                     
