@@ -11,6 +11,7 @@ import SwiftData
 struct CategoryView: View {
     var progress: CGFloat
     @ObservedObject var cardModel: CardModel
+    var isEdit: Bool
     let categories: Category = Category()
     @State var selectedTopics: [mainTopic] = []
     @State var isReady: Bool = false
@@ -98,12 +99,14 @@ struct CategoryView: View {
                         NavigationLink(
                             destination: CategoryDetailedView(
                                 progress: 3.0 / 4.0,
+                                isEdit: isEdit,
                                 selectedTopics: selectedTopics,
                                 categories: categories,
                                 cardModel: cardModel
                             )
                         ) {
-                            Text("다음")
+                            let text = isEdit ? "완료" : "다음"
+                            Text(text)
                                 .font(.headline)
                                 .foregroundColor(.black)
                                 .frame(width: nextButtonWidth, height: nextButtonHeight)
