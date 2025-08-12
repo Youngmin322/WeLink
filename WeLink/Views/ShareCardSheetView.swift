@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MultipeerConnectivity
+import SwiftData
 
 struct ShareCardSheetView: View {
     @StateObject var mpc = MultipeerManager()
@@ -14,136 +15,77 @@ struct ShareCardSheetView: View {
     @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     @State private var pendingCardSends: Set<String> = []
     @State private var rejectedPeers: Set<String> = []
+    @State private var showSuccessMessage = false
+    
+    @Environment(\.modelContext) private var modelContext
+    @Query private var myID: [MyUUID]
+    @Query private var allCards: [CardModel]
     
     let myCard: CardModel
     
+    private var actualMyCard: CardModel? {
+        guard let myUUID = myID.last?.id else { return nil }
+        return allCards.first { $0.id == myUUID }
+    }
+    
+    private var currentScreenState: ScreenState {
+        if showSuccessMessage {
+            return .exchangeSuccess
+        } else if let _ = mpc.incomingInvitation {
+            return .incomingInvitation
+        } else if let _ = mpc.waitingForResponse {
+            return .waitingForResponse
+        } else if mpc.discoveredPeers.isEmpty {
+            return .searching
+        } else {
+            return .peerList
+        }
+    }
+    
+    enum ScreenState {
+        case searching
+        case peerList
+        case waitingForResponse
+        case incomingInvitation
+        case exchangeSuccess
+    }
+    
     var body: some View {
-        ZStack {
-            if mpc.incomingInvitation == nil {
-                VStack(spacing: 0) {
-                    if mpc.discoveredPeers.isEmpty {
-                        VStack(spacing: 16) {
-                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.system(size: 50))
-                                .foregroundColor(.blue.opacity(0.6))
-                                .scaleEffect(1.0 + sin(Double(dotCount) * 0.5) * 0.1)
-                                .animation(.easeInOut(duration: 0.5), value: dotCount)
-                                .padding()
-                            
-                            Text("주변 기기를 검색 중" + String(repeating: ".", count: dotCount))
-                                .font(.title2)
-                                .foregroundColor(.gray)
-                                .multilineTextAlignment(.center)
-                            
-                            Button("검색 재시작") {
-                                print("수동으로 검색 재시작")
-                                mpc.stopBrowsing()
-                                mpc.stopHosting()
-                                
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    mpc.startHosting()
-                                    mpc.startBrowsing()
-                                }
-                            }
-                            .padding(.top, 16)
-                            .foregroundColor(.blue)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .contentShape(Rectangle())
-                    } else {
-                        ScrollView {
-                            LazyVStack(spacing: 12) {
-                                ForEach(mpc.discoveredPeers, id: \.displayName) { peer in
-                                    PeerCardView(
-                                        peerName: peer.displayName,
-                                        profileImage: "person.circle.fill",
-                                        isConnected: mpc.connectedPeers.contains { $0.displayName == peer.displayName },
-                                        isConnecting: pendingCardSends.contains(peer.displayName) || mpc.waitingForResponse?.displayName == peer.displayName,
-                                        isRejected: rejectedPeers.contains(peer.displayName)
-                                    ) {
-                                        print("연결 시도: \(peer.displayName)")
-                                        pendingCardSends.insert(peer.displayName)
-                                        mpc.invitePeerAndSendCard(peer, card: myCard)
-                                    }
-                                }
-                            }
-                            .padding(.top, 16)
-                        }
-                    }
+        VStack(spacing: 0) {
+            Group {
+                switch currentScreenState {
+                case .searching:
+                    searchingView
+                case .peerList:
+                    peerListView
+                case .waitingForResponse:
+                    waitingForResponseView
+                case .incomingInvitation:
+                    incomingInvitationView
+                case .exchangeSuccess:
+                    exchangeSuccessView
                 }
-            }
-            
-            if let invitation = mpc.incomingInvitation {
-                Color("BackgroundColor")
-                    .ignoresSafeArea()
-                
-                VStack(spacing: 20) {
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
-                    
-                    Text("\(invitation.peer.displayName) 님이 연결을 요청했습니다")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                    
-                    Text("연결하시겠습니까?")
-                        .font(.body)
-                        .foregroundColor(.gray)
-                    
-                    HStack(spacing: 20) {
-                        Button("거절") {
-                            mpc.respondToInvitation(accept: false)
-                        }
-                        .frame(width: 100, height: 40)
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(20)
-                        
-                        Button("수락") {
-                            mpc.respondToInvitation(accept: true)
-                        }
-                        .frame(width: 100, height: 40)
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(20)
-                    }
-                }
-            }
-            
-            if let waitingPeer = mpc.waitingForResponse {
-                VStack(spacing: 16) {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .padding(.bottom, 8)
-                    
-                    Text("\(waitingPeer.displayName) 님의 응답을 기다리고 있습니다...")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .bold()
-                    
-                    Button("취소") {
-                        print("연결 요청 취소")
-                        mpc.cancelInvitation()
-                    }
-                    .font(.system(size: 16))
-                    .frame(width: 80, height: 35)
-                    .background(Color.gray.opacity(0.3))
-                    .foregroundColor(.primary)
-                    .cornerRadius(17.5)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color("BackgroundColor"))
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color("BackgroundColor"))
+        .presentationBackground(.ultraThinMaterial)
+        .presentationBackgroundInteraction(.enabled(upThrough: .height(200)))
+        .presentationCornerRadius(20)
+        .background {
+            RoundedRectangle(cornerRadius: 40, style: .continuous)
+                .fill(.black.opacity(0.4))
+                .blur(radius: 20)
+                .ignoresSafeArea()
+        }
         .onAppear {
             print("ShareCardSheetView appeared")
+            mpc.setModelContext(modelContext)
+            
+            let cardToUse = actualMyCard ?? CardModel.defaultMockCard
+            mpc.setupPeerWithUserName(cardToUse.name)
+            
             mpc.startHosting()
             mpc.startBrowsing()
         }
@@ -182,109 +124,366 @@ struct ShareCardSheetView: View {
                 pendingCardSends.remove(oldPeer.displayName)
             }
         }
+        .onChange(of: mpc.cardExchangeCompleted) { oldValue, newValue in
+            if newValue {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    showSuccessMessage = true
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showSuccessMessage = false
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - 검색 중 화면
+    @ViewBuilder
+    private var searchingView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "antenna.radiowaves.left.and.right")
+                .font(.system(size: 60))
+                .foregroundColor(Color("MainColor"))
+                .scaleEffect(1.0 + sin(Double(dotCount) * 0.5) * 0.1)
+                .animation(.easeInOut(duration: 0.5), value: dotCount)
+                .padding()
+            
+            Text("주변 기기를 검색 중" + String(repeating: ".", count: dotCount))
+                .font(.custom("Pretendard-SemiBold", size: 20))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+            
+            Text("같은 화면에 있는 친구를 찾고 있어요")
+                .font(.custom("Pretendard-Regular", size: 14))
+                .foregroundColor(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+            
+            Button("검색 재시작") {
+                print("수동으로 검색 재시작")
+                mpc.stopBrowsing()
+                mpc.stopHosting()
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // 다시 사용자 이름으로 피어 ID 설정
+                    let cardToUse = actualMyCard ?? CardModel.defaultMockCard
+                    mpc.setupPeerWithUserName(cardToUse.name)
+                    
+                    mpc.startHosting()
+                    mpc.startBrowsing()
+                }
+            }
+            .padding(.top, 16)
+            .font(.custom("Pretendard-Medium", size: 17))
+            .foregroundColor(Color("MainColor"))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+    }
+    
+    // MARK: - 피어 리스트 화면
+    @ViewBuilder
+    private var peerListView: some View {
+        VStack(spacing: 16) {
+            VStack(spacing: 8) {
+                Text("주변 친구들")
+                    .font(.custom("Pretendard-Bold", size: 22))
+                    .foregroundColor(.white)
+                
+                Text("카드를 교환할 친구를 선택하세요")
+                    .font(.custom("Pretendard-Regular", size: 14))
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(.top, 8)
+            
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(mpc.discoveredPeers, id: \.displayName) { peer in
+                        PeerCardView(
+                            peerName: peer.displayName,
+                            profileImage: "person.circle.fill",
+                            isConnected: mpc.connectedPeers.contains { $0.displayName == peer.displayName },
+                            isConnecting: pendingCardSends.contains(peer.displayName) || mpc.waitingForResponse?.displayName == peer.displayName,
+                            isRejected: rejectedPeers.contains(peer.displayName)
+                        ) {
+                            print("연결 시도: \(peer.displayName)")
+                            pendingCardSends.insert(peer.displayName)
+                            
+                            let cardToSend = actualMyCard ?? CardModel.defaultMockCard
+                            mpc.invitePeerAndSendCard(peer, card: cardToSend)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - 응답 대기 화면
+    @ViewBuilder
+    private var waitingForResponseView: some View {
+        VStack(spacing: 20) {
+            ProgressView()
+                .scaleEffect(1.5)
+                .tint(.white)
+                .padding(.bottom, 8)
+            
+            if let waitingPeer = mpc.waitingForResponse {
+                VStack(spacing: 12) {
+                    Text("\(waitingPeer.displayName) 님에게")
+                        .font(.custom("Pretendard-Bold", size: 20))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("카드 교환을 요청했어요")
+                        .font(.custom("Pretendard-Bold", size: 20))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("응답을 기다리고 있습니다...")
+                        .font(.custom("Pretendard-Regular", size: 14))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            
+            Button("요청 취소") {
+                print("연결 요청 취소")
+                mpc.cancelInvitation()
+            }
+            .font(.custom("Pretendard-Medium", size: 16))
+            .frame(width: 100, height: 40)
+            .background(Color.red.opacity(0.7))
+            .foregroundColor(.white)
+            .cornerRadius(20)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    // MARK: - 들어오는 초대 화면
+    @ViewBuilder
+    private var incomingInvitationView: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 16) {
+                Image(systemName: "person.2.badge.plus")
+                    .font(.system(size: 60))
+                    .foregroundColor(Color("MainColor"))
+                    .scaleEffect(1.0 + sin(Date().timeIntervalSince1970 * 2) * 0.05)
+                    .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: UUID())
+                
+                if let invitation = mpc.incomingInvitation {
+                    VStack(spacing: 8) {
+                        Text("\(invitation.peer.displayName) 님이")
+                            .font(.custom("Pretendard-Bold", size: 20))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                        
+                        Text("카드 교환을 요청했습니다")
+                            .font(.custom("Pretendard-Medium", size: 16))
+                            .foregroundColor(.white.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                    }
+                }
+                
+                Text("서로의 카드를 교환하시겠습니까?")
+                    .font(.custom("Pretendard-Regular", size: 14))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+            }
+            
+            HStack(spacing: 20) {
+                Button("거절") {
+                    mpc.respondToInvitation(accept: false)
+                }
+                .font(.custom("Pretendard-SemiBold", size: 16))
+                .frame(width: 100, height: 44)
+                .background(Color.red.opacity(0.8))
+                .foregroundColor(.white)
+                .cornerRadius(22)
+                .shadow(color: .red.opacity(0.3), radius: 8, x: 0, y: 4)
+                
+                Button("수락") {
+                    let cardToSend = actualMyCard ?? CardModel.defaultMockCard
+                    mpc.respondToInvitation(accept: true, myCard: cardToSend)
+                }
+                .font(.custom("Pretendard-SemiBold", size: 16))
+                .frame(width: 100, height: 44)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color("MainColor"), Color("MainColor").opacity(0.8)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .foregroundColor(.white)
+                .cornerRadius(22)
+                .shadow(color: Color("MainColor").opacity(0.3), radius: 8, x: 0, y: 4)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    // MARK: - 교환 성공 화면
+    @ViewBuilder
+    private var exchangeSuccessView: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 20) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 80))
+                    .foregroundColor(.green)
+                    .scaleEffect(showSuccessMessage ? 1.0 : 0.5)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showSuccessMessage)
+                
+                VStack(spacing: 12) {
+                    Text("카드 교환 완료!")
+                        .font(.custom("Pretendard-Bold", size: 24))
+                        .foregroundColor(.white)
+                        .opacity(showSuccessMessage ? 1.0 : 0.0)
+                        .animation(.easeInOut(duration: 0.5), value: showSuccessMessage)
+                    
+                    if let receivedCard = mpc.receivedCard {
+                        VStack(spacing: 8) {
+                            Text("\(receivedCard.name) 님의 카드를 받았습니다")
+                                .font(.custom("Pretendard-Medium", size: 16))
+                                .foregroundColor(.white.opacity(0.8))
+                                .opacity(showSuccessMessage ? 1.0 : 0.0)
+                                .animation(.easeInOut(duration: 0.5).delay(0.2), value: showSuccessMessage)
+                            
+                            Text("친구 목록에서 확인해보세요!")
+                                .font(.custom("Pretendard-Regular", size: 14))
+                                .foregroundColor(.white.opacity(0.6))
+                                .opacity(showSuccessMessage ? 1.0 : 0.0)
+                                .animation(.easeInOut(duration: 0.5).delay(0.4), value: showSuccessMessage)
+                        }
+                    }
+                }
+            }
+            
+            if showSuccessMessage {
+                Button("새로운 교환") {
+                    showSuccessMessage = false
+                    mpc.disconnect()
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        let cardToUse = actualMyCard ?? CardModel.defaultMockCard
+                        mpc.setupPeerWithUserName(cardToUse.name)
+                        
+                        mpc.startHosting()
+                        mpc.startBrowsing()
+                    }
+                }
+                .font(.custom("Pretendard-Medium", size: 16))
+                .frame(width: 140, height: 40)
+                .background(Color("MainColor").opacity(0.8))
+                .foregroundColor(.white)
+                .cornerRadius(20)
+                .opacity(showSuccessMessage ? 1.0 : 0.0)
+                .animation(.easeInOut(duration: 0.5).delay(1.0), value: showSuccessMessage)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
+// MARK: - PeerCardView 컴포넌트
 struct PeerCardView: View {
     let peerName: String
     let profileImage: String
     let isConnected: Bool
     let isConnecting: Bool
     let isRejected: Bool
-    let onConnect: () -> Void
-    
-    var buttonText: String {
-        if isConnected {
-            return "카드 전송됨"
-        } else if isConnecting {
-            return "요청 중..."
-        } else if isRejected {
-            return "거절됨"
-        } else {
-            return "연결하기"
-        }
-    }
-    
-    var buttonColor: Color {
-        if isConnected {
-            return Color.green
-        } else if isConnecting {
-            return Color.orange
-        } else if isRejected {
-            return Color.red
-        } else {
-            return Color(red: 0.75, green: 1, blue: 0)
-        }
-    }
+    let onTap: () -> Void
     
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: profileImage)
-                .font(.system(size: 40))
-                .foregroundColor(.blue)
-                .frame(width: 50, height: 50)
-                .background(Color.gray.opacity(0.1))
-                .clipShape(Circle())
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 0) {
+        Button(action: {
+            if !isConnected && !isConnecting && !isRejected {
+                onTap()
+            }
+        }) {
+            HStack(spacing: 16) {
+                Image(systemName: profileImage)
+                    .font(.system(size: 32))
+                    .foregroundColor(statusColor)
+                    .frame(width: 50, height: 50)
+                    .background(Circle().fill(statusColor.opacity(0.1)))
+                
+                VStack(alignment: .leading, spacing: 4) {
                     Text(peerName)
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(Color("MainColor"))
-                    
-                    Text(" 님에게")
-                        .font(.system(size: 17))
+                        .font(.custom("Pretendard-SemiBold", size: 16))
                         .foregroundColor(.white)
+                        .lineLimit(1)
+                    
+                    Text(statusText)
+                        .font(.custom("Pretendard-Regular", size: 12))
+                        .foregroundColor(statusColor.opacity(0.8))
                 }
                 
-                if isConnected {
-                    Text("전송 완료")
-                        .font(.caption)
-                        .foregroundColor(.green)
-                } else if isConnecting {
-                    Text("요청 대기 중...")
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                } else if isRejected {
-                    Text("연결 거절됨")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                }
+                Spacer()
+                
+                statusIcon
             }
-            
-            Spacer()
-            
-            Button(buttonText) {
-                if !isConnected && !isConnecting && !isRejected {
-                    onConnect()
-                }
-            }
-            .font(.system(size: 14))
-            .frame(width: 100, height: 33)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
             .background(
-                Rectangle()
-                    .foregroundColor(.clear)
-                    .background(buttonColor)
-                    .cornerRadius(19.5)
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.ultraThinMaterial)
+                    .environment(\.colorScheme, .dark)
             )
-            .disabled(isConnected || isConnecting || isRejected)
-            .foregroundColor(.black)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(
+                        statusColor.opacity(0.3),
+                        lineWidth: isConnected || isConnecting ? 1.5 : 1
+                    )
+            )
+            .scaleEffect(isConnecting ? 0.98 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: isConnecting)
         }
-        .padding(.horizontal, 5)
-        .padding(.vertical, 5)
+        .disabled(isConnected || isConnecting)
     }
-}
-
-#Preview {
-    ShareCardSheetView(myCard: CardModel(
-        id: UUID(),
-        name: "테스트",
-        age: 25,
-        description: "테스트 카드",
-        birthDate: "2004-07-25",
-        mbti: "ENFJ",
-        tag: "개발자",
-        dDay: 365,
-        imageData: Data()
-    ))
+    
+    private var statusColor: Color {
+        if isRejected {
+            return .red
+        } else if isConnected {
+            return .green
+        } else if isConnecting {
+            return .orange
+        } else {
+            return Color("MainColor")
+        }
+    }
+    
+    private var statusText: String {
+        if isRejected {
+            return "연결 거절됨"
+        } else if isConnected {
+            return "연결됨"
+        } else if isConnecting {
+            return "연결 중..."
+        } else {
+            return "터치하여 카드 교환"
+        }
+    }
+    
+    @ViewBuilder
+    private var statusIcon: some View {
+        if isRejected {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 20))
+                .foregroundColor(.red)
+        } else if isConnected {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 20))
+                .foregroundColor(.green)
+        } else if isConnecting {
+            ProgressView()
+                .scaleEffect(0.8)
+                .tint(.orange)
+        } else {
+            Image(systemName: "arrow.right.circle")
+                .font(.system(size: 20))
+                .foregroundColor(Color("MainColor"))
+        }
+    }
 }
