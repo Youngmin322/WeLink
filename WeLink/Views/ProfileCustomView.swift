@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ProfileCustomView: View {
     @State private var name: String = ""
@@ -23,8 +24,18 @@ struct ProfileCustomView: View {
     @State private var goNext:Bool = false
     
     @Environment(\.modelContext) private var context
-    let myID = MyUUID(id: UUID())
-
+    
+    @Query private var IDs: [MyUUID]
+    @Query private var cards: [CardModel]
+    
+    private var myID: MyUUID = MyUUID(id: UUID())
+    
+    init(progress: CGFloat, isEdit: Bool){
+        self.progress = progress
+        self.isEdit = isEdit
+        let hasMyID: Bool = (IDs.count > 0 && cards.contains { $0.id == IDs.last!.id })
+        self.myID = (isEdit && hasMyID) ? MyUUID(id: IDs.last!.id) : MyUUID(id: UUID())
+    }
     enum FocusField: Hashable {
         case name, birthDate, nickname, introduction, mbti, job
     }
@@ -124,19 +135,32 @@ var body: some View {
                                 Button(action: {
                                     // 여기에 버튼 눌렀을 때 실행할 로직 작성
                                         // 예: cardModel 생성
-                                    cardModel = CardModel(id: myID.id,
-                                            name: name,
-                                            age: age,
-                                            description: introduction,
-                                            birthDate: birthDate,
-                                            mbti: mbti,
-                                            tag: job,
-                                            dDay: dDay,
-                                            imageData: selectedImage!.pngData()!
+                                    if isEdit {
+                                        cardModel = cards.first(where: { $0.id == myID.id })!
+                                        cardModel?.name = name
+                                        cardModel?.age = age
+                                        cardModel?.cardDescription = introduction
+                                        cardModel?.birthDate = birthDate
+                                        cardModel?.mbti = mbti
+                                        cardModel?.tag = job
+                                        cardModel?.dDay = dDay
+                                        cardModel?.imageData = selectedImage!.pngData()!
+                                    }
+                                    else {
+                                        cardModel = CardModel(id: myID.id,
+                                                              name: name,
+                                                              age: age,
+                                                              description: introduction,
+                                                              birthDate: birthDate,
+                                                              mbti: mbti,
+                                                              tag: job,
+                                                              dDay: dDay,
+                                                              imageData: selectedImage!.pngData()!
                                         )
-                                    
-                                    context.insert(myID)
-                                    try? context.save()
+                                        
+                                        context.insert(myID)
+                                        try? context.save()
+                                    }
                                     
                                     
                                         // 화면 이동 트리거
