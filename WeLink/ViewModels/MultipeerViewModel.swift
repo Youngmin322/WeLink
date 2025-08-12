@@ -8,19 +8,24 @@
 import Foundation
 import MultipeerConnectivity
 import Network
+import SwiftData
 
 class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate {
     private let serviceType = "welink-share"
-    private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
+    private var myPeerID: MCPeerID!
     private var session: MCSession!
     private var advertiser: MCNearbyServiceAdvertiser!
     private var browser: MCNearbyServiceBrowser!
     
     private var pendingCardSends: [MCPeerID: CardModel] = [:]
+    private var modelContext: ModelContext?
     
     private var currentInvitationHandler: ((Bool, MCSession?) -> Void)?
     private var currentInvitationPeer: MCPeerID?
     private var invitationTimeoutTimer: Timer?
+    
+    private var cardsSentTo: Set<String> = []
+    private var cardsReceivedFrom: Set<String> = []
     
     @Published var receivedCard: CardModel?
     @Published var isConnected: Bool = false
@@ -30,9 +35,24 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     @Published var waitingForResponse: MCPeerID? = nil
     @Published var incomingInvitation: (peer: MCPeerID, handler: (Bool) -> Void)? = nil
     @Published var connectionRejected: String? = nil
+    @Published var cardExchangeCompleted: Bool = false
+    
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+    }
+    
+    func setupPeerWithUserName(_ userName: String) {
+        let displayName = userName.isEmpty ? UIDevice.current.name : userName
+        myPeerID = MCPeerID(displayName: displayName)
+        setupSession()
+        setupAdvertiser()
+        setupBrowser()
+        print("피어 ID 설정 완료: \(displayName)")
+    }
     
     override init() {
         super.init()
+        myPeerID = MCPeerID(displayName: UIDevice.current.name)
         setupSession()
         setupAdvertiser()
         setupBrowser()
@@ -80,6 +100,10 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         session.disconnect()
         stopHosting()
         stopBrowsing()
+        
+        cardsSentTo.removeAll()
+        cardsReceivedFrom.removeAll()
+        
         DispatchQueue.main.async {
             self.discoveredPeers.removeAll()
             self.connectedPeers.removeAll()
@@ -146,7 +170,7 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         currentInvitationPeer = nil
     }
     
-    func respondToInvitation(accept: Bool) {
+    func respondToInvitation(accept: Bool, myCard: CardModel? = nil) {
         guard let invitation = incomingInvitation else {
             print("처리할 초대가 없음")
             return
@@ -154,6 +178,10 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         
         print("초대 응답: \(accept ? "수락" : "거절")")
         invitation.handler(accept)
+        
+        if accept, let card = myCard {
+            pendingCardSends[invitation.peer] = card
+        }
         
         DispatchQueue.main.async {
             self.incomingInvitation = nil
@@ -167,9 +195,15 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         }
         
         do {
-            let data = try JSONEncoder().encode(card)
+            let cardData = CardTransferData(card: card, senderID: myPeerID.displayName)
+            let data = try JSONEncoder().encode(cardData)
             try session.send(data, toPeers: session.connectedPeers, with: .reliable)
             print("카드 전송 성공")
+            
+            // 전송한 피어들을 추적
+            for peer in session.connectedPeers {
+                cardsSentTo.insert(peer.displayName)
+            }
             
             DispatchQueue.main.async {
                 self.cardSentSuccessfully = true
@@ -189,9 +223,12 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         }
         
         do {
-            let data = try JSONEncoder().encode(card)
+            let cardData = CardTransferData(card: card, senderID: myPeerID.displayName)
+            let data = try JSONEncoder().encode(cardData)
             try session.send(data, toPeers: [peer], with: .reliable)
             print("카드 전송 성공 to \(peer.displayName)")
+            
+            cardsSentTo.insert(peer.displayName)
             
             DispatchQueue.main.async {
                 self.cardSentSuccessfully = true
@@ -201,6 +238,55 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             }
         } catch {
             print("카드 전송 실패 \(peer.displayName): \(error.localizedDescription)")
+        }
+    }
+    
+    private func saveReceivedCard(_ card: CardModel, from senderID: String) {
+        guard let context = modelContext else {
+            print("ModelContext가 설정되지 않음")
+            return
+        }
+        
+        let newCard = CardModel(
+            id: UUID(),
+            name: card.name,
+            age: card.age,
+            description: card.cardDescription,
+            birthDate: card.birthDate,
+            mbti: card.mbti,
+            tag: card.tag,
+            dDay: card.dDay,
+            imageData: card.imageData
+        )
+        
+        context.insert(newCard)
+        
+        do {
+            try context.save()
+            print("카드 저장 완료: \(card.name)")
+            
+            cardsReceivedFrom.insert(senderID)
+            
+            checkExchangeCompletion(with: senderID)
+            
+        } catch {
+            print("카드 저장 실패: \(error)")
+        }
+    }
+    
+    // 양방향 교환 완료 확인
+    private func checkExchangeCompletion(with peerID: String) {
+        if cardsSentTo.contains(peerID) && cardsReceivedFrom.contains(peerID) {
+            print("양방향 카드 교환 완료: \(peerID)")
+            
+            DispatchQueue.main.async {
+                self.cardExchangeCompleted = true
+                
+                // 성공 메시지 표시 후 리셋
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    self.cardExchangeCompleted = false
+                }
+            }
         }
     }
     
@@ -233,6 +319,10 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
                 
             case .notConnected:
                 print("연결 해제됨: \(peerID.displayName)")
+                
+                // 연결 해제 시 상태 정리
+                self.cardsSentTo.remove(peerID.displayName)
+                self.cardsReceivedFrom.remove(peerID.displayName)
                 
                 if let currentPeer = self.currentInvitationPeer,
                    currentPeer.displayName == peerID.displayName,
@@ -268,11 +358,15 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         print("데이터 수신: \(peerID.displayName)")
         
         DispatchQueue.main.async {
-            if let card = try? JSONDecoder().decode(CardModel.self, from: data) {
-                self.receivedCard = card
-                print("카드 디코딩 성공: \(card.name)")
-            } else {
-                print("카드 디코딩 실패")
+            do {
+                let cardData = try JSONDecoder().decode(CardTransferData.self, from: data)
+                self.receivedCard = cardData.card
+                print("카드 디코딩 성공: \(cardData.card.name) from \(cardData.senderID)")
+                
+                self.saveReceivedCard(cardData.card, from: cardData.senderID)
+                
+            } catch {
+                print("카드 디코딩 실패: \(error)")
             }
         }
     }
@@ -335,6 +429,10 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             self.discoveredPeers.removeAll { $0.displayName == peerID.displayName }
             self.pendingCardSends.removeValue(forKey: peerID)
             
+            // 연결 해제 시 상태 정리
+            self.cardsSentTo.remove(peerID.displayName)
+            self.cardsReceivedFrom.remove(peerID.displayName)
+            
             if let currentPeer = self.currentInvitationPeer,
                currentPeer.displayName == peerID.displayName,
                self.incomingInvitation != nil {
@@ -357,6 +455,17 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         if error.localizedDescription.contains("denied") || error.localizedDescription.contains("permission") {
             print("네트워크 권한 거부됨")
         }
+    }
+}
+
+// MARK: - 카드 전송 데이터 구조체
+struct CardTransferData: Codable {
+    let card: CardModel
+    let senderID: String
+    
+    init(card: CardModel, senderID: String) {
+        self.card = card
+        self.senderID = senderID
     }
 }
 
