@@ -23,7 +23,6 @@ struct ShareCardSheetView: View {
     
     let myCard: CardModel
     
-    // 내 카드 찾기
     private var actualMyCard: CardModel? {
         guard let myUUID = myID.last?.id else { return nil }
         return allCards.first { $0.id == myUUID }
@@ -84,7 +83,6 @@ struct ShareCardSheetView: View {
             print("ShareCardSheetView appeared")
             mpc.setModelContext(modelContext)
             
-            // 사용자 카드 이름으로 피어 ID 설정
             let cardToUse = actualMyCard ?? CardModel.defaultMockCard
             mpc.setupPeerWithUserName(cardToUse.name)
             
@@ -212,7 +210,6 @@ struct ShareCardSheetView: View {
                             print("연결 시도: \(peer.displayName)")
                             pendingCardSends.insert(peer.displayName)
                             
-                            // 항상 actualMyCard를 전송 (내 카드가 없으면 기본 카드)
                             let cardToSend = actualMyCard ?? CardModel.defaultMockCard
                             mpc.invitePeerAndSendCard(peer, card: cardToSend)
                         }
@@ -362,14 +359,12 @@ struct ShareCardSheetView: View {
                 }
             }
             
-            // 성공 후 새로운 교환을 위한 버튼 (선택사항)
             if showSuccessMessage {
                 Button("새로운 교환") {
                     showSuccessMessage = false
                     mpc.disconnect()
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        // 다시 사용자 이름으로 피어 ID 설정
                         let cardToUse = actualMyCard ?? CardModel.defaultMockCard
                         mpc.setupPeerWithUserName(cardToUse.name)
                         
@@ -406,14 +401,12 @@ struct PeerCardView: View {
             }
         }) {
             HStack(spacing: 16) {
-                // 프로필 이미지
                 Image(systemName: profileImage)
                     .font(.system(size: 32))
                     .foregroundColor(statusColor)
                     .frame(width: 50, height: 50)
                     .background(Circle().fill(statusColor.opacity(0.1)))
                 
-                // 이름과 상태
                 VStack(alignment: .leading, spacing: 4) {
                     Text(peerName)
                         .font(.custom("Pretendard-SemiBold", size: 16))
@@ -427,7 +420,6 @@ struct PeerCardView: View {
                 
                 Spacer()
                 
-                // 상태 아이콘
                 statusIcon
             }
             .padding(.horizontal, 20)

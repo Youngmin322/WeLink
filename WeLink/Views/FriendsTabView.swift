@@ -271,7 +271,6 @@ struct FriendsTabView: View {
     // MARK: - Share Sheet View
     private var shareSheetView: some View {
         NavigationView {
-            // 내 카드를 찾아서 전달
             ShareCardSheetView(myCard: findMyCard() ?? CardModel.defaultMockCard)
                 .navigationBarTitleDisplayMode(.inline)
         }
@@ -279,7 +278,6 @@ struct FriendsTabView: View {
         .presentationDragIndicator(.visible)
     }
 
-    // 내 카드를 찾는 메서드 추가
     private func findMyCard() -> CardModel? {
         guard let myUUID = myID.last?.id else { return nil }
         return allCards.first { $0.id == myUUID }

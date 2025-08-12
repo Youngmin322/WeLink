@@ -24,7 +24,6 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     private var currentInvitationPeer: MCPeerID?
     private var invitationTimeoutTimer: Timer?
     
-    // 카드 교환 상태 추적
     private var cardsSentTo: Set<String> = []
     private var cardsReceivedFrom: Set<String> = []
     
@@ -38,12 +37,10 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     @Published var connectionRejected: String? = nil
     @Published var cardExchangeCompleted: Bool = false
     
-    // ModelContext 설정 메서드 추가
     func setModelContext(_ context: ModelContext) {
         self.modelContext = context
     }
     
-    // 사용자 이름으로 피어 ID 설정하는 메서드
     func setupPeerWithUserName(_ userName: String) {
         let displayName = userName.isEmpty ? UIDevice.current.name : userName
         myPeerID = MCPeerID(displayName: displayName)
@@ -55,7 +52,6 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
     
     override init() {
         super.init()
-        // 기본값으로 기기 이름 사용 (나중에 setupPeerWithUserName으로 변경됨)
         myPeerID = MCPeerID(displayName: UIDevice.current.name)
         setupSession()
         setupAdvertiser()
@@ -105,7 +101,6 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         stopHosting()
         stopBrowsing()
         
-        // 상태 초기화
         cardsSentTo.removeAll()
         cardsReceivedFrom.removeAll()
         
@@ -184,7 +179,6 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         print("초대 응답: \(accept ? "수락" : "거절")")
         invitation.handler(accept)
         
-        // 수락했을 때 내 카드를 즉시 전송하도록 예약
         if accept, let card = myCard {
             pendingCardSends[invitation.peer] = card
         }
@@ -234,7 +228,6 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             try session.send(data, toPeers: [peer], with: .reliable)
             print("카드 전송 성공 to \(peer.displayName)")
             
-            // 전송한 피어를 추적
             cardsSentTo.insert(peer.displayName)
             
             DispatchQueue.main.async {
@@ -248,14 +241,12 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
         }
     }
     
-    // 받은 카드를 SwiftData에 저장하는 메서드
     private func saveReceivedCard(_ card: CardModel, from senderID: String) {
         guard let context = modelContext else {
             print("ModelContext가 설정되지 않음")
             return
         }
         
-        // 새로운 UUID로 카드 생성 (중복 방지)
         let newCard = CardModel(
             id: UUID(),
             name: card.name,
@@ -274,10 +265,8 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
             try context.save()
             print("카드 저장 완료: \(card.name)")
             
-            // 받은 피어 추적
             cardsReceivedFrom.insert(senderID)
             
-            // 양방향 교환이 완료되었는지 확인
             checkExchangeCompletion(with: senderID)
             
         } catch {
@@ -317,7 +306,6 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
                     self.waitingForResponse = nil
                 }
                 
-                // 대기 중인 카드 전송
                 if let cardToSend = self.pendingCardSends[peerID] {
                     print("대기 중인 카드 전송: \(peerID.displayName)")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -375,7 +363,6 @@ class MultipeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyS
                 self.receivedCard = cardData.card
                 print("카드 디코딩 성공: \(cardData.card.name) from \(cardData.senderID)")
                 
-                // 받은 카드를 SwiftData에 저장
                 self.saveReceivedCard(cardData.card, from: cardData.senderID)
                 
             } catch {
