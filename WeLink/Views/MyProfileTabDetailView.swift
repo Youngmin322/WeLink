@@ -139,6 +139,7 @@ struct MyProfileTabDetailView: View {
                     Button("프로필 수정") {
                         print("프로필 수정")
                         showMenu = false
+                        
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -160,7 +161,7 @@ struct MyProfileTabDetailView: View {
                 .cornerRadius(12)
                 .frame(width: 160)
                 .shadow(radius: 5)
-                .offset(x: 60, y: -250) // 필요에 따라 위치 조정
+                .offset(x: 60, y: 30) // 필요에 따라 위치 조정
                 .transition(.opacity)
                 
             }
