@@ -156,10 +156,16 @@ var body: some View {
 
                                 // 화면 이동을 위한 NavigationLink
                                 .navigationDestination(isPresented: $goNext) {
+                                    if isEdit {
+                                        MyProfileTabView()
+                                    }
+                                    else{
                                         if let cardModel = cardModel {
                                             CategoryView(progress: 2.0/4.0, cardModel: cardModel)
                                         }
                                     }
+                                    }
+                                    
                             }
                         
     

@@ -35,9 +35,10 @@ struct WeLinkApp: App {
 
 struct RootView: View {
     @Query private var myID: [MyUUID]
+    @Query private var cards: [CardModel]
 
     var body: some View {
-        if myID.count > 0 {
+        if (myID.count > 0 && cards.contains { $0.id == myID.last!.id }) {
             ContentView()
         } else {
             OnboardingView()
