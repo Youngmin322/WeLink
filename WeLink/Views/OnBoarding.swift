@@ -15,11 +15,20 @@ struct OnboardingView: View {
                 VStack {
                     Spacer()
                     
-                    Rectangle()
-                        .fill(Color(hex: "#C0FF00"))
-                        .frame(width: 180, height: 180)
-                        .cornerRadius(30)
-                    
+                    ZStack {
+                        Rectangle()
+                            .fill(Color(hex: "#2C2C2C"))
+                            .frame(width: 180, height: 180)
+                            .cornerRadius(30)
+                            .shadow(color: Color.white.opacity(0.45), radius: 10, x: 0, y: 4)
+
+                        Image("AppiconImage")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit) // 이미지 비율 유지
+                            .frame(width: 180, height: 180) // Rectangle보다 살짝 작게
+                            .clipShape(RoundedRectangle(cornerRadius: 30)) // 모서리 둥글게
+                    }
+
                     Text("WeLink")
                         .font(.system(size: 55, weight: .bold))
                         .foregroundStyle(.white)
@@ -47,20 +56,19 @@ struct NextView: View {
             VStack(spacing: 0) {
                 Spacer().frame(height: 140)
                 
-                Image("Onboarding1")
+                Image("Onboarding2-1")
                     .resizable()
                     .aspectRatio(contentMode: .fill) // or .fit
-                    .frame(width: 250, height: 250)
-                    .clipped() // .fill인 경우 넘치는 이미지 자르기
+                    .frame(width: 240, height: 240)
                 
                 
-                Spacer().frame(height: 60)
+                Spacer().frame(height: 150)
                 
                 Text("위링이 처음이신가요?")
                     .font(.system(size: 30, weight: .bold))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 50)
                 
                 Spacer().frame(height: 20)
                 
@@ -127,17 +135,16 @@ struct ThirdView: View {
             VStack(spacing: 0) {
                 Spacer().frame(height: 140) // 네모와 맨 위 간격 유지
                 
-                Image("Onboarding2")
+                Image("Onboarding2-2")
                     .resizable()
                     .aspectRatio(contentMode: .fill) // or .fit
-                    .frame(width: 250, height: 250)
-                    .offset(x: -38) // ← 왼쪽으로 20만큼 이동
+                    .frame(width: 240, height: 240)
                 
                 
-                Spacer().frame(height: 60)
+                Spacer().frame(height: 150)
                 
-                Text("당신의 취향을 기록하고, 나를 표현해보세요")
-                    .font(.system(size: 30, weight: .bold))
+                Text("당신의 취향을 기록하고,\n나를 표현해보세요")
+                    .font(.system(size: 25, weight: .bold))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
@@ -207,25 +214,24 @@ struct ThirdplusoneView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                Spacer().frame(height: 170)
+                Spacer().frame(height: 140)
                 
-                Image("Onboarding3")
+                Image("onboarding3")
                     .resizable()
                     .aspectRatio(contentMode: .fill) // or .fit
-                    .frame(width: 200, height: 200)
-                    .offset(x: -0) // ← 왼쪽으로 20만큼 이동
+                    .frame(width: 240, height: 240)
                 
-                Spacer().frame(height: 80)
+                Spacer().frame(height: 150)
                 
-                Text("당신의 취향이 누군가에게 큰 힌트가 됩니다.")
-                    .font(.system(size: 30, weight: .bold))
+                Text("친구와 카드를 주고받으며\n서로의 취향을 확인해요")
+                    .font(.system(size: 25, weight: .bold))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
                 
                 Spacer().frame(height: 20)
                 
-                Text("당신을 더 잘 알고 싶은 사람에게, \n 당신을 닮은 선물이 도착할 거예요")
+                Text("각자의 카드를 보며 서로를 더 잘 이해할 수 있어요")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(Color(hex: "#848484"))
                     .lineSpacing(4)
@@ -284,14 +290,22 @@ struct FinalView: View {
             Color(hex: "#C0FF00")
                 .ignoresSafeArea()
             
-            VStack{
-                Spacer() // 위 공간 확보
+            VStack {
+                Spacer()
                 
-                Rectangle()
-                    .fill(Color(hex: "#2C2C2C"))
-                    .frame(width: 180, height: 180)
-                    .cornerRadius(30)
-                
+                ZStack {
+                    Rectangle()
+                        .fill(Color(hex: "#2C2C2C"))
+                        .frame(width: 180, height: 180)
+                        .cornerRadius(30)
+                        .shadow(color: Color.white.opacity(0.45), radius: 10, x: 0, y: 4)
+
+                    Image("AppiconImage")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit) // 이미지 비율 유지
+                        .frame(width: 180, height: 180) // Rectangle보다 살짝 작게
+                        .clipShape(RoundedRectangle(cornerRadius: 30)) // 모서리 둥글게
+                }
                 Text("WeLink")
                     .font(.system(size: 55, weight: .bold))
                     .foregroundStyle(.black)
@@ -340,3 +354,4 @@ extension Color {
 #Preview {
     OnboardingView()
 }
+ 
