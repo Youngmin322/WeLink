@@ -114,9 +114,7 @@ struct FriendsTabView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    if !cards.isEmpty {
-                        showingShareSheet = true
-                    }
+                    showingShareSheet = true
                 }) {
                     ZStack {
                         Circle()
@@ -258,16 +256,12 @@ struct FriendsTabView: View {
     
     // MARK: - Share Sheet View
     private var shareSheetView: some View {
-        Group {
-            if !cards.isEmpty && safeCurrentIndex < cards.count {
-                NavigationView {
-                    ShareCardSheetView(myCard: cards[safeCurrentIndex])
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-            }
+        NavigationView {
+            ShareCardSheetView(myCard: !cards.isEmpty && safeCurrentIndex < cards.count ? cards[safeCurrentIndex] : CardModel.defaultMockCard)
+                .navigationBarTitleDisplayMode(.inline)
         }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
     
     // MARK: - Private Methods
