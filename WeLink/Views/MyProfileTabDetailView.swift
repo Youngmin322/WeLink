@@ -69,7 +69,7 @@ struct MyProfileTabDetailView: View {
 
                                 // 메뉴 본체
                                 VStack(alignment: .leading, spacing: 0) {
-                                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0).onAppear { showMenu = false }) {
+                                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0).onAppear { showMenu = false })
                                         Text("프로필 수정")
                                             .padding()
                                             .frame(maxWidth: .infinity, alignment: .leading)
