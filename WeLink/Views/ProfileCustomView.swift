@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ProfileCustomView: View {
-    
     @State private var name: String = ""
     @State private var birthDate: String = ""
     @State private var nickname: String = ""
@@ -31,6 +30,8 @@ struct ProfileCustomView: View {
     }
     
     var progress: CGFloat
+    var isEdit: Bool
+    
     private func calculateAgeByYear(from birthDateString: String) -> Int? {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -382,6 +383,6 @@ var body: some View {
 
 #Preview {
     NavigationStack {
-        ProfileCustomView(progress: 0.5)
+        ProfileCustomView(progress: 0.5, isEdit: false)
     }
 }

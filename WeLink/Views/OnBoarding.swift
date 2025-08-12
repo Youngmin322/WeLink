@@ -298,7 +298,7 @@ struct FinalView: View {
                 Spacer() // 중간 공간 확보
                 
                 
-                NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0)) {
+                NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, isEdit: false)) {
                     Text("시작하기")
                         .font(.headline)
                         .foregroundColor(.white)
