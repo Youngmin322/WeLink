@@ -230,13 +230,13 @@ struct ShareCardSheetView: View {
                         .multilineTextAlignment(.center)
                     
                     Text("카드 교환을 요청했어요")
-                        .font(.custom("Pretendard-Medium", size: 16))
-                        .foregroundColor(.white.opacity(0.8))
+                        .font(.custom("Pretendard-Bold", size: 20))
+                        .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                     
                     Text("응답을 기다리고 있습니다...")
                         .font(.custom("Pretendard-Regular", size: 14))
-                        .foregroundColor(.white.opacity(0.6))
+                        .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                 }
             }
