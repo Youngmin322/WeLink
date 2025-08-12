@@ -130,7 +130,7 @@ struct FriendsTabView: View {
                         
                         Image(systemName: "plus")
                             .font(.system(size: 24, weight: .medium))
-                            .foregroundColor(cards.isEmpty ? .white.opacity(0.5) : Color("MainColor"))
+                            .foregroundColor(Color("MainColor"))
                     }
                     .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
