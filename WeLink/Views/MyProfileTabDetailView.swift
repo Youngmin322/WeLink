@@ -32,8 +32,6 @@ struct MyProfileTabDetailView: View {
                         backgroundImage(image: UIImage(data: myProfile.imageData)!)
                         
                         VStack{
-                                    showMenu.toggle()
-                            
                             Spacer()
                             
                             DetailedInfo(myProfile: myProfile)
