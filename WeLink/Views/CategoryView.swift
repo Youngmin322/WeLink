@@ -172,6 +172,23 @@ func updateSelectedTopicList(topicList: inout [mainTopic], tgt: mainTopic){
 }
 
 
-//#Preview{
-//    CategoryView(progress: 3.0 / 5.0)
-//}
+#Preview {
+    // 테스트용 CardModel 생성
+    let testCardModel = CardModel(
+        id: UUID(),
+        name: "테스트 사용자",
+        age: 25,
+        description: "테스트 설명",
+        birthDate: "1999-01-01",
+        mbti: "ENFP",
+        tag: "일반",
+        dDay: 100,
+        imageData: Data()
+    )
+    
+    CategoryView(
+        progress: 3.0 / 5.0,
+        cardModel: testCardModel,
+        isEdit: false
+    )
+}
