@@ -307,11 +307,12 @@ struct MenuTabView: View {
                 VStack(spacing: 20) {
                     HStack {
                         Text("공유 캘린더")
-                            .font(.system(size: 32, weight: .bold))
+                            .font(.system(size: 35, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
-                            .padding(.top, 30)
+//                            .padding(.horizontal)
+                            .padding(.top, 16)
+                            .padding(.leading, 11)
                         
                         Spacer()
                         
@@ -352,20 +353,32 @@ struct MenuTabView: View {
                                 .frame(width: 40, height: 40)
                         )
                         .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
-                        .padding(.top, 20)
+                        .padding(.top, 18)
                     }
                     .padding(.horizontal)
                     
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(Color("BackgroundColor").opacity(0.7))
-                        .shadow(radius: 6)
+//                        .fill(Color("CategoryColor").opacity(0.5))
+                        .fill(.ultraThinMaterial)
+                        .environment(\.colorScheme, .dark)
+//                        .shadow(radius: 6)
                         .overlay(
                             CustomCalendarView(selectedDate: $selectedDate, cards: cards, memoDates: memoDates)
                                 .padding()
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .strokeBorder(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.white.opacity(0.3),
+                                            Color.white.opacity(0.1)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
                         )
                         .frame(width: UIScreen.main.bounds.width * 0.88, height: 400)
 
