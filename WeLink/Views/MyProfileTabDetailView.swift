@@ -285,8 +285,10 @@ struct entireSubTopicView: View{
             let lastSubTopicToShow: String = findLastKey(sortedKeys: sortedKeys, currentTopic: currentTopic)
             
             ForEach(Array(sortedKeys.enumerated()), id:  \.offset){ (idx, key) in
-                let currentSubTopic = currentTopic.children[key]!
-                                subTopicWindow(topic: currentSubTopic, width : width, lastKey: lastSubTopicToShow)
+                                subTopicWindow(topic: Binding<subTopic>(
+                                    get: { currentTopic.children[key]! },
+                                    set: { _ in } // set은 아무 동작도 안 함
+                                ), width : width, lastKey: lastSubTopicToShow)
                 }
         }
         .background(
@@ -302,15 +304,15 @@ struct entireSubTopicView: View{
 }
 
 struct subTopicWindow: View{
-    @State var topic: subTopic
+    @Binding var topic: subTopic
     private let width: CGFloat
     private let lastKey: String
     
     private let buttonWidth: CGFloat = 100
     private let buttonHeight: CGFloat = 45
     
-    init (topic: subTopic, width: CGFloat, lastKey:String){
-        self.topic = topic
+    init (topic: Binding<subTopic>, width: CGFloat, lastKey:String){
+        self._topic = topic
         self.width = width
         self.lastKey = lastKey
         
