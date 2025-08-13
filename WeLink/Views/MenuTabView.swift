@@ -310,7 +310,6 @@ struct MenuTabView: View {
                             .font(.system(size: 35, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .leading)
-//                            .padding(.horizontal)
                             .padding(.top, 16)
                             .padding(.leading, 11)
                         

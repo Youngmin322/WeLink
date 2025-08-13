@@ -51,7 +51,6 @@ struct MyProfileTabDetailView: View {
             .navigationBarHidden(true)
             .ignoresSafeArea()
             .onAppear{
-                // 탭바 숨기기
                 NotificationCenter.default.post(name: .hideTabBar, object: nil)
                 
                 for topic in myProfile.topics {
@@ -61,19 +60,16 @@ struct MyProfileTabDetailView: View {
                 currentTopic.isSelected = true
             }
             .onDisappear {
-                // 탭바 다시 보이기
                 NotificationCenter.default.post(name: .showTabBar, object: nil)
             }
             
             upperButtons(dismiss: {
-                // 탭바 다시 보이기
                 NotificationCenter.default.post(name: .showTabBar, object: nil)
                 dismiss()
             }, showMenu: $showMenu)
                 .padding(.top, -30)
             
             if showMenu {
-                // 배경 클릭 시 메뉴 닫기
                 Color.black.opacity(0.001)
                     .ignoresSafeArea()
                     .onTapGesture {
@@ -109,7 +105,7 @@ struct MyProfileTabDetailView: View {
                 .frame(width: 160)
                 .shadow(radius: 5)
                 .offset(x: 60, y: 50)
-//                                 .transition(.opacity)
+
             }
         }
     }
@@ -146,28 +142,46 @@ struct upperButtons: View{
     let dismiss: () -> Void
     @Binding var showMenu:Bool
     var body: some View{
-        HStack(spacing: 285){
+        HStack{
+            // 뒤로가기 버튼
             Button(action:{
                 dismiss()
             }){
-                Image(systemName: "chevron.backward")
-                    .resizable()
-                    .frame(width: 15, height: 25)
-                    .foregroundColor(Color("MainColor"))
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.clear)
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: "chevron.backward")
+                        .resizable()
+                        .frame(width: 15, height: 25)
+                        .foregroundColor(Color("MainColor"))
+                }
             }
+            .contentShape(Rectangle())
             
+            Spacer()
+            
+            // 더보기 버튼
             Button(action:{
-                showMenu.toggle()
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showMenu.toggle()
+                }
             }){
-              
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.clear)
+                        .frame(width: 44, height: 44)
+                    
                     Image(systemName: "ellipsis")
                         .foregroundColor(Color("MainColor"))
-                        .font(.system(size: 30))
+                        .font(.system(size: 24, weight: .bold))
                         .rotationEffect(Angle(degrees: 90))
-                        .bold()
-              
+                }
             }
+            .contentShape(Rectangle())
         }
+        .padding(.horizontal, 20)
         .padding(.top, 50)
     }
 }
@@ -326,13 +340,6 @@ struct subTopicWindow: View{
         self._topic = topic
         self.width = width
         self.lastKey = lastKey
-        
-//        let selectedDetailedTopics = topic.children.values.filter { $0.isSelected.wrappedValue }
-//        let numDetailedTopics: Int = selectedDetailedTopics.count
-//        let numRows = ((numDetailedTopics-1) / 3) + 1
-//
-//        let height: CGFloat = (buttonHeight + 15.0) * CGFloat(numRows) + 50.0
-//        self._totalHeight.wrappedValue += height
     }
     var body: some View {
         ZStack{
