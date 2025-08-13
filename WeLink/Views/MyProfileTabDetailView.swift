@@ -33,31 +33,6 @@ struct MyProfileTabDetailView: View {
                         backgroundImage(image: UIImage(data: myProfile.imageData)!)
                         
                         VStack{
-                            // 상단 메뉴 버튼들
-                            HStack(spacing: 285){
-                                Button(action:{
-                                    dismiss()
-                                }){
-                                    Image(systemName: "chevron.backward")
-                                        .resizable()
-                                        .frame(width: 15, height: 25)
-                                        .foregroundColor(Color("MainColor"))
-                                }
-                                
-                                Button(action:{
-                                    //TODO: 프로필, 카테고리 수정 탭
-                                    showMenu.toggle()
-                                }){
-                                    Image(systemName: "ellipsis")
-                                        .foregroundColor(Color("MainColor"))
-                                        .font(.system(size: 30))
-                                        .rotationEffect(Angle(degrees: 90))
-                                        .bold()
-                                }
-                                
-                            }
-                            .padding(.top, 80)
-                            
                             
                             Spacer()
                             
@@ -98,13 +73,8 @@ struct MyProfileTabDetailView: View {
 
                 // 메뉴 본체
                 VStack(alignment: .leading, spacing: 0) {
-                    NavigationLink(
-                        destination:
-                            ProfileCustomView(progress: 1.0 / 4.0, isEdit: false)
-                                .onAppear { showMenu = false }
-                        
-                        
-                    ) {
+                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }
+                                            .navigationBarHidden(true)) {
                         Text("프로필 수정")
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -114,11 +84,8 @@ struct MyProfileTabDetailView: View {
 
                     Divider().background(Color.white)
 
-                    NavigationLink(
-                        destination:
-                            CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)
-                                .onAppear { showMenu = false }
-                    ) {
+                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }
+                                            .navigationBarHidden(true)) {
                         Text("취향 카테고리 수정")
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -309,7 +276,6 @@ struct mainTopicButton: View{
 struct entireSubTopicView: View{
     @Binding var currentTopic: mainTopic
     private let width: CGFloat = 348
-    @State private var totalHeight: CGFloat = 0
     
     var body: some View{
         
@@ -318,15 +284,11 @@ struct entireSubTopicView: View{
                 currentTopic.children[$0]!.title < currentTopic.children[$1]!.title
             }
             
-            var lastSubTopicToShow: String = findLastKey(sortedKeys: sortedKeys, currentTopic: currentTopic)
+            let lastSubTopicToShow: String = findLastKey(sortedKeys: sortedKeys, currentTopic: currentTopic)
             
             ForEach(Array(sortedKeys.enumerated()), id:  \.offset){ (idx, key) in
-                subTopicWindow(topic: Binding<subTopic>(
-                    get: { currentTopic.children[key]! },
-                    set: { newValue in
-                        currentTopic.children[key] = newValue
-                    }
-                ), width : width, totalHeight: $totalHeight, lastKey: lastSubTopicToShow)
+                let currentSubTopic = currentTopic.children[key]!
+                                subTopicWindow(topic: currentSubTopic, width : width, lastKey: lastSubTopicToShow)
                 }
         }
         .background(
@@ -341,26 +303,24 @@ struct entireSubTopicView: View{
 }
 
 struct subTopicWindow: View{
-    @Binding var topic: subTopic
+    @State var topic: subTopic
     private let width: CGFloat
-    @Binding private var totalHeight: CGFloat
     private let lastKey: String
     
     private let buttonWidth: CGFloat = 100
     private let buttonHeight: CGFloat = 45
     
-    init (topic: Binding<subTopic>, width: CGFloat, totalHeight: Binding<CGFloat>, lastKey:String){
-        self._topic = topic
+    init (topic: subTopic, width: CGFloat, lastKey:String){
+        self.topic = topic
         self.width = width
-        self._totalHeight = totalHeight
         self.lastKey = lastKey
         
-        let selectedDetailedTopics = topic.children.values.filter { $0.isSelected.wrappedValue }
-        let numDetailedTopics: Int = selectedDetailedTopics.count
-        let numRows = ((numDetailedTopics-1) / 3) + 1
-        
-        let height: CGFloat = (buttonHeight + 15.0) * CGFloat(numRows) + 50.0
-        self._totalHeight.wrappedValue += height
+//        let selectedDetailedTopics = topic.children.values.filter { $0.isSelected.wrappedValue }
+//        let numDetailedTopics: Int = selectedDetailedTopics.count
+//        let numRows = ((numDetailedTopics-1) / 3) + 1
+//        
+//        let height: CGFloat = (buttonHeight + 15.0) * CGFloat(numRows) + 50.0
+//        self._totalHeight.wrappedValue += height
     }
     var body: some View {
         ZStack{
