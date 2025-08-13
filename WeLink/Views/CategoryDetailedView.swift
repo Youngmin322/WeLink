@@ -292,113 +292,113 @@ func updateSelectedDetailedTopicList(topicList: inout [detailedTopic], tgt: deta
 }
 
 
-#Preview {
-    // 테스트용 detailedTopic 생성
-    let footballTopic = detailedTopic(title: "축구")
-    let basketballTopic = detailedTopic(title: "농구")
-    let baseballTopic = detailedTopic(title: "야구")
-    let tennisTopic = detailedTopic(title: "테니스")
-    let swimmingTopic = detailedTopic(title: "수영")
-    let runningTopic = detailedTopic(title: "러닝")
-    
-    let movieTopic = detailedTopic(title: "영화")
-    let dramaTopic = detailedTopic(title: "드라마")
-    let animeTopic = detailedTopic(title: "애니메이션")
-    let varietyTopic = detailedTopic(title: "예능")
-    let documentaryTopic = detailedTopic(title: "다큐멘터리")
-    let musicTopic = detailedTopic(title: "음악")
-    
-    let gameTopic = detailedTopic(title: "게임")
-    let readingTopic = detailedTopic(title: "독서")
-    let cookingTopic = detailedTopic(title: "요리")
-    let travelTopic = detailedTopic(title: "여행")
-    let photographyTopic = detailedTopic(title: "사진")
-    let drawingTopic = detailedTopic(title: "그림")
-    
-    // 테스트용 subTopic 생성
-    let ballSportsTopic = subTopic(title: "구기 스포츠", children: [
-        "축구": footballTopic,
-        "농구": basketballTopic,
-        "야구": baseballTopic,
-        "테니스": tennisTopic
-    ])
-    
-    let individualSportsTopic = subTopic(title: "개인 스포츠", children: [
-        "수영": swimmingTopic,
-        "러닝": runningTopic
-    ])
-    
-    let visualContentTopic = subTopic(title: "영상 콘텐츠", children: [
-        "영화": movieTopic,
-        "드라마": dramaTopic,
-        "애니메이션": animeTopic,
-        "예능": varietyTopic,
-        "다큐멘터리": documentaryTopic
-    ])
-    
-    let audioContentTopic = subTopic(title: "오디오 콘텐츠", children: [
-        "음악": musicTopic
-    ])
-    
-    let indoorHobbiesTopic = subTopic(title: "실내 취미", children: [
-        "게임": gameTopic,
-        "독서": readingTopic,
-        "요리": cookingTopic
-    ])
-    
-    let outdoorHobbiesTopic = subTopic(title: "실외 취미", children: [
-        "여행": travelTopic,
-        "사진": photographyTopic,
-        "그림": drawingTopic
-    ])
-    
-    // 테스트용 mainTopic 생성
-    let sportsTopic = mainTopic(
-        title: "스포츠",
-        emoji: "⚽️",
-        children: [
-            "구기 스포츠": ballSportsTopic,
-            "개인 스포츠": individualSportsTopic
-        ], isSelected: true
-    )
-    
-    let entertainmentTopic = mainTopic(
-        title: "엔터테인먼트",
-        emoji: "🎬",
-        children: [
-            "영상 콘텐츠": visualContentTopic,
-            "오디오 콘텐츠": audioContentTopic
-        ], isSelected: false
-    )
-    
-    let hobbiesTopic = mainTopic(
-        title: "취미",
-        emoji: "🎨",
-        children: [
-            "실내 취미": indoorHobbiesTopic,
-            "실외 취미": outdoorHobbiesTopic
-        ], isSelected: false
-    )
-    
-    // 테스트용 Category와 CardModel 생성
-    let testCategory = Category()
-    let testCardModel = CardModel(
-        id: UUID(),
-        name: "테스트 사용자",
-        age: 25,
-        description: "테스트 설명",
-        birthDate: "1999-01-01",
-        mbti: "ENFP",
-        tag: "일반",
-        dDay: 100,
-        imageData: Data()
-    )
-    
-    CategoryDetailedView(
-        progress: 0.6,
-        isEdit: false,
-        selectedTopics: [sportsTopic, entertainmentTopic, hobbiesTopic],
-        categories: testCategory,
-        cardModel: testCardModel
-    )
-}
+//#Preview {
+//    // 테스트용 detailedTopic 생성
+//    let footballTopic = detailedTopic(title: "축구")
+//    let basketballTopic = detailedTopic(title: "농구")
+//    let baseballTopic = detailedTopic(title: "야구")
+//    let tennisTopic = detailedTopic(title: "테니스")
+//    let swimmingTopic = detailedTopic(title: "수영")
+//    let runningTopic = detailedTopic(title: "러닝")
+//    
+//    let movieTopic = detailedTopic(title: "영화")
+//    let dramaTopic = detailedTopic(title: "드라마")
+//    let animeTopic = detailedTopic(title: "애니메이션")
+//    let varietyTopic = detailedTopic(title: "예능")
+//    let documentaryTopic = detailedTopic(title: "다큐멘터리")
+//    let musicTopic = detailedTopic(title: "음악")
+//    
+//    let gameTopic = detailedTopic(title: "게임")
+//    let readingTopic = detailedTopic(title: "독서")
+//    let cookingTopic = detailedTopic(title: "요리")
+//    let travelTopic = detailedTopic(title: "여행")
+//    let photographyTopic = detailedTopic(title: "사진")
+//    let drawingTopic = detailedTopic(title: "그림")
+//    
+//    // 테스트용 subTopic 생성
+//    let ballSportsTopic = subTopic(title: "구기 스포츠", children: [
+//        "축구": footballTopic,
+//        "농구": basketballTopic,
+//        "야구": baseballTopic,
+//        "테니스": tennisTopic
+//    ])
+//    
+//    let individualSportsTopic = subTopic(title: "개인 스포츠", children: [
+//        "수영": swimmingTopic,
+//        "러닝": runningTopic
+//    ])
+//    
+//    let visualContentTopic = subTopic(title: "영상 콘텐츠", children: [
+//        "영화": movieTopic,
+//        "드라마": dramaTopic,
+//        "애니메이션": animeTopic,
+//        "예능": varietyTopic,
+//        "다큐멘터리": documentaryTopic
+//    ])
+//    
+//    let audioContentTopic = subTopic(title: "오디오 콘텐츠", children: [
+//        "음악": musicTopic
+//    ])
+//    
+//    let indoorHobbiesTopic = subTopic(title: "실내 취미", children: [
+//        "게임": gameTopic,
+//        "독서": readingTopic,
+//        "요리": cookingTopic
+//    ])
+//    
+//    let outdoorHobbiesTopic = subTopic(title: "실외 취미", children: [
+//        "여행": travelTopic,
+//        "사진": photographyTopic,
+//        "그림": drawingTopic
+//    ])
+//    
+//    // 테스트용 mainTopic 생성
+//    let sportsTopic = mainTopic(
+//        title: "스포츠",
+//        emoji: "⚽️",
+//        children: [
+//            "구기 스포츠": ballSportsTopic,
+//            "개인 스포츠": individualSportsTopic
+//        ], isSelected: true
+//    )
+//    
+//    let entertainmentTopic = mainTopic(
+//        title: "엔터테인먼트",
+//        emoji: "🎬",
+//        children: [
+//            "영상 콘텐츠": visualContentTopic,
+//            "오디오 콘텐츠": audioContentTopic
+//        ], isSelected: false
+//    )
+//    
+//    let hobbiesTopic = mainTopic(
+//        title: "취미",
+//        emoji: "🎨",
+//        children: [
+//            "실내 취미": indoorHobbiesTopic,
+//            "실외 취미": outdoorHobbiesTopic
+//        ], isSelected: false
+//    )
+//    
+//    // 테스트용 Category와 CardModel 생성
+//    let testCategory = Category()
+//    let testCardModel = CardModel(
+//        id: UUID(),
+//        name: "테스트 사용자",
+//        age: 25,
+//        description: "테스트 설명",
+//        birthDate: "1999-01-01",
+//        mbti: "ENFP",
+//        tag: "일반",
+//        dDay: 100,
+//        imageData: Data()
+//    )
+//    
+//    CategoryDetailedView(
+//        progress: 0.6,
+//        isEdit: false,
+//        selectedTopics: [sportsTopic, entertainmentTopic, hobbiesTopic],
+//        categories: testCategory,
+//        cardModel: testCardModel
+//    )
+//}
