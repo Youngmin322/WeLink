@@ -102,6 +102,7 @@ struct CardScrollView: View {
                 .padding(.top, -50)
             }
         }
+        .navigationBarHidden(true)
         .onAppear {
             initializeScrollPosition()
         }

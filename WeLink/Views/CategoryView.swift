@@ -10,7 +10,7 @@ import SwiftData
 
 struct CategoryView: View {
     var progress: CGFloat
-    var cardModel: CardModel
+    @State var cardModel: CardModel
     var isEdit: Bool
     let categories: Category = Category()
     @State var selectedTopics: [mainTopic] = []
@@ -102,7 +102,7 @@ struct CategoryView: View {
                                 isEdit: isEdit,
                                 selectedTopics: selectedTopics,
                                 categories: categories,
-                                cardModel: cardModel
+                                cardModel: $cardModel
                             )
                         ) {
                             Text("다음")
@@ -116,6 +116,7 @@ struct CategoryView: View {
                         .disabled(selectedTopics.count == 0)
                     }
                 }
+                .padding(.bottom, isEdit ? 55 : 0)
         }
         .navigationBarHidden(true)
     }

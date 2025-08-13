@@ -177,6 +177,7 @@ var body: some View {
                                             .foregroundColor(.black)
                                             .font(.system(size: 17))
                                     }
+                                    .padding(.bottom, isEdit ? 55 : 0)
                                 }
 //                                .disabled(!isReady)
 
@@ -264,6 +265,7 @@ var body: some View {
                 showPicker: $showPicker
             )
         )
+        .navigationBarHidden(true)
     }
 
     private var userInfoFieldsView: some View {
