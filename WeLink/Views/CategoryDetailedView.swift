@@ -15,7 +15,7 @@ struct CategoryDetailedView: View {
     // selectedDetailedTopicsDict["스포츠"].append(~~)
     @State private var selectedDetailedTopicsList: [[detailedTopic]] = [[], [], []]
     @ObservedObject var categories: Category
-    @ObservedObject var cardModel: CardModel
+    var cardModel: CardModel
     @Environment(\.dismiss) var dismiss
     
     @State var sectionTotalHeights: [CGFloat] = [0, 0, 0]
@@ -127,17 +127,13 @@ struct CategoryDetailedView: View {
                 let nextButtonHeight: CGFloat = 25
                 let isReady:Bool = selectedDetailedTopicsList.prefix(selectedTopics.count).allSatisfy { !$0.isEmpty }
                 if isReady{
-                    Button(action: {
-                        sectionTotalHeights = [0, 0, 0]
-                        cardModel.topics = []
-                        for topic in selectedTopics{
-                            cardModel.topics.append(topic)
-                        }
-                        goNext = true
-                        
-                        
-                    }) {
-                        Text("다음")
+                    let nextView = isEdit ? AnyView(MyProfileTabDetailView(myProfile: cardModel)) : AnyView(SettingCompleteView(
+                        progress: 5.0 / 5.0,
+                        cardModel: cardModel
+                    ))
+                    NavigationLink(destination: nextView) {
+                        let text = isEdit ? "완료" : "다음"
+                        Text(text)
                             .font(.headline)
                             .foregroundColor(.black)
                             .frame(width: nextButtonWidth, height: nextButtonHeight)
@@ -146,20 +142,17 @@ struct CategoryDetailedView: View {
                             .clipShape(Capsule())
                     }
                     .disabled(!isReady)
+                    .simultaneousGesture(TapGesture().onEnded {
+                        sectionTotalHeights = [0, 0, 0]
+                        cardModel.topics = []
+                        for topic in selectedTopics{
+                            cardModel.topics.append(topic)
+                        }
+                    })
+            
                 }
             }
             .navigationBarHidden(true)
-            .navigationDestination(isPresented: $goNext) {
-                if isEdit {
-                    ContentView()
-                }
-                else{
-                    SettingCompleteView(
-                        progress: 5.0 / 5.0,
-                        cardModel: cardModel
-                    )
-                }
-            }
         }
     }
     struct CategoryButton: View {

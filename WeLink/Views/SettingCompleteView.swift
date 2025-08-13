@@ -16,7 +16,7 @@ import SwiftUI
 
 struct SettingCompleteView: View {
     var progress: CGFloat
-    @ObservedObject var cardModel: CardModel
+    var cardModel: CardModel
     @State private var goNext:Bool = false
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context

@@ -10,7 +10,7 @@ import SwiftData
 
 struct CategoryView: View {
     var progress: CGFloat
-    @ObservedObject var cardModel: CardModel
+    var cardModel: CardModel
     var isEdit: Bool
     let categories: Category = Category()
     @State var selectedTopics: [mainTopic] = []
@@ -105,8 +105,7 @@ struct CategoryView: View {
                                 cardModel: cardModel
                             )
                         ) {
-                            let text = isEdit ? "완료" : "다음"
-                            Text(text)
+                            Text("다음")
                                 .font(.headline)
                                 .foregroundColor(.black)
                                 .frame(width: nextButtonWidth, height: nextButtonHeight)

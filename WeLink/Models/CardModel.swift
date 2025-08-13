@@ -18,7 +18,7 @@ class MyUUID{
 }
 
 @Model
-class CardModel: Codable, ObservableObject {
+class CardModel: Codable {
     var id: UUID
     var name: String
     var age: Int

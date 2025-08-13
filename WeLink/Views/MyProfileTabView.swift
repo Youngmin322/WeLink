@@ -90,7 +90,7 @@ private struct MenuOverlay: View {
                 }
 
             VStack(alignment: .leading, spacing: 0) {
-                NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)) {
+                NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }) {
                     Text("프로필 수정")
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -100,7 +100,7 @@ private struct MenuOverlay: View {
 
                 Divider().background(Color.white)
 
-                NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)) {
+                NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }) {
                     Text("취향 카테고리 수정")
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -113,8 +113,8 @@ private struct MenuOverlay: View {
             .frame(width: 160)
             .shadow(radius: 5)
             .offset(x: 60, y: -250)
-            .transition(.opacity)
-            .animation(nil)
+//            .transition(.opacity)
+//            .animation(nil)
         }
     }
 }
@@ -251,12 +251,12 @@ private struct BackCardView: View {
 
                 VStack {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 15)
+                        RoundedRectangle(cornerRadius: 10)
                             .foregroundColor(.white)
                             .opacity(0.6)
                             .frame(width: 135, height: 194)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 15)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.white, lineWidth: 1)
                             )
 
@@ -268,7 +268,7 @@ private struct BackCardView: View {
                                     .offset(x: -22)
 
                                 Text("김민정 님의 음악")
-                                    .font(.custom("Pretendard-Bold", size: 14))
+                                    .font(.custom("Pretendard-Medium", size: 14))
                                     .foregroundColor(.black)
                             }
                             Image("MyProfileTabView_Music")
@@ -283,7 +283,7 @@ private struct BackCardView: View {
 
                                 Text("백예린 - Antifreeze")
                                     .font(.custom("Pretendard", size: 12))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(Color(hex: 0x323232))
                             }
                         }
                     }
@@ -292,18 +292,18 @@ private struct BackCardView: View {
 
                 VStack {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 15)
+                        RoundedRectangle(cornerRadius: 10)
                             .foregroundColor(.white)
                             .opacity(0.6)
                             .frame(width: 133, height: 107)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 15)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.white, lineWidth: 1)
                             )
 
                         VStack {
                             Text("요즘 빠진 취미")
-                                .font(.custom("Pretendard-Bold", size: 14))
+                                .font(.custom("Pretendard-Medium", size: 14))
                                 .foregroundColor(.black)
 
                             ZStack {
@@ -314,7 +314,7 @@ private struct BackCardView: View {
 
                                 Text("# 다이어리 쓰기")
                                     .font(.custom("Pretendard", size: 11))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(Color(hex: 0x323232))
                             }
 
                             ZStack {
@@ -325,27 +325,27 @@ private struct BackCardView: View {
 
                                 Text("# 키링, 인형 모의기")
                                     .font(.custom("Pretendard", size: 11))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(Color(hex: 0x323232))
                             }
                         }
                     }
                 }
-                .offset(x: 70, y: -175)
+                .offset(x: 70, y: -174)
 
                 VStack {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 15)
+                        RoundedRectangle(cornerRadius: 10)
                             .foregroundColor(.white)
                             .opacity(0.6)
                             .frame(width: 133, height: 79)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 15)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.white, lineWidth: 1)
                             )
 
                         VStack {
                             Text("자주 가는 장소")
-                                .font(.custom("Pretendard-Bold", size: 14))
+                                .font(.custom("Pretendard-Medium", size: 14))
                                 .foregroundColor(.black)
 
                             ZStack {
@@ -356,12 +356,12 @@ private struct BackCardView: View {
 
                                 Text("포스텍 C5 6층 마루랩")
                                     .font(.custom("Pretendard", size: 11))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(Color(hex: 0x323232))
                             }
                         }
                     }
                 }
-                .offset(x: 70, y: -75)
+                .offset(x: 70, y: -73)
 
                 Image("MyProfileTabView_balance")
                     .resizable()
@@ -375,7 +375,7 @@ private struct BackCardView: View {
                             .frame(width: 221, height: 47)
 
                         Text("취향 더 보러가기")
-                            .font(.custom("Pretendard-Bold", size: 14))
+                            .font(.custom("Pretendard-SemiBold", size: 14))
                             .foregroundColor(.black)
                     }
                 }
