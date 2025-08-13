@@ -112,7 +112,7 @@ private struct MenuOverlay: View {
             .cornerRadius(12)
             .frame(width: 160)
             .shadow(radius: 5)
-            .offset(x: 60, y: -250)
+            .offset(x: 60, y: -270)
 //            .transition(.opacity)
 //            .animation(nil)
         }
@@ -192,29 +192,34 @@ private struct FrontCardView: View {
                 HStack {
                     Text(myProfile.name)
                         .foregroundColor(.white)
-                        .font(.system(size: 40))
-                        .bold()
-                        .offset(x: -50, y: 119)
+                        .font(.custom("Pretendard-Bold", size: 42))
+                        .offset(x: -58, y: 119)
 
                     Text("(\(myProfile.age))")
                         .foregroundColor(.white)
-                        .font(.system(size: 14))
-                        .bold()
-                        .offset(x: -50, y: 127)
+                        .font(.custom("Pretendard-SemiBold", size: 14))
+                        .offset(x: -56, y: 127)
                 }
 
                 Text(myProfile.cardDescription)
+                    .font(.custom("Pretendard-Medium", size: 12.5))
+                    .lineSpacing(3)
                     .foregroundColor(.white)
-                    .font(.system(size: 12))
-                    .bold()
-                    .offset(x: -90, y: 140)
+                    .opacity(0.7)
+                    .offset(x: -65, y: 140)
 
                 HStack(spacing: 19) {
                     ForEach([formattedBirthDate(from: myProfile.birthDate), (myProfile.mbti), myProfile.tag], id: \.self) { label in
                         ZStack {
                             RoundedRectangle(cornerRadius: 45)
-                                .foregroundColor(Color(hex: 0xFFFFFF).opacity(0.25))
+//                                .foregroundColor(Color(hex: 0xFFFFFF).opacity(0.25))
+//                                .frame(width: 76, height: 29)
+//                            
+                                .foregroundColor(Color.white)
                                 .frame(width: 76, height: 29)
+                                .opacity(0.25)
+                            
+                            
                             Text(label)
                                 .foregroundColor(.white)
                                 .font(.system(size: 13))
@@ -283,7 +288,7 @@ private struct BackCardView: View {
 
                                 Text("백예린 - Antifreeze")
                                     .font(.custom("Pretendard", size: 12))
-                                    .foregroundColor(Color(hex: 0x323232))
+                                    .foregroundColor(.black)
                             }
                         }
                     }
@@ -314,7 +319,7 @@ private struct BackCardView: View {
 
                                 Text("# 다이어리 쓰기")
                                     .font(.custom("Pretendard", size: 11))
-                                    .foregroundColor(Color(hex: 0x323232))
+                                    .foregroundColor(.black)
                             }
 
                             ZStack {
@@ -325,7 +330,7 @@ private struct BackCardView: View {
 
                                 Text("# 키링, 인형 모의기")
                                     .font(.custom("Pretendard", size: 11))
-                                    .foregroundColor(Color(hex: 0x323232))
+                                    .foregroundColor(.black)
                             }
                         }
                     }
@@ -356,7 +361,7 @@ private struct BackCardView: View {
 
                                 Text("포스텍 C5 6층 마루랩")
                                     .font(.custom("Pretendard", size: 11))
-                                    .foregroundColor(Color(hex: 0x323232))
+                                    .foregroundColor(.black)
                             }
                         }
                     }

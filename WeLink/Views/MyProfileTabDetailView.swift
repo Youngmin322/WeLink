@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct MyProfileTabDetailView: View {
     var myProfile: CardModel
     @State private var currentTopic: mainTopic
@@ -68,8 +69,7 @@ struct MyProfileTabDetailView: View {
                     CustomTabView(topics: myProfile.topics, currentTopic: $currentTopic)
                     
                     entireSubTopicView(currentTopic: $currentTopic)
-                    
-                    
+                   
                 }
             }
             .background(Color(hex: 0x000000))
@@ -98,7 +98,13 @@ struct MyProfileTabDetailView: View {
 
                 // 메뉴 본체
                 VStack(alignment: .leading, spacing: 0) {
-                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, isEdit: false).onAppear { showMenu = false }) {
+                    NavigationLink(
+                        destination:
+                            ProfileCustomView(progress: 1.0 / 4.0, isEdit: false)
+                                .onAppear { showMenu = false }
+                        
+                        
+                    ) {
                         Text("프로필 수정")
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -108,19 +114,23 @@ struct MyProfileTabDetailView: View {
 
                     Divider().background(Color.white)
 
-                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }) {
-                                            Text("취향 카테고리 수정")
-                                                .padding()
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .background(Color(.darkGray))
-                                                .foregroundColor(.white)
-                                        }
+                    NavigationLink(
+                        destination:
+                            CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)
+                                .onAppear { showMenu = false }
+                    ) {
+                        Text("취향 카테고리 수정")
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.darkGray))
+                            .foregroundColor(.white)
+                    }
                 }
                 .background(Color(.darkGray))
                 .cornerRadius(12)
                 .frame(width: 160)
                 .shadow(radius: 5)
-                .offset(x: 60, y: 30)
+                .offset(x: 60, y: 50)
 //                                 .transition(.opacity)
             }
         }
