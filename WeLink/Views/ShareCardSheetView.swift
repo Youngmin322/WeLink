@@ -366,7 +366,7 @@ struct ShareCardSheetView: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .foregroundColor(.white)
+                .foregroundColor(.black)
                 .cornerRadius(22)
                 .shadow(color: Color("MainColor").opacity(0.3), radius: 8, x: 0, y: 4)
             }
@@ -422,7 +422,7 @@ struct ShareCardSheetView: View {
                 .font(.custom("Pretendard-Medium", size: 16))
                 .frame(width: 140, height: 40)
                 .background(Color("MainColor").opacity(0.8))
-                .foregroundColor(.white)
+                .foregroundColor(.black)
                 .cornerRadius(20)
                 .opacity(showSuccessMessage ? 1.0 : 0.0)
                 .animation(.easeInOut(duration: 0.5).delay(1.0), value: showSuccessMessage)

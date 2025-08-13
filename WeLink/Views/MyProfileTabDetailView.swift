@@ -209,9 +209,8 @@ struct DetailedInfo: View{
                 ForEach([formattedBirthDate(from: myProfile.birthDate), myProfile.mbti, myProfile.tag], id: \.self) { label in
                     ZStack {
                         RoundedRectangle(cornerRadius: 45)
-                            .foregroundColor(Color.gray)
+                            .stroke(Color("StrokeMyDetail"), lineWidth: 1) // 와 대박 졸리다
                             .frame(width: 76, height: 29)
-                            .opacity(0.6)
                         Text(label)
                             .foregroundColor(.white)
                             .font(.system(size: 13))
@@ -250,10 +249,10 @@ struct newMainTopicButton: View{
             topic.isSelected.toggle()
             currentTopic = topic
         }) {
-            VStack(spacing: 8) {
+            VStack(spacing: 16) {
                 Text(topic.title)
                     .foregroundColor(.white)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 17, weight: .bold))
                 
                 // 인디케이터
                 Rectangle()
@@ -288,8 +287,7 @@ struct mainTopicButton: View{
                     )
                 Text(topic.title)
                     .foregroundColor(.white)
-                    .font(.system(size: textSize))
-                    .bold()
+                    .font(.custom("Pretendard-SemiBold", size: 17))
             }
         }
     }
@@ -383,7 +381,7 @@ struct subTopicWindow: View{
                         Divider()
                             .frame(width: width - 50 , height: 1) // 두께
                             .background(Color.gray) // 색상
-                            .opacity(0.5)
+                            .opacity(1)
                             .padding(.top, 15)
                     }
                 }
@@ -400,15 +398,14 @@ struct subTopicWindow: View{
         var body: some View {
             ZStack{
                 RoundedRectangle(cornerRadius: 100)
-                    .stroke(Color("MainColor"), lineWidth: 2)
+                    .stroke(Color("MainColor"), lineWidth: 1)
                     .foregroundColor(Color("DetailedCategoryColor"))
                     .frame(width: width, height: height)
                 
                 
                 Text(topic.title)
+                    .font(.custom("Pretendard-Medium", size: 13))
                     .foregroundColor(Color("MainColor"))
-                    .font(.system(size: textSize))
-                    .bold()
             }
         }
     }

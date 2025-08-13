@@ -76,13 +76,13 @@ struct CategoryDetailedView: View {
                     Text("조금 더 구체적으로 알려주세요!")
                         .frame(width: textWidth, alignment: .leading)
                         .foregroundColor(.white)
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.custom("Pretendard-Bold", size: 22))
                         .padding(.bottom, 1)
                     
                     Text("최소 1개에서 최대 10개까지 선택해주세요.")
                         .frame(width: textWidth, alignment: .leading)
                         .foregroundColor(Color("MainColor"))
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.custom("Pretendard-Bold", size: 14))
                 }
                 .padding(.bottom)
                 
