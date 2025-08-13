@@ -90,7 +90,7 @@ private struct MenuOverlay: View {
                 }
 
             VStack(alignment: .leading, spacing: 0) {
-                NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)) {
+                NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }) {
                     Text("프로필 수정")
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -100,7 +100,7 @@ private struct MenuOverlay: View {
 
                 Divider().background(Color.white)
 
-                NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)) {
+                NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }) {
                     Text("취향 카테고리 수정")
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -113,8 +113,8 @@ private struct MenuOverlay: View {
             .frame(width: 160)
             .shadow(radius: 5)
             .offset(x: 60, y: -250)
-            .transition(.opacity)
-            .animation(nil)
+//            .transition(.opacity)
+//            .animation(nil)
         }
     }
 }

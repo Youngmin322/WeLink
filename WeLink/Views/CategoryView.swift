@@ -10,7 +10,7 @@ import SwiftData
 
 struct CategoryView: View {
     var progress: CGFloat
-    @ObservedObject var cardModel: CardModel
+    var cardModel: CardModel
     var isEdit: Bool
     let categories: Category = Category()
     @State var selectedTopics: [mainTopic] = []

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MyProfileTabDetailView: View {
-    @ObservedObject var myProfile: CardModel
+    var myProfile: CardModel
     @State private var currentTopic: mainTopic
     @Environment(\.dismiss) private var dismiss
     
@@ -57,43 +57,6 @@ struct MyProfileTabDetailView: View {
                             }
                             .padding(.top, 80)
                             
-                            if showMenu {
-                                // 배경 클릭 시 메뉴 닫기
-                                Color.black.opacity(0.001)
-                                    .ignoresSafeArea()
-                                    .onTapGesture {
-                                        withAnimation {
-                                            showMenu = false
-                                        }
-                                    }
-
-                                // 메뉴 본체
-                                VStack(alignment: .leading, spacing: 0) {
-                                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, isEdit: false).onAppear { showMenu = false }) {
-                                        Text("프로필 수정")
-                                            .padding()
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .background(Color(.darkGray))
-                                            .foregroundColor(.white)
-                                    }
-
-                                    Divider().background(Color.white)
-
-                                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)) {
-                                                            Text("취향 카테고리 수정")
-                                                                .padding()
-                                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                                .background(Color(.darkGray))
-                                                                .foregroundColor(.white)
-                                                        }
-                                }
-                                .background(Color(.darkGray))
-                                .cornerRadius(12)
-                                .frame(width: 160)
-                                .shadow(radius: 5)
-                                .offset(x: 60, y: -10)
-//                                 .transition(.opacity)
-                            }
                             
                             Spacer()
                             
@@ -134,9 +97,8 @@ struct MyProfileTabDetailView: View {
                     }
 
                 // 메뉴 본체
-                //TODO: 위치 조절
                 VStack(alignment: .leading, spacing: 0) {
-                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)) {
+                    NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, isEdit: false).onAppear { showMenu = false }) {
                         Text("프로필 수정")
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -146,21 +108,20 @@ struct MyProfileTabDetailView: View {
 
                     Divider().background(Color.white)
 
-                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true)) {
-                        Text("취향 카테고리 수정")
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(.darkGray))
-                            .foregroundColor(.white)
-                    }
+                    NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }) {
+                                            Text("취향 카테고리 수정")
+                                                .padding()
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .background(Color(.darkGray))
+                                                .foregroundColor(.white)
+                                        }
                 }
                 .background(Color(.darkGray))
                 .cornerRadius(12)
                 .frame(width: 160)
                 .shadow(radius: 5)
-                .offset(x: 60, y: 30) // 필요에 따라 위치 조정
-                .transition(.opacity)
-                
+                .offset(x: 60, y: 30)
+//                                 .transition(.opacity)
             }
         }
     }
@@ -225,7 +186,7 @@ struct upperButtons: View{
 
 
 struct DetailedInfo: View{
-    @ObservedObject var myProfile: CardModel
+    var myProfile: CardModel
     var body: some View{
         VStack(spacing: 30){
             // 상단 이름 & 한줄소개

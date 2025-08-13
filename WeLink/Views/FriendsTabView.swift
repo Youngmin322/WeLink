@@ -13,6 +13,12 @@ struct FriendsTabView: View {
     @State private var keyboardHeight: CGFloat = 0
     @FocusState private var isTextFieldFocused: Bool
     
+    private func printAllCards(cards: [CardModel]){
+        for card in cards{
+            print(card.name)
+        }
+    }
+    
     private var cards: [CardModel] {
         guard let myUUID = myID.last?.id else {
             if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -83,6 +89,9 @@ struct FriendsTabView: View {
                 }
             }
             .navigationBarHidden(true)
+            .onAppear{
+                printAllCards(cards: allCards)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
             handleKeyboardShow(notification)
@@ -327,7 +336,7 @@ struct FriendsTabView: View {
     }
     
     private func handleViewAppear() {
-        if allCards.isEmpty {
+        if cards.isEmpty {
             CardDataProvider.insertDummyCards(into: modelContext)
         } else {
             preloadImages()
