@@ -105,8 +105,7 @@ struct CategoryView: View {
                                 cardModel: cardModel
                             )
                         ) {
-                            let text = isEdit ? "완료" : "다음"
-                            Text(text)
+                            Text("다음")
                                 .font(.headline)
                                 .foregroundColor(.black)
                                 .frame(width: nextButtonWidth, height: nextButtonHeight)
