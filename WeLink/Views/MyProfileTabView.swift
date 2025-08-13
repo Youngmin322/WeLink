@@ -64,9 +64,10 @@ struct MyProfileTabView: View {
                 }
                 .padding(.bottom, 110)
 
-                MenuOverlay(showMenu: $showMenu, myProfile: myProfile)
+                MenuOverlay(showMenu: $showMenu, myProfile: $myProfile)
             }
         }
+        .navigationBarHidden(true)
         .onAppear {
             if let lastID = myID.last?.id {
                 myProfile = findMyProfile(cards: cards, id: lastID)
@@ -75,46 +76,68 @@ struct MyProfileTabView: View {
     }
 }
 
-private struct MenuOverlay: View {
+struct MenuOverlay: View {
     @Binding var showMenu: Bool
-    let myProfile: CardModel?
+    @Binding var myProfile: CardModel?
+    @State private var goToProfileCustomView = false
+    @State private var goToCategoryView = false
 
     var body: some View {
-        if showMenu, let myProfile = myProfile {
-            Color.black.opacity(0.001)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    withAnimation {
+        ZStack {
+            if showMenu {
+                Color.black.opacity(0.001)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            showMenu = false
+                        }
+                    }
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Button {
+                        goToProfileCustomView = true
                         showMenu = false
+                    } label: {
+                        Text("프로필 수정")
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.darkGray))
+                            .foregroundColor(.white)
+                    }
+
+                    Divider().background(Color.white)
+
+                    Button {
+                        goToCategoryView = true
+                        showMenu = false
+                    } label: {
+                        Text("취향 카테고리 수정")
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.darkGray))
+                            .foregroundColor(.white)
                     }
                 }
-
-            VStack(alignment: .leading, spacing: 0) {
-                NavigationLink(destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }) {
-                    Text("프로필 수정")
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.darkGray))
-                        .foregroundColor(.white)
-                }
-
-                Divider().background(Color.white)
-
-                NavigationLink(destination: CategoryView(progress: 2.0/4.0, cardModel: myProfile, isEdit: true).onAppear { showMenu = false }) {
-                    Text("취향 카테고리 수정")
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.darkGray))
-                        .foregroundColor(.white)
-                }
+                .background(Color(.darkGray))
+                .cornerRadius(12)
+                .frame(width: 160)
+                .shadow(radius: 5)
+                .offset(x: 60, y: -270)
             }
-            .background(Color(.darkGray))
-            .cornerRadius(12)
-            .frame(width: 160)
-            .shadow(radius: 5)
-            .offset(x: 60, y: -250)
-//            .transition(.opacity)
-//            .animation(nil)
+
+            // NavigationLink는 항상 뷰 트리에 존재하도록
+            NavigationLink("", destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)
+                .onDisappear { goToProfileCustomView = false }
+                .navigationBarHidden(true)
+                           , isActive: $goToProfileCustomView)
+                .hidden()
+
+            if let profile = myProfile {
+                NavigationLink("", destination: CategoryView(progress: 2.0 / 4.0, cardModel: profile, isEdit: true)
+                    .navigationBarHidden(true)
+                               , isActive: $goToCategoryView)
+                    .hidden()
+            }
         }
     }
 }

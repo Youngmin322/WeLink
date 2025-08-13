@@ -264,6 +264,7 @@ var body: some View {
                 showPicker: $showPicker
             )
         )
+        .navigationBarHidden(true)
     }
 
     private var userInfoFieldsView: some View {

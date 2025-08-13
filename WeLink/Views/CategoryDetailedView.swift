@@ -15,7 +15,7 @@ struct CategoryDetailedView: View {
     // selectedDetailedTopicsDict["스포츠"].append(~~)
     @State private var selectedDetailedTopicsList: [[detailedTopic]] = [[], [], []]
     @ObservedObject var categories: Category
-    var cardModel: CardModel
+    @Binding var cardModel: CardModel
     @Environment(\.dismiss) var dismiss
     
     @State var sectionTotalHeights: [CGFloat] = [0, 0, 0]
