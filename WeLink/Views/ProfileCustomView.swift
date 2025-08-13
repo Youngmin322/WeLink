@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 struct ProfileCustomView: View {
     var progress: CGFloat
@@ -256,9 +257,13 @@ var body: some View {
                 }
             }
         }
-        .sheet(isPresented: $showPicker) {
-            PhotoPicker(selectedImage: $selectedImage)
-        }
+        .background(
+            // 권한 확인이 포함된 PhotoPicker
+            PhotoPickerWithPermission(
+                selectedImage: $selectedImage,
+                showPicker: $showPicker
+            )
+        )
     }
 
     private var userInfoFieldsView: some View {
@@ -402,14 +407,9 @@ var body: some View {
             .foregroundColor(Color("BackgroundColor"))
 
             Spacer()
-            
-        
-            
         }
     }
 }
-    
-
 
 #Preview {
     NavigationStack {
