@@ -51,14 +51,25 @@ struct MyProfileTabDetailView: View {
             .navigationBarHidden(true)
             .ignoresSafeArea()
             .onAppear{
+                // 탭바 숨기기
+                NotificationCenter.default.post(name: .hideTabBar, object: nil)
+                
                 for topic in myProfile.topics {
                     topic.isSelected = false
                 }
                 currentTopic = myProfile.topics[0]
                 currentTopic.isSelected = true
             }
+            .onDisappear {
+                // 탭바 다시 보이기
+                NotificationCenter.default.post(name: .showTabBar, object: nil)
+            }
             
-            upperButtons(dismiss: { dismiss() }, showMenu: $showMenu)
+            upperButtons(dismiss: {
+                // 탭바 다시 보이기
+                NotificationCenter.default.post(name: .showTabBar, object: nil)
+                dismiss()
+            }, showMenu: $showMenu)
                 .padding(.top, -30)
             
             if showMenu {
@@ -319,7 +330,7 @@ struct subTopicWindow: View{
 //        let selectedDetailedTopics = topic.children.values.filter { $0.isSelected.wrappedValue }
 //        let numDetailedTopics: Int = selectedDetailedTopics.count
 //        let numRows = ((numDetailedTopics-1) / 3) + 1
-//        
+//
 //        let height: CGFloat = (buttonHeight + 15.0) * CGFloat(numRows) + 50.0
 //        self._totalHeight.wrappedValue += height
     }
