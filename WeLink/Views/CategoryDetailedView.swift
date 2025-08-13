@@ -150,7 +150,9 @@ struct CategoryDetailedView: View {
             
                 }
             }
+            .padding(.bottom, isEdit ? 55 : 0)
             .navigationBarHidden(true)
+            
         }
     }
     struct CategoryButton: View {

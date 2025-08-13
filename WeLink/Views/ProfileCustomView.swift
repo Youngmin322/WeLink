@@ -177,6 +177,7 @@ var body: some View {
                                             .foregroundColor(.black)
                                             .font(.system(size: 17))
                                     }
+                                    .padding(.bottom, isEdit ? 55 : 0)
                                 }
 //                                .disabled(!isReady)
 

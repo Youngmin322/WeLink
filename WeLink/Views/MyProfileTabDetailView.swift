@@ -299,6 +299,7 @@ struct entireSubTopicView: View{
                         .offset(x: (geo.size.width - width) / 2)
                 }
             )
+        .padding(.bottom, 120)
     }
 }
 

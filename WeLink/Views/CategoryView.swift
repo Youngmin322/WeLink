@@ -116,6 +116,7 @@ struct CategoryView: View {
                         .disabled(selectedTopics.count == 0)
                     }
                 }
+                .padding(.bottom, isEdit ? 55 : 0)
         }
         .navigationBarHidden(true)
     }
