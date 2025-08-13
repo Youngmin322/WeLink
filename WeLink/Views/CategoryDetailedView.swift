@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CategoryDetailedView: View {
     var progress: CGFloat
+    var isEdit: Bool
     @State var selectedTopics: [mainTopic]
     @State private var currentIndex: Int = 0
     // selectedDetailedTopicsDict["스포츠"].append(~~)
@@ -147,10 +148,15 @@ struct CategoryDetailedView: View {
             }
             .navigationBarHidden(true)
             .navigationDestination(isPresented: $goNext) {
-                SettingCompleteView(
-                    progress: 5.0 / 5.0,
-                    cardModel: cardModel
-                )
+                if isEdit {
+                    ContentView()
+                }
+                else{
+                    SettingCompleteView(
+                        progress: 5.0 / 5.0,
+                        cardModel: cardModel
+                    )
+                }
             }
         }
     }
