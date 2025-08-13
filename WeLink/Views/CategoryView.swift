@@ -12,6 +12,7 @@ struct CategoryView: View {
     var progress: CGFloat
     @State var cardModel: CardModel
     var isEdit: Bool
+    var keepGoing: Binding<Bool>? = nil // 기본값 nil
     let categories: Category = Category()
     @State var selectedTopics: [mainTopic] = []
     @State var isReady: Bool = false
@@ -96,14 +97,24 @@ struct CategoryView: View {
                     let nextButtonWidth: CGFloat = 310
                     let nextButtonHeight: CGFloat = 25
                     if isReady {
+                        let nextView: AnyView = isEdit ? AnyView(CategoryDetailedView(
+                            progress: 3.0 / 4.0,
+                            isEdit: isEdit,
+                            selectedTopics: selectedTopics,
+                            categories: categories,
+                            cardModel: $cardModel,
+                            keepGoing: keepGoing
+                        )
+) : AnyView(CategoryDetailedView(
+                            progress: 3.0 / 4.0,
+                            isEdit: isEdit,
+                            selectedTopics: selectedTopics,
+                            categories: categories,
+                            cardModel: $cardModel
+                        )
+)
                         NavigationLink(
-                            destination: CategoryDetailedView(
-                                progress: 3.0 / 4.0,
-                                isEdit: isEdit,
-                                selectedTopics: selectedTopics,
-                                categories: categories,
-                                cardModel: $cardModel
-                            )
+                            destination: nextView
                         ) {
                             Text("다음")
                                 .font(.headline)

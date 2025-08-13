@@ -84,59 +84,58 @@ private struct MenuOverlay: View {
 
     var body: some View {
         ZStack {
-                    if showMenu {
-                        Color.black.opacity(0.001)
-                            .ignoresSafeArea()
-                            .onTapGesture {
-                                withAnimation {
-                                    showMenu = false
-                                }
-                            }
-
-                        VStack(alignment: .leading, spacing: 0) {
-                                            Button {
-                                                goToProfileCustomView = true
-                                                showMenu = false
-                                            } label: {
-                                                Text("프로필 수정")
-                                                    .padding()
-                                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                                    .background(Color(.darkGray))
-                                                    .foregroundColor(.white)
-                                            }
-
-                Divider().background(Color.white)
-
-                            Button {
-                                                    goToCategoryView = true
-                                                    showMenu = false
-                                                } label: {
-                                                    Text("취향 카테고리 수정")
-                                                        .padding()
-                                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                                        .background(Color(.darkGray))
-                                                        .foregroundColor(.white)
-                                                }
+            if showMenu {
+                Color.black.opacity(0.001)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            showMenu = false
+                        }
+                    }
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    Button {
+                        goToProfileCustomView = true
+                        showMenu = false
+                    } label: {
+                        Text("프로필 수정")
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.darkGray))
+                            .foregroundColor(.white)
+                    }
+                    
+                    Divider().background(Color.white)
+                    
+                    Button {
+                        goToCategoryView = true
+                        showMenu = false
+                    } label: {
+                        Text("취향 카테고리 수정")
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.darkGray))
+                            .foregroundColor(.white)
+                    }
+                }
+                .background(Color(.darkGray))
+                .cornerRadius(12)
+                .frame(width: 160)
+                .shadow(radius: 5)
+                .offset(x: 60, y: -270)
             }
-                    .background(Color(.darkGray))
-                                    .cornerRadius(12)
-                                    .frame(width: 160)
-                                    .shadow(radius: 5)
-                                    .offset(x: 60, y: -270)
-                                }
-
-                                // NavigationLink는 항상 뷰 트리에 존재하도록
-                                NavigationLink("", destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)
-                                    .onDisappear { goToProfileCustomView = false }
-                                    .navigationBarHidden(true)
-                                               , isActive: $goToProfileCustomView)
-                                    .hidden()
-
-            if let profile = myProfile {
-                NavigationLink("", destination: CategoryView(progress: 2.0 / 4.0, cardModel: profile, isEdit: true)
+                // NavigationLink는 항상 뷰 트리에 존재하도록
+                NavigationLink("", destination: ProfileCustomView(progress: 1.0 / 4.0, cardModel: myProfile, isEdit: true)
+                    .onDisappear { goToProfileCustomView = false }
                     .navigationBarHidden(true)
-                               , isActive: $goToCategoryView)
+                               , isActive: $goToProfileCustomView)
                 .hidden()
+                
+                if let profile = myProfile {
+                    NavigationLink("", destination: CategoryView(progress: 2.0 / 4.0, cardModel: profile, isEdit: true, keepGoing: $goToCategoryView)
+                        .navigationBarHidden(true)
+                                   , isActive: $goToCategoryView)
+                    .hidden()
             }
         }
     }

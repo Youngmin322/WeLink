@@ -16,6 +16,7 @@ struct CategoryDetailedView: View {
     @State private var selectedDetailedTopicsList: [[detailedTopic]] = [[], [], []]
     @ObservedObject var categories: Category
     @Binding var cardModel: CardModel
+    var keepGoing: Binding<Bool>? = nil // 기본값 nil
     @Environment(\.dismiss) var dismiss
     
     @State var sectionTotalHeights: [CGFloat] = [0, 0, 0]
@@ -145,6 +146,9 @@ struct CategoryDetailedView: View {
                         cardModel.topics = []
                         for topic in selectedTopics{
                             cardModel.topics.append(topic)
+                        }
+                        if isEdit {
+                            keepGoing?.wrappedValue = false
                         }
                     })
             
