@@ -28,18 +28,25 @@ struct ShareCardSheetView: View {
         return allCards.first { $0.id == myUUID }
     }
     
+    // 화면 상태를 더 안전하게 관리
     private var currentScreenState: ScreenState {
         if showSuccessMessage {
             return .exchangeSuccess
-        } else if let _ = mpc.incomingInvitation {
-            return .incomingInvitation
-        } else if let _ = mpc.waitingForResponse {
-            return .waitingForResponse
-        } else if mpc.discoveredPeers.isEmpty {
-            return .searching
-        } else {
-            return .peerList
         }
+        
+        if mpc.incomingInvitation != nil {
+            return .incomingInvitation
+        }
+        
+        if mpc.waitingForResponse != nil {
+            return .waitingForResponse
+        }
+        
+        if mpc.discoveredPeers.isEmpty {
+            return .searching
+        }
+        
+        return .peerList
     }
     
     enum ScreenState {
@@ -81,13 +88,7 @@ struct ShareCardSheetView: View {
         }
         .onAppear {
             print("ShareCardSheetView appeared")
-            mpc.setModelContext(modelContext)
-            
-            let cardToUse = actualMyCard ?? CardModel.defaultMockCard
-            mpc.setupPeerWithUserName(cardToUse.name)
-            
-            mpc.startHosting()
-            mpc.startBrowsing()
+            setupMultipeerManager()
         }
         .onDisappear {
             print("ShareCardSheetView disappeared")
@@ -97,12 +98,7 @@ struct ShareCardSheetView: View {
             dotCount = (dotCount + 1) % 4
         }
         .onChange(of: mpc.connectedPeers) { oldValue, newValue in
-            for peer in newValue {
-                pendingCardSends.remove(peer.displayName)
-                if mpc.waitingForResponse?.displayName == peer.displayName {
-                    mpc.waitingForResponse = nil
-                }
-            }
+            handleConnectedPeersChange(oldValue: oldValue, newValue: newValue)
         }
         .onChange(of: mpc.cardSentSuccessfully) { oldValue, newValue in
             if newValue {
@@ -110,30 +106,79 @@ struct ShareCardSheetView: View {
             }
         }
         .onChange(of: mpc.connectionRejected) { oldValue, newValue in
-            if let rejectedPeerName = newValue {
-                rejectedPeers.insert(rejectedPeerName)
-                pendingCardSends.remove(rejectedPeerName)
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                    rejectedPeers.remove(rejectedPeerName)
-                }
-            }
+            handleConnectionRejected(rejectedPeerName: newValue)
         }
         .onChange(of: mpc.waitingForResponse) { oldValue, newValue in
-            if let oldPeer = oldValue, newValue == nil {
-                pendingCardSends.remove(oldPeer.displayName)
-            }
+            handleWaitingForResponseChange(oldValue: oldValue, newValue: newValue)
         }
         .onChange(of: mpc.cardExchangeCompleted) { oldValue, newValue in
-            if newValue {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    showSuccessMessage = true
+            handleCardExchangeCompleted(completed: newValue)
+        }
+    }
+    
+    // MARK: - Setup 메서드들
+    private func setupMultipeerManager() {
+        mpc.setModelContext(modelContext)
+        
+        let cardToUse = actualMyCard ?? createDefaultCard()
+        mpc.setupPeerWithUserName(cardToUse.name)
+        
+        mpc.startHosting()
+        mpc.startBrowsing()
+    }
+    
+    private func createDefaultCard() -> CardModel {
+        return CardModel(
+            id: UUID(),
+            name: "홍길동",
+            age: 30,
+            description: "반갑습니다!",
+            birthDate: "1994-01-01",
+            mbti: "ISFJ",
+            tag: "일반",
+            dDay: 365,
+            imageData: Data()
+        )
+    }
+    
+    // MARK: - 이벤트 핸들러들
+    private func handleConnectedPeersChange(oldValue: [MCPeerID], newValue: [MCPeerID]) {
+        for peer in newValue {
+            pendingCardSends.remove(peer.displayName)
+            if mpc.waitingForResponse?.displayName == peer.displayName {
+                DispatchQueue.main.async {
+                    self.mpc.waitingForResponse = nil
                 }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        showSuccessMessage = false
-                    }
+            }
+        }
+    }
+    
+    private func handleConnectionRejected(rejectedPeerName: String?) {
+        guard let rejectedPeerName = rejectedPeerName else { return }
+        
+        rejectedPeers.insert(rejectedPeerName)
+        pendingCardSends.remove(rejectedPeerName)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            rejectedPeers.remove(rejectedPeerName)
+        }
+    }
+    
+    private func handleWaitingForResponseChange(oldValue: MCPeerID?, newValue: MCPeerID?) {
+        if let oldPeer = oldValue, newValue == nil {
+            pendingCardSends.remove(oldPeer.displayName)
+        }
+    }
+    
+    private func handleCardExchangeCompleted(completed: Bool) {
+        if completed {
+            withAnimation(.easeInOut(duration: 0.5)) {
+                showSuccessMessage = true
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    showSuccessMessage = false
                 }
             }
         }
@@ -150,7 +195,7 @@ struct ShareCardSheetView: View {
                 .animation(.easeInOut(duration: 0.5), value: dotCount)
                 .padding()
             
-            Text("주변 기기를 검색 중" + String(repeating: ".", count: dotCount))
+            Text("주변 기기를 검색 중\(String(repeating: ".", count: dotCount))")
                 .font(.custom("Pretendard-SemiBold", size: 20))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
@@ -161,18 +206,7 @@ struct ShareCardSheetView: View {
                 .multilineTextAlignment(.center)
             
             Button("검색 재시작") {
-                print("수동으로 검색 재시작")
-                mpc.stopBrowsing()
-                mpc.stopHosting()
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    // 다시 사용자 이름으로 피어 ID 설정
-                    let cardToUse = actualMyCard ?? CardModel.defaultMockCard
-                    mpc.setupPeerWithUserName(cardToUse.name)
-                    
-                    mpc.startHosting()
-                    mpc.startBrowsing()
-                }
+                restartSearch()
             }
             .padding(.top, 16)
             .font(.custom("Pretendard-Medium", size: 17))
@@ -180,6 +214,20 @@ struct ShareCardSheetView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
+    }
+    
+    private func restartSearch() {
+        print("수동으로 검색 재시작")
+        mpc.stopBrowsing()
+        mpc.stopHosting()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let cardToUse = actualMyCard ?? createDefaultCard()
+            mpc.setupPeerWithUserName(cardToUse.name)
+            
+            mpc.startHosting()
+            mpc.startBrowsing()
+        }
     }
     
     // MARK: - 피어 리스트 화면
@@ -207,16 +255,20 @@ struct ShareCardSheetView: View {
                             isConnecting: pendingCardSends.contains(peer.displayName) || mpc.waitingForResponse?.displayName == peer.displayName,
                             isRejected: rejectedPeers.contains(peer.displayName)
                         ) {
-                            print("연결 시도: \(peer.displayName)")
-                            pendingCardSends.insert(peer.displayName)
-                            
-                            let cardToSend = actualMyCard ?? CardModel.defaultMockCard
-                            mpc.invitePeerAndSendCard(peer, card: cardToSend)
+                            handlePeerCardTap(peer: peer)
                         }
                     }
                 }
             }
         }
+    }
+    
+    private func handlePeerCardTap(peer: MCPeerID) {
+        print("연결 시도: \(peer.displayName)")
+        pendingCardSends.insert(peer.displayName)
+        
+        let cardToSend = actualMyCard ?? createDefaultCard()
+        mpc.invitePeerAndSendCard(peer, card: cardToSend)
     }
     
     // MARK: - 응답 대기 화면
@@ -303,8 +355,7 @@ struct ShareCardSheetView: View {
                 .shadow(color: .red.opacity(0.3), radius: 8, x: 0, y: 4)
                 
                 Button("수락") {
-                    let cardToSend = actualMyCard ?? CardModel.defaultMockCard
-                    mpc.respondToInvitation(accept: true, myCard: cardToSend)
+                    handleInvitationAcceptance()
                 }
                 .font(.custom("Pretendard-SemiBold", size: 16))
                 .frame(width: 100, height: 44)
@@ -315,12 +366,17 @@ struct ShareCardSheetView: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .foregroundColor(.white)
+                .foregroundColor(.black)
                 .cornerRadius(22)
                 .shadow(color: Color("MainColor").opacity(0.3), radius: 8, x: 0, y: 4)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func handleInvitationAcceptance() {
+        let cardToSend = actualMyCard ?? createDefaultCard()
+        mpc.respondToInvitation(accept: true, myCard: cardToSend)
     }
     
     // MARK: - 교환 성공 화면
@@ -361,27 +417,27 @@ struct ShareCardSheetView: View {
             
             if showSuccessMessage {
                 Button("새로운 교환") {
-                    showSuccessMessage = false
-                    mpc.disconnect()
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        let cardToUse = actualMyCard ?? CardModel.defaultMockCard
-                        mpc.setupPeerWithUserName(cardToUse.name)
-                        
-                        mpc.startHosting()
-                        mpc.startBrowsing()
-                    }
+                    handleNewExchange()
                 }
                 .font(.custom("Pretendard-Medium", size: 16))
                 .frame(width: 140, height: 40)
                 .background(Color("MainColor").opacity(0.8))
-                .foregroundColor(.white)
+                .foregroundColor(.black)
                 .cornerRadius(20)
                 .opacity(showSuccessMessage ? 1.0 : 0.0)
                 .animation(.easeInOut(duration: 0.5).delay(1.0), value: showSuccessMessage)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func handleNewExchange() {
+        showSuccessMessage = false
+        mpc.disconnect()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            setupMultipeerManager()
+        }
     }
 }
 

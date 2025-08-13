@@ -62,7 +62,7 @@ struct MyProfileTabView: View {
                         )
                     }
                 }
-                .padding(.bottom, 110)
+                .padding(.bottom, 100)
 
                 MenuOverlay(showMenu: $showMenu, myProfile: $myProfile)
             }

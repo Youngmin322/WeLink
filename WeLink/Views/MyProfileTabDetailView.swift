@@ -51,18 +51,25 @@ struct MyProfileTabDetailView: View {
             .navigationBarHidden(true)
             .ignoresSafeArea()
             .onAppear{
+                NotificationCenter.default.post(name: .hideTabBar, object: nil)
+                
                 for topic in myProfile.topics {
                     topic.isSelected = false
                 }
                 currentTopic = myProfile.topics[0]
                 currentTopic.isSelected = true
             }
+            .onDisappear {
+                NotificationCenter.default.post(name: .showTabBar, object: nil)
+            }
             
-            upperButtons(dismiss: { dismiss() }, showMenu: $showMenu)
+            upperButtons(dismiss: {
+                NotificationCenter.default.post(name: .showTabBar, object: nil)
+                dismiss()
+            }, showMenu: $showMenu)
                 .padding(.top, -30)
             
             if showMenu {
-                // 배경 클릭 시 메뉴 닫기
                 Color.black.opacity(0.001)
                     .ignoresSafeArea()
                     .onTapGesture {
@@ -98,7 +105,7 @@ struct MyProfileTabDetailView: View {
                 .frame(width: 160)
                 .shadow(radius: 5)
                 .offset(x: 60, y: 50)
-//                                 .transition(.opacity)
+
             }
         }
     }
@@ -135,28 +142,46 @@ struct upperButtons: View{
     let dismiss: () -> Void
     @Binding var showMenu:Bool
     var body: some View{
-        HStack(spacing: 285){
+        HStack{
+            // 뒤로가기 버튼
             Button(action:{
                 dismiss()
             }){
-                Image(systemName: "chevron.backward")
-                    .resizable()
-                    .frame(width: 15, height: 25)
-                    .foregroundColor(Color("MainColor"))
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.clear)
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: "chevron.backward")
+                        .resizable()
+                        .frame(width: 15, height: 25)
+                        .foregroundColor(Color("MainColor"))
+                }
             }
+            .contentShape(Rectangle())
             
+            Spacer()
+            
+            // 더보기 버튼
             Button(action:{
-                showMenu.toggle()
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showMenu.toggle()
+                }
             }){
-              
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.clear)
+                        .frame(width: 44, height: 44)
+                    
                     Image(systemName: "ellipsis")
                         .foregroundColor(Color("MainColor"))
-                        .font(.system(size: 30))
+                        .font(.system(size: 24, weight: .bold))
                         .rotationEffect(Angle(degrees: 90))
-                        .bold()
-              
+                }
             }
+            .contentShape(Rectangle())
         }
+        .padding(.horizontal, 20)
         .padding(.top, 50)
     }
 }
@@ -186,9 +211,8 @@ struct DetailedInfo: View{
                 ForEach([formattedBirthDate(from: myProfile.birthDate), myProfile.mbti, myProfile.tag], id: \.self) { label in
                     ZStack {
                         RoundedRectangle(cornerRadius: 45)
-                            .foregroundColor(Color.gray)
+                            .stroke(Color("StrokeMyDetail"), lineWidth: 1) // 와 대박 졸리다
                             .frame(width: 76, height: 29)
-                            .opacity(0.6)
                         Text(label)
                             .foregroundColor(.white)
                             .font(.system(size: 13))
@@ -227,10 +251,10 @@ struct newMainTopicButton: View{
             topic.isSelected.toggle()
             currentTopic = topic
         }) {
-            VStack(spacing: 8) {
+            VStack(spacing: 16) {
                 Text(topic.title)
                     .foregroundColor(.white)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 17, weight: .bold))
                 
                 // 인디케이터
                 Rectangle()
@@ -265,8 +289,7 @@ struct mainTopicButton: View{
                     )
                 Text(topic.title)
                     .foregroundColor(.white)
-                    .font(.system(size: textSize))
-                    .bold()
+                    .font(.custom("Pretendard-SemiBold", size: 17))
             }
         }
     }
@@ -317,13 +340,6 @@ struct subTopicWindow: View{
         self._topic = topic
         self.width = width
         self.lastKey = lastKey
-        
-//        let selectedDetailedTopics = topic.children.values.filter { $0.isSelected.wrappedValue }
-//        let numDetailedTopics: Int = selectedDetailedTopics.count
-//        let numRows = ((numDetailedTopics-1) / 3) + 1
-//        
-//        let height: CGFloat = (buttonHeight + 15.0) * CGFloat(numRows) + 50.0
-//        self._totalHeight.wrappedValue += height
     }
     var body: some View {
         ZStack{
@@ -356,7 +372,7 @@ struct subTopicWindow: View{
                         Divider()
                             .frame(width: width - 50 , height: 1) // 두께
                             .background(Color.gray) // 색상
-                            .opacity(0.5)
+                            .opacity(1)
                             .padding(.top, 15)
                     }
                 }
@@ -373,15 +389,14 @@ struct subTopicWindow: View{
         var body: some View {
             ZStack{
                 RoundedRectangle(cornerRadius: 100)
-                    .stroke(Color("MainColor"), lineWidth: 2)
+                    .stroke(Color("MainColor"), lineWidth: 1)
                     .foregroundColor(Color("DetailedCategoryColor"))
                     .frame(width: width, height: height)
                 
                 
                 Text(topic.title)
+                    .font(.custom("Pretendard-Medium", size: 13))
                     .foregroundColor(Color("MainColor"))
-                    .font(.system(size: textSize))
-                    .bold()
             }
         }
     }
