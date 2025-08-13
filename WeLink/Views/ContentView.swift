@@ -9,10 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 1
+    
 
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
+                
                 if selectedTab == 0 {
                     MenuTabView()
                 } else if selectedTab == 1 {
