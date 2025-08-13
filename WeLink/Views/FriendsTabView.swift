@@ -56,16 +56,21 @@ struct FriendsTabView: View {
                     )
                     
                     VStack(spacing: 0) {
-                        headerView
-                            .padding(.top, geometry.safeAreaInsets.top - 40)
-                            .padding(.horizontal, 24)
+                        FriendsHeaderView(
+                            searchText: $searchText,
+                            isSearching: $isSearching,
+                            isTextFieldFocused: $isTextFieldFocused,
+                            onToggleSearch: toggleSearchMode
+                        )
+                        .padding(.top, geometry.safeAreaInsets.top - 40)
+                        .padding(.horizontal, 24)
                         
                         Rectangle()
                             .fill(Color.clear)
                             .frame(height: 0)
                         
                         if cards.isEmpty {
-                            emptyStateView
+                            FriendsEmptyStateView(searchText: searchText)
                                 .frame(maxHeight: .infinity)
                         } else {
                             ScrollView {
@@ -97,18 +102,7 @@ struct FriendsTabView: View {
             handleAllCardsChange(oldCards: oldValue, newCards: newValue)
         }
         .onChange(of: allCards.count) { oldCount, newCount in
-            // 카드 개수가 증가했을 때 (새 카드 추가됨)
-            if newCount > oldCount {
-                print("새 카드가 추가되었습니다. 총 \(newCount)개")
-                
-                // 새로 추가된 카드로 인덱스 업데이트
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    if !cards.isEmpty {
-                        currentIndex = min(currentIndex, cards.count - 1)
-                        preloadImages()
-                    }
-                }
-            }
+            handleCardsCountChange(oldCount: oldCount, newCount: newCount)
         }
         .onChange(of: cards) { oldValue, newValue in
             handleFilteredCardsChange(oldCards: oldValue, newCards: newValue)
@@ -152,127 +146,29 @@ struct FriendsTabView: View {
         }
     }
     
-    // MARK: - Header View
-    private var headerView: some View {
-        HStack(spacing: 12) {
-            if isSearching {
-                searchBarView
-            } else {
-                titleView
-            }
-            
-            searchToggleButton
-        }
-    }
-    
-    private var titleView: some View {
-        HStack {
-            Text("친구")
-                .font(.custom("Pretendard-Bold", size: 35))
-                .foregroundColor(.white)
-            
-            Spacer()
-        }
-    }
-    
-    private var searchBarView: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.white.opacity(0.8))
-                .font(.system(size: 18, weight: .medium))
-            
-            TextField("", text: $searchText)
-                .foregroundColor(.white)
-                .font(.system(size: 17))
-                .tint(.white)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .submitLabel(.search)
-                .focused($isTextFieldFocused)
-            
-            if !searchText.isEmpty {
-                Button(action: {
-                    searchText = ""
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.white.opacity(0.6))
-                        .font(.system(size: 16))
-                }
-            }
-        }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 14)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.ultraThinMaterial)
-                .environment(\.colorScheme, .dark)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.3),
-                            Color.white.opacity(0.1)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
-        )
-        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
-        .frame(maxWidth: .infinity)
-    }
-    
-    private var searchToggleButton: some View {
-        Button(action: toggleSearchMode) {
-            ZStack {
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .environment(\.colorScheme, .dark)
-                    .frame(width: 40, height: 40)
-                    .overlay(
-                        Circle()
-                            .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-                    )
-                
-                Image(systemName: isSearching ? "xmark" : "magnifyingglass")
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.white)
-                    .rotationEffect(.degrees(isSearching ? 180 : 0))
-                    .scaleEffect(isSearching ? 0.9 : 1.0)
-            }
-            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-        }
-        .contentShape(Circle())
-    }
-    
-    // MARK: - Empty State View
-    private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: searchText.isEmpty ? "person.3" : "magnifyingglass")
-                .font(.system(size: 60))
-                .foregroundColor(.white.opacity(0.8))
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
-            
-            Text(searchText.isEmpty ? "아직 친구가 없어요" : "검색 결과가 없어요")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(.white.opacity(0.9))
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
-            
-            Text(searchText.isEmpty ? "+ 버튼을 눌러 첫 번째 친구를 추가해보세요!" : "다른 이름으로 검색해보세요")
-                .font(.system(size: 14))
-                .foregroundColor(.white.opacity(0.7))
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
-        }
-    }
-    
     // MARK: - Share Sheet View
     private var shareSheetView: some View {
         NavigationView {
-            ShareCardSheetView(myCard: findMyCard() ?? CardModel.defaultMockCard)
+            if let myCard = findMyCard() {
+                ShareCardSheetView(myCard: myCard)
+                    .navigationBarTitleDisplayMode(.inline)
+            } else {
+                VStack {
+                    Image(systemName: "person.crop.circle.badge.exclamationmark")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    
+                    Text("내 카드를 찾을 수 없습니다")
+                        .font(.title2)
+                        .foregroundColor(.primary)
+                        .padding()
+                    
+                    Text("먼저 내 카드를 생성해주세요")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
                 .navigationBarTitleDisplayMode(.inline)
+            }
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
@@ -282,8 +178,10 @@ struct FriendsTabView: View {
         guard let myUUID = myID.last?.id else { return nil }
         return allCards.first { $0.id == myUUID }
     }
-    
-    // MARK: - Private Methods
+}
+
+// MARK: - Private Methods Extension
+extension FriendsTabView {
     private func toggleSearchMode() {
         if isSearching {
             exitSearchMode()
@@ -346,6 +244,19 @@ struct FriendsTabView: View {
         }
     }
     
+    private func handleCardsCountChange(oldCount: Int, newCount: Int) {
+        if newCount > oldCount {
+            print("새 카드가 추가되었습니다. 총 \(newCount)개")
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if !cards.isEmpty {
+                    currentIndex = min(currentIndex, cards.count - 1)
+                    preloadImages()
+                }
+            }
+        }
+    }
+    
     private func handleFilteredCardsChange(oldCards: [CardModel], newCards: [CardModel]) {
         DispatchQueue.main.async {
             if newCards.isEmpty {
@@ -361,7 +272,6 @@ struct FriendsTabView: View {
         }
     }
     
-    // MARK: - Image Preloading
     private func preloadImages() {
         let currentCards = cards
         DispatchQueue.global(qos: .userInitiated).async {
@@ -394,54 +304,6 @@ struct FriendsTabView: View {
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: targetSize))
         }
-    }
-}
-
-// MARK: - Background View
-struct BackgroundImageView: View {
-    let cards: [CardModel]
-    let currentIndex: Int
-    let preloadedImages: [Int: UIImage]
-    
-    var body: some View {
-        Color.black
-            .overlay(
-                Group {
-                    if !cards.isEmpty &&
-                        currentIndex >= 0 &&
-                        currentIndex < cards.count,
-                       let currentImage = preloadedImages[currentIndex] {
-                        Image(uiImage: currentImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .clipped()
-                            .scaleEffect(1.1)
-                            .blur(radius: 4)
-                            .overlay(
-                                LinearGradient(
-                                    colors: [
-                                        Color.black.opacity(0.5),
-                                        Color.black.opacity(0.3),
-                                        Color.black.opacity(0.7)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .animation(.easeInOut(duration: 0.4), value: currentIndex)
-                    }
-                }
-            )
-            .clipped()
-    }
-}
-
-// MARK: - Collection Extension
-extension Collection {
-    func safeIndex(_ index: Int) -> Int {
-        guard !isEmpty else { return 0 }
-        return Swift.max(0, Swift.min(index, count - 1))
     }
 }
 

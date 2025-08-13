@@ -76,16 +76,17 @@ struct CategoryDetailedView: View {
                     Text("조금 더 구체적으로 알려주세요!")
                         .frame(width: textWidth, alignment: .leading)
                         .foregroundColor(.white)
-                        .font(.system(size:22, weight: .bold))
-                        .padding(.bottom, 2)
+                        .font(.system(size: 22, weight: .bold))
+                        .padding(.bottom, 1)
                     
                     Text("최소 1개에서 최대 10개까지 선택해주세요.")
                         .frame(width: textWidth, alignment: .leading)
                         .foregroundColor(Color("MainColor"))
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 14, weight: .semibold))
                 }
                 .padding(.bottom)
                 
+                .padding()
                 
                 // 상단 대주제 버튼
                 HStack(spacing: 10){
@@ -93,6 +94,7 @@ struct CategoryDetailedView: View {
                         CategoryButton(topic: topic, selectedTopics: $selectedTopics, currentIndex: $currentIndex, sectionTotalHeights: $sectionTotalHeights, index: index)
                     }
                 }
+                .padding(.bottom, 20)
                 
                 //하단 중, 소 주제 선택창
                 ScrollView {
@@ -132,7 +134,7 @@ struct CategoryDetailedView: View {
                             cardModel.topics.append(topic)
                         }
                         goNext = true
-    
+                        
                         
                     }) {
                         Text("다음")
@@ -186,7 +188,7 @@ struct CategoryDetailedView: View {
                     VStack(spacing: 8) {
                         Text(topic.emoji)
                         Text(topic.title)
-                            .font(.headline)
+                            .font(.custom("Pretendard-Medium", size: 16))
                             .foregroundColor(topic.isSelected ? .black : .white)
                     }
                     .frame(maxWidth: boxSize, maxHeight: boxSize)
@@ -204,7 +206,7 @@ struct CategoryDetailedView: View {
         @Binding var selectedTopics: [detailedTopic]
         
         let buttonWidth: CGFloat = 110
-        let buttonHeight: CGFloat = 45
+        let buttonHeight: CGFloat = 48
         
         var body: some View {
             let numRows: Int = ((subTopic.children.count-1) / 3) + 1
@@ -216,7 +218,6 @@ struct CategoryDetailedView: View {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color("CategoryColor"))
                     .frame(width: width, height: height)
-                
                 VStack{
                     HStack(spacing: 0){
                         Text("#")
@@ -225,12 +226,12 @@ struct CategoryDetailedView: View {
                             .font(.system(size: 25, weight: .bold))
                             .font(.headline)
                         Text(subTopic.title)
-                            .foregroundColor(.white)
+                            .foregroundColor((Color(.white)))
                             .bold()
-                            .font(.system(size: 25, weight: .bold))
+                            .font(.system(size: 20, weight: .bold))
                             .font(.headline)
                     }
-                    .padding(.top, 10)
+                    .padding(.top, 20)
                     
                     let columns = [GridItem(.fixed(buttonWidth), alignment: .center),
                                    GridItem(.fixed(buttonWidth), alignment: .center),
@@ -272,8 +273,8 @@ struct CategoryDetailedView: View {
                     
                     VStack(spacing: 8) {
                         Text(topic.title)
-                            .font(.headline)
-                            .foregroundColor(topic.isSelected ? Color("MainColor") : .white)
+                            .font(.custom("Pretendard-Medium", size: 15))
+                            .foregroundColor(topic.isSelected ? Color("MainColor") : Color("CategoryKeyword"))
                     }
                     .frame(width: width, height: height)
                 }
@@ -293,4 +294,116 @@ func updateSelectedDetailedTopicList(topicList: inout [detailedTopic], tgt: deta
     else{
         topicList.removeAll { $0.title == tgt.title }
     }
+}
+
+
+#Preview {
+    // 테스트용 detailedTopic 생성
+    let footballTopic = detailedTopic(title: "축구")
+    let basketballTopic = detailedTopic(title: "농구")
+    let baseballTopic = detailedTopic(title: "야구")
+    let tennisTopic = detailedTopic(title: "테니스")
+    let swimmingTopic = detailedTopic(title: "수영")
+    let runningTopic = detailedTopic(title: "러닝")
+    
+    let movieTopic = detailedTopic(title: "영화")
+    let dramaTopic = detailedTopic(title: "드라마")
+    let animeTopic = detailedTopic(title: "애니메이션")
+    let varietyTopic = detailedTopic(title: "예능")
+    let documentaryTopic = detailedTopic(title: "다큐멘터리")
+    let musicTopic = detailedTopic(title: "음악")
+    
+    let gameTopic = detailedTopic(title: "게임")
+    let readingTopic = detailedTopic(title: "독서")
+    let cookingTopic = detailedTopic(title: "요리")
+    let travelTopic = detailedTopic(title: "여행")
+    let photographyTopic = detailedTopic(title: "사진")
+    let drawingTopic = detailedTopic(title: "그림")
+    
+    // 테스트용 subTopic 생성
+    let ballSportsTopic = subTopic(title: "구기 스포츠", children: [
+        "축구": footballTopic,
+        "농구": basketballTopic,
+        "야구": baseballTopic,
+        "테니스": tennisTopic
+    ])
+    
+    let individualSportsTopic = subTopic(title: "개인 스포츠", children: [
+        "수영": swimmingTopic,
+        "러닝": runningTopic
+    ])
+    
+    let visualContentTopic = subTopic(title: "영상 콘텐츠", children: [
+        "영화": movieTopic,
+        "드라마": dramaTopic,
+        "애니메이션": animeTopic,
+        "예능": varietyTopic,
+        "다큐멘터리": documentaryTopic
+    ])
+    
+    let audioContentTopic = subTopic(title: "오디오 콘텐츠", children: [
+        "음악": musicTopic
+    ])
+    
+    let indoorHobbiesTopic = subTopic(title: "실내 취미", children: [
+        "게임": gameTopic,
+        "독서": readingTopic,
+        "요리": cookingTopic
+    ])
+    
+    let outdoorHobbiesTopic = subTopic(title: "실외 취미", children: [
+        "여행": travelTopic,
+        "사진": photographyTopic,
+        "그림": drawingTopic
+    ])
+    
+    // 테스트용 mainTopic 생성
+    let sportsTopic = mainTopic(
+        title: "스포츠",
+        emoji: "⚽️",
+        children: [
+            "구기 스포츠": ballSportsTopic,
+            "개인 스포츠": individualSportsTopic
+        ], isSelected: true
+    )
+    
+    let entertainmentTopic = mainTopic(
+        title: "엔터테인먼트",
+        emoji: "🎬",
+        children: [
+            "영상 콘텐츠": visualContentTopic,
+            "오디오 콘텐츠": audioContentTopic
+        ], isSelected: false
+    )
+    
+    let hobbiesTopic = mainTopic(
+        title: "취미",
+        emoji: "🎨",
+        children: [
+            "실내 취미": indoorHobbiesTopic,
+            "실외 취미": outdoorHobbiesTopic
+        ], isSelected: false
+    )
+    
+    // 테스트용 Category와 CardModel 생성
+    let testCategory = Category()
+    let testCardModel = CardModel(
+        id: UUID(),
+        name: "테스트 사용자",
+        age: 25,
+        description: "테스트 설명",
+        birthDate: "1999-01-01",
+        mbti: "ENFP",
+        tag: "일반",
+        dDay: 100,
+        imageData: Data()
+    )
+    
+    CategoryDetailedView(
+        progress: 0.6,
+        isEdit: false,
+        selectedTopics: [sportsTopic, entertainmentTopic, hobbiesTopic],
+        categories: testCategory,
+        cardModel: testCardModel
+    )
 }
