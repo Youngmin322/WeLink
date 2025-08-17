@@ -9,7 +9,7 @@
 
 | 런치스크린 | 온보딩 | 취향 카테고리 |
 | :--------: | :--------: | :--------: |
-| <img width="200" alt="Launch" src="https://github.com/user-attachments/assets/559740e9-fadd-40df-9f31-6985680893e7" /> | <img width="200" alt="Simulator Screenshot - iPhone 16 - 2025-08-17 at 15 38 02" src="https://github.com/user-attachments/assets/f2e86b46-d510-4dfb-8d16-ab35b573951f" /> | <img width="200" alt="Simulator Screenshot - iPhone 16 - 2025-08-17 at 15 32 11" src="https://github.com/user-attachments/assets/8058e54c-ab73-4bec-8a6a-1f8de2c6c6f1" /> |
+| <img width="200" alt="Launch" src="https://github.com/user-attachments/assets/a4d910f8-d2dd-4c93-80f1-bece2b21b91f" />| <img width="200" alt="Simulator Screenshot - iPhone 16 - 2025-08-17 at 15 38 02" src="https://github.com/user-attachments/assets/f2e86b46-d510-4dfb-8d16-ab35b573951f" /> | <img width="200" alt="Simulator Screenshot - iPhone 16 - 2025-08-17 at 15 32 11" src="https://github.com/user-attachments/assets/8058e54c-ab73-4bec-8a6a-1f8de2c6c6f1" /> |
 
 | 홈 화면 | 카드 교환 | 취향 보기 |
 | :--------: | :--------: | :--------: |
