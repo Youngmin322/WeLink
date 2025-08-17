@@ -1,4 +1,6 @@
 ## About WeLink
+![Swift](https://img.shields.io/badge/Swift-5.9-F05138?logo=swift)
+![Platform](https://img.shields.io/badge/Platforms-iOS%2018.0+-007AFF?logo=apple)
 **위링**은 **Apple Foundation Program** 프로젝트로, 센스 있는 선물을 고르고 싶어 고민만 하다가 타이밍을 놓치는 사람을 위해'취향 카드'를 통해 친구의 취향을 미리 파악할 수 있는 앱입니다.
 <br /><br />
 
